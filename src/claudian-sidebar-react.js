@@ -19647,7 +19647,8 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 						const existing = tabs.find((tab) => tab.providerId === providerId);
 						if (existing) { setActiveTabId(existing.id); return; }
 						const model = getModelOptions(settings).find((option) => option.providerId === providerId);
-						if (model) changeModel(model.value);
+						changeModel(model?.selectionValue || encodeProviderPrefixedModel(providerId,
+							providerId === 'claude' ? 'sonnet' : (settings.openaiModel || DEFAULT_SETTINGS.model)));
 					},
 				}, h(ProviderIcon, { providerId, size: 16 }), h('span', null, providerId === 'codex' ? 'Codex' : 'Claude'))),
 			) : h(Header, { providerId: activeTab.providerId, sidebarMode, markdownNote: markdownNoteTab, settings }),
