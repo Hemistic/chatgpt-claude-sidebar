@@ -4,6 +4,7 @@
 	const h = React.createElement;
 	const { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } = React;
 	const chatOnly = new URLSearchParams(window.location.search).get('surface') === 'chat';
+	const hostTheme = chatOnly ? new URLSearchParams(window.location.search).get('theme') : null;
 	document.documentElement.dataset.sidebarSurface = chatOnly ? 'chat' : 'workspace';
 
 	const UI_TEXT = {
@@ -325,6 +326,7 @@
 	function normalizeSidebarSettings(input) {
 		const source = input && typeof input === 'object' && !Array.isArray(input) ? input : {};
 		const normalized = { ...source };
+		if (hostTheme) normalized.theme = normalizeTheme(hostTheme);
 		delete normalized.goRelayActive;
 		normalized.effort = normalizeSidebarEffort(source.effortLevel || source.effort);
 		const codexDownloadSource = String(source.codexDownloadSource || '').trim().toLowerCase();
@@ -14760,10 +14762,10 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 				h('option', { value: 'en' }, 'English'),
 				h('option', { value: 'zh-CN' }, '中文'),
 			)),
-			field(tx('settings.theme'), h('select', { value: normalizeTheme(draft.theme), onChange: (event) => update('theme', event.target.value) },
+			!hostTheme ? field(tx('settings.theme'), h('select', { value: normalizeTheme(draft.theme), onChange: (event) => update('theme', event.target.value) },
 				h('option', { value: 'light' }, tx('settings.themeLight')),
 				h('option', { value: 'dark' }, tx('settings.themeDark')),
-			)),
+			)) : null,
 			field(tx('settings.runtimeMode'), h('select', { value: runtimeMode, onChange: (event) => update('runtimeMode', event.target.value) },
 				runtimeModeOptions.map((option) => h('option', { key: option.value, value: option.value }, option.label)),
 			)),

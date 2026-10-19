@@ -24,6 +24,8 @@ git add electron/ai-sidebar
 
 工作区通过 URL `workspace` 传入；上下文通过 `claudian-sidebar:set-context` 消息传入。原生 CLI 的登录、模型和供应商配置保持原生路由。各宿主会话/侧栏设置分别存储在各自的 Electron userData 中。
 
+LaTeX Studio 使用 `surface=chat&theme=light`：仅挂载 Codex / Claude 对话入口，不挂载 Markdown、绘图、宿主功能指南或笔记追加按钮。`claudian-chat.css` 负责窄栏工具换行及菜单边界；指定 `theme` 时由宿主管理主题。宿主自己的配色和字体通过独立样式适配，不修改 ArtInFact 默认外观。
+
 LaTeX Studio 的 CLI 面板与已有 API 差异审查入口并存；CLI Agent 的授权写入属于原生工具操作，不应冒充为尚未落盘的建议。
 
 ## 检查
