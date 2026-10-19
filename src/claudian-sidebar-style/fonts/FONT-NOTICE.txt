@@ -1,0 +1,9 @@
+PDF AI bundled font notice
+
+Crimson Text Regular and SemiBold
+- Source: Google Fonts, google/fonts/ofl/crimsontext.
+- License: SIL Open Font License 1.1. See OFL-CrimsonText.txt.
+
+Noto Serif SC SemiBold (Source Han Serif / 思源宋体)
+- Source: @fontsource/noto-serif-sc.
+- License: SIL Open Font License 1.1. See OFL-NotoSerifSC.txt.

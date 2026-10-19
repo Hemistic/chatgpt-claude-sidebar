@@ -1,0 +1,74 @@
+/* Permission Mode Toggle */
+.claudian-permission-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  min-width: 0;
+  padding: 0 2px 0 4px;
+}
+
+.claudian-input-toolbar > .claudian-permission-toggle {
+  flex: 0 0 auto;
+}
+
+.claudian-permission-label {
+  flex: 0 0 auto;
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.claudian-permission-label.plan-active {
+  color: var(--interactive-accent);
+  font-weight: 600;
+}
+
+.claudian-permission-plan-indicator {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 11px;
+  color: var(--interactive-accent);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.claudian-toggle-switch {
+  width: 30px;
+  height: 16px;
+  border-radius: 8px;
+  background: var(--background-modifier-border);
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.claudian-toggle-switch::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  top: 1px;
+  left: 2px;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.claudian-toggle-switch:hover {
+  background: var(--background-modifier-hover);
+}
+
+.claudian-toggle-switch.active {
+  background: rgba(var(--claudian-brand-rgb), 0.3);
+}
+
+.claudian-toggle-switch.active::after {
+  transform: translateX(14px);
+  background: var(--claudian-brand);
+}

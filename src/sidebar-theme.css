@@ -1,0 +1,155 @@
+/*
+ * Shared ArtInFact sidebar palette.
+ *
+ * Keep this file semantic: individual sidebars map their legacy component
+ * variables to these aliases instead of carrying their own color systems.
+ */
+
+:root,
+html[data-theme="light"],
+body[data-theme="light"],
+body.theme-light,
+.research-figure-app[data-theme="light"] {
+  color-scheme: light;
+  --aif-bg: #faf9f5;
+  --aif-surface: #fffdfa;
+  --aif-surface-raised: #f5f4ed;
+  --aif-surface-hover: #f0eee6;
+  --aif-text: #141413;
+  --aif-text-muted: #5c5b57;
+  --aif-text-faint: #8c8b84;
+  --aif-border: #1f1e1d26;
+  --aif-border-strong: #1f1e1d4d;
+  --aif-border-focus: #b9573a;
+  --aif-accent: #b9573a;
+  --aif-accent-rgb: 185, 87, 58;
+  --aif-accent-hover: #a64a30;
+  --aif-accent-soft: #f6e9e2;
+  --aif-on-accent: #fffdfa;
+  --aif-danger: #b84946;
+  --aif-danger-rgb: 184, 73, 70;
+  --aif-warning: #a66b31;
+  --aif-success: #4b7c5a;
+  --aif-info: #3576a8;
+  --aif-link: #a84c32;
+  --aif-hover: color-mix(in srgb, var(--aif-accent) 10%, transparent);
+  --aif-active-hover: color-mix(in srgb, var(--aif-accent) 16%, transparent);
+  --aif-error-soft: color-mix(in srgb, var(--aif-danger) 12%, transparent);
+  --aif-shadow-floating: 0 7px 18px rgba(31, 30, 29, 0.14);
+  --aif-shadow-strong: 0 18px 44px rgba(31, 30, 29, 0.18);
+  --aif-scrollbar-thumb: #1f1e1d3d;
+  --aif-scrollbar-thumb-visible: #1f1e1d59;
+  --aif-scrollbar-thumb-hover: #5a5959;
+
+  --aif-code-bg: #f4f2eb;
+  --aif-code-raised: #fffdfa;
+  --aif-code-gutter: #efede5;
+  --aif-code-border: #1f1e1d26;
+  --aif-code-text: #2d2c28;
+  --aif-code-muted: #73726c;
+  --aif-code-active: rgba(20, 20, 19, 0.045);
+  --aif-code-selection: rgba(185, 87, 58, 0.25);
+  --aif-inline-code: #8a2424;
+  --aif-syntax-mark-bg: #fff0b2;
+  --aif-syntax-mark-text: #3b3218;
+  --aif-table-heading: #f5e8e2;
+  --aif-table-stripe: rgba(20, 20, 19, 0.025);
+
+  --aif-mermaid-surface: #f4f2ed;
+  --aif-mermaid-node-fill: #f7ebe6;
+  --aif-mermaid-node-text: #141413;
+  --aif-mermaid-node-border: #b9573a;
+  --aif-mermaid-line: #6d6b66;
+  --aif-mermaid-cluster-fill: #eeeae2;
+  --aif-mermaid-cluster-border: #1f1e1d4d;
+  --aif-mermaid-note-fill: #fff2cf;
+  --aif-mermaid-note-text: #51432b;
+  --aif-mermaid-note-border: #c6a55b;
+  --aif-mermaid-edge-label: #fffdfa;
+
+  --aif-ui-secondary: #f0eee6;
+  --aif-ui-on-secondary: #2e2d29;
+  --aif-ui-inverse: #22211f;
+  --aif-ui-on-inverse: #faf9f5;
+  --aif-ui-outline: #98968f;
+  --aif-ui-hover: #f5f0ea;
+  --aif-ui-selected: #f6e9e2;
+  --aif-ui-inline-area: #eeebe4;
+}
+
+html[data-theme="dark"],
+html.dark,
+body[data-theme="dark"],
+body.theme-dark,
+.research-figure-app[data-theme="dark"] {
+  color-scheme: dark;
+  --aif-bg: #262624;
+  --aif-surface: #2c2c2a;
+  --aif-surface-raised: #30302e;
+  --aif-surface-hover: #141413;
+  --aif-text: #faf9f5;
+  --aif-text-muted: #c2c0b6;
+  --aif-text-faint: #9a9c92;
+  --aif-border: #dedcd126;
+  --aif-border-strong: #dedcd14d;
+  --aif-border-focus: #de947a;
+  --aif-accent: #c56c4d;
+  --aif-accent-rgb: 197, 108, 77;
+  --aif-accent-hover: #e6a289;
+  --aif-accent-soft: #452d26;
+  --aif-on-accent: #141413;
+  --aif-danger: #fe8181;
+  --aif-danger-rgb: 254, 129, 129;
+  --aif-warning: #ecc184;
+  --aif-success: #9dbd92;
+  --aif-info: #8dbcf0;
+  --aif-link: #e1a18b;
+  --aif-hover: color-mix(in srgb, var(--aif-accent) 13%, transparent);
+  --aif-active-hover: color-mix(in srgb, var(--aif-accent) 20%, transparent);
+  --aif-error-soft: color-mix(in srgb, var(--aif-danger) 18%, transparent);
+  --aif-shadow-floating: 0 12px 32px rgba(0, 0, 0, 0.36);
+  --aif-shadow-strong: 0 22px 52px rgba(0, 0, 0, 0.46);
+  --aif-scrollbar-thumb: #dedcd13d;
+  --aif-scrollbar-thumb-visible: #dedcd159;
+  --aif-scrollbar-thumb-hover: #a5a49d;
+
+  --aif-code-bg: #30302e;
+  --aif-code-raised: #343432;
+  --aif-code-gutter: #2a2a28;
+  --aif-code-border: #dedcd126;
+  --aif-code-text: #f4f3ed;
+  --aif-code-muted: #9a9c92;
+  --aif-code-active: rgba(250, 249, 245, 0.06);
+  --aif-code-selection: rgba(197, 108, 77, 0.32);
+  --aif-inline-code: #fe9c93;
+  --aif-syntax-mark-bg: #55472a;
+  --aif-syntax-mark-text: #fff0c2;
+  --aif-table-heading: #3e2d28;
+  --aif-table-stripe: rgba(250, 249, 245, 0.035);
+
+  --aif-mermaid-surface: #30302e;
+  --aif-mermaid-node-fill: #452d26;
+  --aif-mermaid-node-text: #faf9f5;
+  --aif-mermaid-node-border: #de947a;
+  --aif-mermaid-line: #c2c0b6;
+  --aif-mermaid-cluster-fill: #373634;
+  --aif-mermaid-cluster-border: #dedcd14d;
+  --aif-mermaid-note-fill: #4b4032;
+  --aif-mermaid-note-text: #f7e8cf;
+  --aif-mermaid-note-border: #c9a969;
+  --aif-mermaid-edge-label: #30302e;
+
+  --aif-ui-secondary: #403a36;
+  --aif-ui-on-secondary: #f8f6ee;
+  --aif-ui-inverse: #faf9f5;
+  --aif-ui-on-inverse: #262624;
+  --aif-ui-outline: #9a9c92;
+  --aif-ui-hover: #353432;
+  --aif-ui-selected: #452d26;
+  --aif-ui-inline-area: #353432;
+}
+
+:root {
+ --aif-font-ui: 'PDF AI Crimson Text','PDF AI Source Han Serif SC','Noto Serif SC','Microsoft YaHei UI',serif;
+ --aif-font-editor: var(--aif-font-ui);
+}

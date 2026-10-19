@@ -1,0 +1,55 @@
+/* Header - logo and title */
+.claudian-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 12px 12px 12px;
+}
+
+.claudian-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.claudian-title-text {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.claudian-logo {
+  display: flex;
+  align-items: center;
+  color: var(--claudian-brand);
+}
+
+.claudian-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+
+.claudian-header-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.claudian-header-icon-button:hover,
+.claudian-header-icon-button:focus-visible {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}

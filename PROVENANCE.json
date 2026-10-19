@@ -1,0 +1,555 @@
+{
+  "repository": "https://github.com/Hemistic/pdf-ai",
+  "commit": "52492abb40fc64fa08ec42aa11bfeec9b04dd462",
+  "extractedAt": "2026-10-19",
+  "files": [
+    {
+      "path": "electron/claudian-host-bridge.js",
+      "sha256": "7950fd5764cc1fc5fa48925e52d7ec2239554514db93c6a603f01ecd170b8055"
+    },
+    {
+      "path": "electron/claudian-original-shared.js",
+      "sha256": "9634242595486ebcbc5f38d27bee9f86fc252f99a933eaba3fd495eaf611f1fa"
+    },
+    {
+      "path": "electron/claudian-sidebar-embed-adapter.js",
+      "sha256": "3e2b261f0ebc5113138c5d985878519f79914d440b1896d26605977e7e1521c7"
+    },
+    {
+      "path": "electron/claudian-sidebar-embed-host.html",
+      "sha256": "07ded54dcf3cf05e7827969c79459de2f93ca8f8f95122de807eb92b9763678c"
+    },
+    {
+      "path": "electron/claudian-sidebar-embed-host.js",
+      "sha256": "0595284270d402e91a67356a0b187945c94b5b01c0c88e3a13f0c369267dd50b"
+    },
+    {
+      "path": "electron/claudian-sidebar-preload.js",
+      "sha256": "e01595c37aaf869f4f1f7d0ed9c6e33b5d9fb4cc48f31f637490fa3f409d3eb5"
+    },
+    {
+      "path": "electron/claudian-sidebar-react.js",
+      "sha256": "c90e58d34d5d037aa80199c17a6851c4f197cf4059d53aa168f7b52c4eba04de"
+    },
+    {
+      "path": "electron/claudian-sidebar-runtime.js",
+      "sha256": "cd30b5b22e89e478c09974d6fa717daa73a4803244727d05f9ad10d3e4bffaa6"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/CLAUDE.md",
+      "sha256": "8d6b077654957880b4a6665451286311ce9ca63403e769739a8470e1036113db"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/accessibility.css",
+      "sha256": "02d5c41468e3b7182099374f19e22be21dbdaba92773a1af4f7139e7d8b61120"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/base/animations.css",
+      "sha256": "2e202413169489195dc7e4c98ad140753728adad942fb87ca7136530f5a4fb02"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/base/container.css",
+      "sha256": "525063db6bddf00c810e504bdce32055cb2f8375dc171c7ac34a2e432c5a69d8"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/base/variables.css",
+      "sha256": "89a2c82810850490f035b95c68895f83dc849688ecb9e3060cc016bbb54412b9"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/base/visibility.css",
+      "sha256": "ffe0078ef3d5788c8a0e1cdf4e8983501cd45fe74c42014289a029540c05ca37"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/components/code.css",
+      "sha256": "3a2415ed50f890ffc55df1da8ddebbfd888266c662d61cc78d66f6e4367b0386"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/components/context-footer.css",
+      "sha256": "f22791254b1e53103e0386fcc82bf39c7da008d172659625ded9b30b45632292"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/components/header.css",
+      "sha256": "3586e38d377a575214d4b83f0c0242242e2659f08fbc7eff63dfcec78c4d6059"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/components/history.css",
+      "sha256": "f773bda8e6d4964628382dbd53aeb681aa292d56b86a5a17ef3870b9fc2e8e1d"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/components/input.css",
+      "sha256": "632fdb830aaac76d1a33f86d23234938dbd6dbcd603f084c4d5ae9a36541fbc8"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/components/messages.css",
+      "sha256": "185a85d144891074db8403b8df5cb66f588dc8fa095d2d277fc4e43a67c8bb65"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/components/nav-sidebar.css",
+      "sha256": "6db365ab042dccf190271e46345f227b818d05723e3b6504560e350477cefa6b"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/components/status-panel.css",
+      "sha256": "9c2879c6c9d42302427022db5b07be515cf18a4e83459a1a3c53290f85702f6d"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/components/subagent.css",
+      "sha256": "2d20c9cc04299aef8ebf8ec0e86ab0979bc5c7e4dc45b27c15a0f8b3f8bfe410"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/components/tabs.css",
+      "sha256": "f36b7559f97ece4dba6b8bdb44553cb7a7a74790f4fc426204c9e0f2bb64dfdf"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/components/thinking.css",
+      "sha256": "05c55019a5b77ff88fb9ef28dfdaabe72075f25aca812c16e8ae08347305f93d"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/components/toolcalls.css",
+      "sha256": "48a59f6c23fac5c5fbc301dbcf9eac1a9c69deb53594ffc83e3e2e911e0c01a5"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/features/ask-user-question.css",
+      "sha256": "0f82de6f5a7f108e309edbc6ebb7fd196ebb13ff71547620a5ced106f7756c8d"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/features/diff.css",
+      "sha256": "750df1ffd797692bce3bcb295eeb97fa75c7b5474af3570a3d2a413cf23e73e9"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/features/feature-guide.css",
+      "sha256": "c2425623b3e1eca7def0650c2ce508509a598eeb61ef841c1598aa69023994fc"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/features/file-context.css",
+      "sha256": "3e6dd03f53dd6d6bdfb5bd0cb0e28b0d9cd6d052d07f40dd172a01b5df5f1e55"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/features/file-link.css",
+      "sha256": "1008023d7bb13bd4ed1b820b03b9db4adc7970b122d2351216270878d61eaadc"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/features/image-context.css",
+      "sha256": "4dce4227e1b461491dce1f8b84d19a74a851126fa208b0e4f74bf43adeb8fb7c"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/features/image-embed.css",
+      "sha256": "3cd92af9660ed5a83b7d5d91b75a8c6abef9dd9714684d38a1f7b2246c38f421"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/features/image-modal.css",
+      "sha256": "016c14b996c6c205bbd125a42c3a81bed9fae2e491ae756d9223c50807d59799"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/features/inline-edit.css",
+      "sha256": "cb820321b2b5d2eb64827425a84771c7538a630682868e3c4b045b96ba22f846"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/features/plan-mode.css",
+      "sha256": "99b80b82d85eb0833a1175074c6d5e6e17dedb31fdb7090c8c37aeede2a19701"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/features/resume-session.css",
+      "sha256": "77af9349051d1e498680296e67ac4d865f7a46bb433577557575eed49141422e"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/features/slash-commands.css",
+      "sha256": "bb2198b126a1555fe441d4fc624cec9bf838947c4a1f9c756c3c6042ffd4a9d8"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/fonts/CrimsonText-Regular.ttf",
+      "sha256": "48e6c5d5ad1d01599d374ecb817e15890d1feb3b8a3a88e527d44c90389e1f06"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/fonts/CrimsonText-SemiBold.ttf",
+      "sha256": "802e84000740fec2a9fbe0ae09b6b6811bd86a78a0173b15d44450a1530e9410"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/fonts/FONT-NOTICE.txt",
+      "sha256": "a7021943e52a09485b67959beb83ff2f20052b22a2058e4564933d7ccbca0c1b"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/fonts/OFL-CrimsonText.txt",
+      "sha256": "e67c33ff74fbebf301325381cfaf86d8909331f5e8afe6c30cd3041926b72ea9"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/fonts/OFL-NotoSerifSC.txt",
+      "sha256": "18aabf190848725e2576eefb5c29ba06aac1029d02132252a7f312eac2e50cf3"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/fonts/SourceHanSerifSC-SemiBold-CN.woff2",
+      "sha256": "510f6000da6f04a1ef48b0e6339c540c603c371f1b415829ff58ad98499717f0"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/index.css",
+      "sha256": "b6442c38535cfed16c1b97c5882fb9981daac9c58b32831a67b4f32547058369"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/modals/fork-target.css",
+      "sha256": "34274b35c0854bc3439a2cf9c11e9d95b5020a942f33bdc140e6b968f238f725"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/modals/instruction.css",
+      "sha256": "f4f9bfc6b0bf04fb369a0ef157406cf03849283f8315edf1bc99ac2d2db72c09"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/modals/mcp-modal.css",
+      "sha256": "18cc28bab35a4c442994a44bc833a496799a4d553a78b22737d305449daacef7"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/settings/agent-settings.css",
+      "sha256": "fc9d878b4dde5af94ddcd4535368c15bbd6eeb43e3bf370e2bd72404346ea3d0"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/settings/base.css",
+      "sha256": "acd475d7cdbd4b1702db2d4fe7a0901db77029cef88ef3616f0fc99a341798f8"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/settings/env-snippets.css",
+      "sha256": "8d040c0e6e1ef5c5e89c3d25af2c9fec20fc895c9972b7f98742fec6a2840584"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/settings/mcp-settings.css",
+      "sha256": "deb13df491e20ce8384e0f4fe86102171782528a1ccd1cae8edbe77da180f516"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/settings/plugin-settings.css",
+      "sha256": "a8c27e006e225e133796cf3d87b5fb5bffe2dd0a5d0ed5f7d821c4bd18e64136"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/settings/provider-model-picker.css",
+      "sha256": "996ba7ae0a669b0928bb1f00e824091e0ae4bee3d4bc6903c39ef27485612e18"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/settings/slash-settings.css",
+      "sha256": "a6851a673ddc58b1f70e3a31e1028d1a9f1631e833ff80379cc5ccbe9106c2e0"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/toolbar/external-context.css",
+      "sha256": "599ea4b8221928f869043dced1fe78bbfb1267ce9819175d734efe62016af5f3"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/toolbar/mcp-selector.css",
+      "sha256": "159dcd5978e086f793fd8b8164ab7d36dc0ffc1cd4781d6008d8007c91ac3d09"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/toolbar/mode-selector.css",
+      "sha256": "57ed47f2c9f91783b9ba80251abfc4b3cd8f0bd4be54f06f882f0bb712df332a"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/toolbar/model-selector.css",
+      "sha256": "1cca2872ea771012dd897dfcb6a9b1a005558e94d4783beb91bed33df5d9e3c8"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/toolbar/permission-toggle.css",
+      "sha256": "6d5c0d7ae3a48ee71fc39fbb76f3d0cfa01a2fb033e68b30f1faffc826479eae"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/toolbar/service-tier-toggle.css",
+      "sha256": "3899ff821d7ba675e97b066998d6f17c8827d78c248e19dafdc61e084b69dbc8"
+    },
+    {
+      "path": "electron/claudian-sidebar-style/toolbar/thinking-selector.css",
+      "sha256": "98e4f6831cd65cdcbaa160443c4eff7b2c00c33afcb94de42ae9dbe1010dbb69"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/claude-agent-sdk/LICENSE.md",
+      "sha256": "8ce94b9478bb9868f9641f818e06cd722fbe55d4c22e2d2ed11971b20146173a"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/claude-agent-sdk/README.md",
+      "sha256": "07d83de9c6622284f42b710351c4af2549256f09e26252a49e32d116a7c067b2"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/claude-agent-sdk/package.json",
+      "sha256": "c646d947dbed29d682a7933e618a7f74299482915c100b61a1adb5e7bd64f464"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/claude-agent-sdk/sdk.mjs",
+      "sha256": "98565fabccef2e60c527f6ba166b781e985f07850dc38e2bc5caf1ecad5b2633"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_AMS-Regular.ttf",
+      "sha256": "68534840bcfdd2bffb6f0e8deb48684dd01e7f04ea2813267577afb906de1d13"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_AMS-Regular.woff",
+      "sha256": "30da91e84c893f875e252689faebdc590b2871145e8adc7f9a9d4dbd8ce0b251"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_AMS-Regular.woff2",
+      "sha256": "0cdd387c9590a1a9f9794560022dbb59654a7d86f187aa0c81495ad42d3a7308"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Caligraphic-Bold.ttf",
+      "sha256": "07d8e303ce4fc12b4bb54f1004170dd190a1f3db45d400fe68060df3e0897268"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Caligraphic-Bold.woff",
+      "sha256": "1ae6bd7475590e97e7f145a89e09ccde322f7a6bc0b91607b1c8b8ee28290fed"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Caligraphic-Bold.woff2",
+      "sha256": "de7701e42cf1f4cf0b766c03fb27977207eee2f4fd5d76fa82188406da43ea4c"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Caligraphic-Regular.ttf",
+      "sha256": "ed0b74372feefcbb9c0666b2e210da37b7e49fa7fbbf3eeb11db5f693dacfbb7"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Caligraphic-Regular.woff",
+      "sha256": "3398dd02302557a793f2863f88e02d96ce10df2abffa07c8e9fa90775116e65c"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Caligraphic-Regular.woff2",
+      "sha256": "5d53e70ad607c2352162dec9e0923fb54ecdafaccbf604cd8dcf7d00facb989b"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Fraktur-Bold.ttf",
+      "sha256": "9163df9c7122432e6495b4229fa9071cf9ae86a758ae5efc4924ec2e1a6dbce1"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Fraktur-Bold.woff",
+      "sha256": "9be7ceb88004ab8ad124082246fbfcca4091e36385d4ec6ed1df67375dad50fb"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Fraktur-Bold.woff2",
+      "sha256": "74444efd593c005e3f4573b44524704c0af0a937fe911cca9e94068d0d140d3f"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Fraktur-Regular.ttf",
+      "sha256": "1e6f9579e90e2cac37f8f60a597c436e075c114385652b7cbeb0dec0421291b3"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Fraktur-Regular.woff",
+      "sha256": "5e28753be717dac97f559f49bc10be9cf3c124ddcabda6659d11cb68febc6463"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Fraktur-Regular.woff2",
+      "sha256": "51814d270d06ff0255dba0799994fa4d8c84d11f09951d47595f4abb1f3602dc"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Main-Bold.ttf",
+      "sha256": "138ac28d1663b3037e9c5f52371fa5c63d8324f4a38d22cd573e6ea3a3fd0cf8"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Main-Bold.woff",
+      "sha256": "c76c5d696297d51b9cb1639c7da4334f0e7dec81b42b11213b5e25ef671bb822"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Main-Bold.woff2",
+      "sha256": "0f60d1b897938ec918c8ce073092411baf9438f6739465693ff18b0f9d20b021"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Main-BoldItalic.ttf",
+      "sha256": "70ee1f64a20f2048c21940ef46d0144fd215baa953ca69afd1e31e98544f708f"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Main-BoldItalic.woff",
+      "sha256": "a6f7ec0d846ac7ad975adb8959c37ed49b94acbc4ae436db9ce9e20287e4a64c"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Main-BoldItalic.woff2",
+      "sha256": "99cd42a3c072d918f2f44984a807cf7aa16e13545fd0875fc07c6c65f99e715b"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Main-Italic.ttf",
+      "sha256": "0d85ae7cc30f23790a7f1a58c4a112fdca8aae769b6ba11429af1d98b1b6cb3a"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Main-Italic.woff",
+      "sha256": "f1d6ef86f3b11a528bd5185199bd2443ecb2b0dead96d88674b5a2c12be24bdf"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Main-Italic.woff2",
+      "sha256": "97479ca6cce906abc961ecac96faa5f9ca2e61b8e7670d475826bcdee9a7c267"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Main-Regular.ttf",
+      "sha256": "d0332f52868370fd83ae7fa46470f90c8f2eab2fcf12bc4f88080b340c95a830"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Main-Regular.woff",
+      "sha256": "c6368d87e8a1a3a5d337623d83d8dc4b868f242a9ad476237d6f8d1e0f168cdc"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Main-Regular.woff2",
+      "sha256": "c2342cd8b869e01752a9321dc17213fc40d4d04c79688c1d43f2cf316abd7866"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Math-BoldItalic.ttf",
+      "sha256": "f9377ab0271cda59af24bcffbd46a4d0c8a3572ffafdbb38de2ad5ea7b0d5ee5"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Math-BoldItalic.woff",
+      "sha256": "850c0af5c2238497febaf5e461d880bf458c341f42f4f330f1b1ab5698b1998e"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Math-BoldItalic.woff2",
+      "sha256": "dc47344dbb6cb5b655c8460d561f4df5f501b90c804ad3c6cec65fe322351ab1"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Math-Italic.ttf",
+      "sha256": "08ce98e51b04d58945a301e639e02b6998af29fdfd61a7b8afdd07bbfc479d4a"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Math-Italic.woff",
+      "sha256": "8a8d244581371912b8f3f5a23e2437cb2a59cd9bcaebb0346e722c05737a2571"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Math-Italic.woff2",
+      "sha256": "7af58c5ec8f132a2ddde9027c6d7814decce4d3b822a11192a42a20e2e973264"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_SansSerif-Bold.ttf",
+      "sha256": "1ece03f79f95277d57dc7f6b435a74e1379b0d46104a8530286b60ff49369ea0"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_SansSerif-Bold.woff",
+      "sha256": "ece03cfd83e22c212cdef66feb8442d25a083beb988db3f1883f3f9738d750ba"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_SansSerif-Bold.woff2",
+      "sha256": "e99ae51144bf1232efcc1bfe5add36262c6866b0faab24fa75740e1b98577a62"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_SansSerif-Italic.ttf",
+      "sha256": "3931dd81faed86ba021bb2bbdc36f5bed9a38d6b4f4077aca59b265aa1b02083"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_SansSerif-Italic.woff",
+      "sha256": "91ee67500cc0129aa0ace3ac5c61ff1692102f0f31d02b69347fba35dcb75bf2"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_SansSerif-Italic.woff2",
+      "sha256": "00b26ac825e2095056396e0553b8ac26d3f8ad158c3826e28b4c45b385c4714a"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_SansSerif-Regular.ttf",
+      "sha256": "f36ea897e19f4a2e571d1e900e4e3710e438deb05a842486045ba0a3e616a4ad"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_SansSerif-Regular.woff",
+      "sha256": "11e4dc8a6471ff6d6ee561d53d10fde8f7489e798257ff449c5d37c197435605"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_SansSerif-Regular.woff2",
+      "sha256": "68e8c73ef42afd3ccec58bf0fba302cce448938e7fc020a5e31f8a952eee1342"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Script-Regular.ttf",
+      "sha256": "1c67f068fea8bb09bf099c088b1cf64bd27516a6e07f4684344873564bb66a67"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Script-Regular.woff",
+      "sha256": "d96cdf2b3bdd4d64a8fd5f74a4c467f123a8a73931cd435889f08ffaf9bf947a"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Script-Regular.woff2",
+      "sha256": "036d4e95149b69ff9bcc0cd55771efeb25ffa3947293e69acd78d5ac328c684b"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Size1-Regular.ttf",
+      "sha256": "95b6d2f1a50173bfedb8c63e1d1c99b10427d0a4df4201cb44513b226951a22b"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Size1-Regular.woff",
+      "sha256": "c943cc986384f59e86bea5fd7dc50a9c4dfe567a7c05eb40d6790720dead97c9"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Size1-Regular.woff2",
+      "sha256": "6b47c40166b6dbe21a5dfca7718413f2147fd2399be1ba605d8ad39cedf25dfe"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Size2-Regular.ttf",
+      "sha256": "a6b2099fb555c60e3a0db3a08842ebf1d732c6eb4e4bf44913613bed4fc4e39b"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Size2-Regular.woff",
+      "sha256": "2014c523c3210bcc166648c4d4cc57f05b747df07a24277bf71c51e67dc79e3d"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Size2-Regular.woff2",
+      "sha256": "d04c54219f9eaec6d4d4fd42dfb28785975a4794d6b2fc71e566b9cd6db842dd"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Size3-Regular.ttf",
+      "sha256": "500e04d54f0d51666332c9d2089aa803be22aa878eca539e59fa53c6e522b082"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Size3-Regular.woff",
+      "sha256": "6ab6b62e9b62dae2c00dd90f791bd10950be0ecc3490d7d6045f51c2e8fe0949"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Size3-Regular.woff2",
+      "sha256": "73d591271b1604960cb10bb90fee021670af7297017e0e98480b332d11f51995"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Size4-Regular.ttf",
+      "sha256": "c647367d1dd4e162468717d020e1fc0f1dc5c26ebfdffbe55261713bf88c5877"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Size4-Regular.woff",
+      "sha256": "99f9c6750b489c9462bf04900bd3f939df9b829339daaaaa99ef5495cdddea58"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Size4-Regular.woff2",
+      "sha256": "a4af7d414440a1c1790825cfb700cf9cf43b0f2c4b04f0ebc523011ad9853ec0"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Typewriter-Regular.ttf",
+      "sha256": "f01f3e87d9c6a61c0c081ceb577abd864eb00a612f7ac1620dd6915fad2ef5aa"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Typewriter-Regular.woff",
+      "sha256": "e14fed02b1aba7ce9f5afd5844b5d0321b22351febc720e0de8b8723527609f7"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/fonts/KaTeX_Typewriter-Regular.woff2",
+      "sha256": "71d517d67827787cfabdf186914cc3358eda539e37931941f2b2fd4a21f68c0b"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/katex.min.css",
+      "sha256": "27e880134b201fc412cfd869703c5721fb678fae4911980d84672045e4d32bdb"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/katex/katex.min.js",
+      "sha256": "227b0d7444756f6c547b03fea4a0942699218aac0782a88f5c394893b1b306ee"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/react-dom.production.min.js",
+      "sha256": "35f4f974f4b2bcd44da73963347f8952e341f83909e4498227d4e26b98f66f0d"
+    },
+    {
+      "path": "electron/claudian-sidebar-vendor/react.production.min.js",
+      "sha256": "d949f1c3687aedadcedac85261865f29b17cd273997e7f6b2bfc53b2f9d4c4dd"
+    },
+    {
+      "path": "electron/claudian-sidebar.css",
+      "sha256": "e694fc074dd9c3b49d493e3db04ae74ef810cb9c4ab426ef9041a221665c089a"
+    },
+    {
+      "path": "electron/claudian-sidebar.html",
+      "sha256": "9208d5d24efbdb0c5d91b6799167851515e87b16f2b62812398e1ab62ae69729"
+    },
+    {
+      "path": "electron/environment-manager.js",
+      "sha256": "f3f112814ddb2b14bb65eab63bd08731839371d536fc4ac9d7b7a7b847da0eec"
+    },
+    {
+      "path": "electron/platform-environment.js",
+      "sha256": "df0cd86ff421c68dc0fdb5de5a9612110ee1d74a922f88d9a92729241a7b3c46"
+    },
+    {
+      "path": "electron/runtime-paths.js",
+      "sha256": "2063f3cf2f8fcfba3f186e7e2a78b20f9030d2257c10936a2deb31ad99bc901c"
+    },
+    {
+      "path": "electron/sidebar-theme.css",
+      "sha256": "30c11b9b22e0a9e6343c4d84f284322103eda6efed008f4636dd67c1bae13b1c"
+    },
+    {
+      "path": "electron/zstd.js",
+      "sha256": "82b06a84eb9cdf0b7376d1febf453ef99914715c50c4f04307801d710896f211"
+    }
+  ]
+}
