@@ -3,6 +3,8 @@
 
 	const h = React.createElement;
 	const { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } = React;
+	const chatOnly = new URLSearchParams(window.location.search).get('surface') === 'chat';
+	document.documentElement.dataset.sidebarSurface = chatOnly ? 'chat' : 'workspace';
 
 	const UI_TEXT = {
 		en: {
@@ -6218,6 +6220,7 @@
 	}
 
 	function requestFeatureGuideActivation(featureId) {
+		if (chatOnly) return;
 		const normalizedFeatureId = String(featureId || '').trim();
 		if (window.parent === window || !['translation', 'analysis', 'graph', 'menu', 'notes', 'figures'].includes(normalizedFeatureId)) {
 			return;
@@ -19600,7 +19603,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 						onDelete: deleteHistory,
 					}),
 				),
-				h('div', { className: 'claudian-input-nav-btn', onClick: () => setInlineEditOpen(true), 'aria-label': 'Inline edit' }, h(Icon, { name: 'pencil' })),
+				!chatOnly ? h('div', { className: 'claudian-input-nav-btn', onClick: () => setInlineEditOpen(true), 'aria-label': 'Inline edit' }, h(Icon, { name: 'pencil' })) : null,
 				h('div', { className: 'claudian-input-nav-btn', onClick: () => setDrawerOpen(true), 'aria-label': 'Settings' }, h(Icon, { name: 'settings' })),
 			),
 		);
@@ -19635,7 +19638,19 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 				}
 			},
 			},
-			h(Header, { providerId: activeTab.providerId, sidebarMode, markdownNote: markdownNoteTab, settings }),
+			chatOnly ? h('nav', { className: 'claudian-chat-providers', 'aria-label': 'AI 对话引擎' },
+				['codex', 'claude'].map((providerId) => h('button', {
+					key: providerId, type: 'button', 'aria-pressed': activeTab.providerId === providerId,
+					disabled: activeTab.isStreaming, title: providerProductLabel(providerId),
+					onClick: () => {
+						if (activeTab.providerId === providerId) return;
+						const existing = tabs.find((tab) => tab.providerId === providerId);
+						if (existing) { setActiveTabId(existing.id); return; }
+						const model = getModelOptions(settings).find((option) => option.providerId === providerId);
+						if (model) changeModel(model.value);
+					},
+				}, h(ProviderIcon, { providerId, size: 16 }), h('span', null, providerId === 'codex' ? 'Codex' : 'Claude'))),
+			) : h(Header, { providerId: activeTab.providerId, sidebarMode, markdownNote: markdownNoteTab, settings }),
 			environment && Array.isArray(environment.items) && environment.items.some((item) => !item.ok) ? h('div', { className: 'claudian-environment-startup' },
 				h('span', null, `运行环境缺少：${environment.items.filter((item) => !item.ok).map((item) => item.name).join('、')}`),
 				h('button', { type: 'button', onClick: () => setDrawerOpen(true) }, '检查并安装'),
@@ -19690,7 +19705,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 									onAskAnswer: handleAskAnswer,
 									onPermission: handlePermission,
 									onPlan: handlePlan,
-									onAddToNote: requestAppendToMarkdownNote,
+									onAddToNote: chatOnly ? undefined : requestAppendToMarkdownNote,
 									hiddenInlineInteractionBlockId: pendingInlineInteraction?.blockId || '',
 								});
 							}),
