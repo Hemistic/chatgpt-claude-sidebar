@@ -6817,8 +6817,11 @@
 			{ type: 'imageEmbed', regex: /!\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g },
 			{ type: 'wikilink', regex: /(?<!!)\[\[([^\]]+)\]\]/g },
 			{ type: 'link', regex: /(!?)\[([^\]\n]+)\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g },
-			{ type: 'strong', regex: /(\*\*|__)(?=\S)([\s\S]*?\S)\1/g },
-			{ type: 'em', regex: /(\*|_)(?=\S)([\s\S]*?\S)\1/g },
+			{ type: 'strong', regex: /(\*\*)(?=\S)([\s\S]*?\S)\1/g },
+			// Underscores within identifiers/file names are literal, including Unicode words.
+			{ type: 'strong', regex: /(?<![\p{L}\p{N}\p{M}_])(__)(?=\S)([\s\S]*?\S)\1(?![\p{L}\p{N}\p{M}_])/gu },
+			{ type: 'em', regex: /(\*)(?=\S)([\s\S]*?\S)\1/g },
+			{ type: 'em', regex: /(?<![\p{L}\p{N}\p{M}_])(_)(?=\S)([\s\S]*?\S)\1(?![\p{L}\p{N}\p{M}_])/gu },
 		];
 		let best = findNextMathToken(text, start);
 		for (let order = 0; order < patterns.length; order += 1) {
@@ -19884,6 +19887,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 			normalizePdfSelectionImages,
 			mergePromptWithPdfContext,
 			parseMarkdownBlocks,
+			renderInline,
 			toolIconForName,
 			buildMockMcpTools,
 			resolveMcpTestTools,
