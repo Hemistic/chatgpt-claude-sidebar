@@ -1,2 +1,9 @@
 node_modules/
 .tmp*/
+/upstream/
+/upstream.lock.json
+/test-artifacts/
+/coverage/
+/dist/
+/*.log
+/*.tgz

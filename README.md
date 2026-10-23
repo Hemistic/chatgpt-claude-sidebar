@@ -1,33 +1,48 @@
-# Shared AI Sidebar
+# AI Sidebar
 
-从 ArtInFact / pdf-ai 抽取的完整 Claudian 问答侧栏。支持 Codex CLI app-server 和 Claude Code Agent SDK：会话历史、流式回答、工具调用、审批、模型/推理强度、环境安装和 MCP 设置。来源版本与原文件哈希在 `PROVENANCE.json`；上游许可证、字体授权和 SDK 许可证随源码保留。
+面向开发者的独立 AI 侧栏源码库。目标是在支持扩展或嵌入视图的应用中复用同一套对话界面，通过宿主适配器与应用交互，执行流程遵循 Codex CLI 和 Claude Code CLI。
 
-## 两个宿主共用
+当前是已抽取的 Electron 侧栏代码，支持 Codex app-server 与 Claude Agent SDK 的会话、流式回答、工具调用、审批、模型选择和 MCP 设置。通用宿主 SDK、独立预览程序及跨软件适配尚待建设。
 
-本机源仓库：`D:/Project/ai-sidebar`。两个宿主均使用 `electron/ai-sidebar` Git submodule，版本由各自的 gitlink 固定。当前没有发布远程仓库，也不包含任何密钥、用户配置、会话或 CLI 二进制。
+## 仓库边界
 
-在本仓库修改并提交后，在两个宿主中分别执行：
+- 本库独立开发、提交与测试，不依赖启动任何现有业务软件。
+- `src/` 是侧栏界面、CLI 运行时与现有宿主桥接；`index.cjs` 是 Node 入口。
+- `tests/` 的本地回归测试无需业务软件、CLI 登录或模型调用。
+- `PROVENANCE.json` 与 `licenses/` 记录原始代码来源和授权；源码中的历史命名会逐步整理。
+- CLI 登录信息、供应商配置、会话、二进制、测试日志及上游工作副本不进入 Git。
+
+## 本地开发
 
 ```powershell
-git -C electron/ai-sidebar fetch origin
-git -C electron/ai-sidebar checkout <共享提交>
-git add electron/ai-sidebar
+npm install
+npm test
 ```
 
-新机器需要先提供共享仓库远程地址，再更改 `.gitmodules` 的 URL 并执行 `git submodule sync` / `git submodule update --init`。当前本机 URL 不是公共下载地址。
+本机独立仓库：`D:/Project/ai-sidebar`。目前没有远程仓库，也没有对外发布 npm 包。
 
-## 宿主接口
+当前没有 `npm start` 或独立窗口入口。后续预览应使用本库自带的最小 Electron 宿主，不以启动来源软件替代独立预览。
 
-主进程调用 `require('./ai-sidebar').register(ipcMain, { projectRoot, electronDir, defaultWorkspace, allowedEntryUrls })`。`allowedEntryUrls` 必须是宿主顶层页面的精确 URL；子 frame 不能直接调用运行时 IPC。关闭应用时调用 `runtime.shutdown()`。
+## 现有接入接口
 
-预加载使用 `src/claudian-sidebar-preload.js`；隔离的 iframe 使用 `src/claudian-sidebar.html`。顶层页面挂载时调用 `claudianSidebarHostBridge.attach({ sourceSelector: '#ai-sidebar-frame' })`，卸载时 dispose。开发服务器只提供浏览器资源，不能暴露运行时、SDK、配置或项目文件。
+宿主主进程通过 `register(ipcMain, options)` 注册运行时，关闭时调用 `runtime.shutdown()`：
 
-工作区通过 URL `workspace` 传入；上下文通过 `claudian-sidebar:set-context` 消息传入。原生 CLI 的登录、模型和供应商配置保持原生路由。各宿主会话/侧栏设置分别存储在各自的 Electron userData 中。
+```js
+const sidebar = require('/path/to/ai-sidebar');
+const runtime = sidebar.register(ipcMain, {
+  projectRoot: workspacePath,
+  electronDir: hostResourceDirectory,
+  defaultWorkspace: workspacePath,
+  allowedEntryUrls: [trustedHostPageUrl],
+});
+```
 
-LaTeX Studio 使用 `surface=chat&theme=light`：仅挂载 Codex / Claude 对话入口，不挂载 Markdown、绘图、宿主功能指南或笔记追加按钮。`claudian-chat.css` 负责窄栏工具换行及菜单边界；指定 `theme` 时由宿主管理主题。宿主自己的配色和字体通过独立样式适配，不修改 ArtInFact 默认外观。
+预加载入口：`src/claudian-sidebar-preload.js`。页面入口：`src/claudian-sidebar.html`。使用 `surface=chat` 可选择纯聊天视图，`theme=light` 或 `theme=dark` 指定主题。
 
-LaTeX Studio 的 CLI 面板与已有 API 差异审查入口并存；CLI Agent 的授权写入属于原生工具操作，不应冒充为尚未落盘的建议。
+顶层页面可通过 `claudianSidebarHostBridge.attach({ sourceSelector: '#ai-sidebar-frame' })` 绑定 iframe，卸载时 dispose。上下文通过 `claudian-sidebar:set-context` 消息传入。现有接口仍保留抽取时的结构，后续统一为明确的开发者 API。
 
-## 检查
+应用需要提供可嵌入区域及交互接口，才能实现真正的内嵌侧栏。缺少扩展接口的原生软件需要额外适配，不能假设 Electron 可以直接注入任意软件。
 
-`npm test` 检查文件来源白名单、宿主桥接、file URL 回传、事件清理、非法 frame 拒绝。宿主另运行 Electron 集成检查。
+## 后续建设
+
+见 [独立侧栏建设边界](docs/architecture.md)：先完成独立预览与宿主契约，再按软件类型增加适配器，建立测试与性能测量矩阵。
