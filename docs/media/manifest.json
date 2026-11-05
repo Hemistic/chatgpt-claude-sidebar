@@ -1,0 +1,363 @@
+{
+  "capturedOn": "2026-11-05",
+  "kind": "actual Electron sidebar; actual CLI replies",
+  "workspaceContains": "public tags.js example only",
+  "models": [
+    {
+      "provider": "claude",
+      "model": "claude-haiku-5-5",
+      "effort": "high",
+      "usage": {
+        "cacheCreationInputTokens": 38506,
+        "cacheReadInputTokens": 76470,
+        "contextTokens": 114982,
+        "contextWindow": 200000,
+        "contextWindowIsAuthoritative": true,
+        "inputTokens": 6,
+        "model": "claude-haiku-5-5",
+        "outputTokens": 870,
+        "percentage": 57,
+        "totalTokens": 115852
+      }
+    },
+    {
+      "provider": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "usage": {
+        "cacheCreationInputTokens": 0,
+        "cacheReadInputTokens": 16640,
+        "contextTokens": 16912,
+        "contextWindow": 475000,
+        "contextWindowIsAuthoritative": true,
+        "inputTokens": 16912,
+        "outputTokens": 66,
+        "percentage": 4,
+        "totalTokens": 16978
+      }
+    }
+  ],
+  "imageSize": {
+    "width": 480,
+    "height": 800
+  },
+  "gif": {
+    "frames": 15,
+    "durationMs": 12849,
+    "loop": true
+  },
+  "files": [
+    {
+      "name": "claude-dark.png",
+      "bytes": 165315,
+      "sha256": "58199492ff1a89baaeed55c5ad234936ddc84126b9bbd93d273cb8c2f7bf85ea",
+      "width": 480,
+      "height": 800
+    },
+    {
+      "name": "claude-light.png",
+      "bytes": 160512,
+      "sha256": "b6df7dd4a5c51649ad918160a702166b6243563caa7139175f48d9fddd3c1d7a",
+      "width": 480,
+      "height": 800
+    },
+    {
+      "name": "claude-models.png",
+      "bytes": 187619,
+      "sha256": "ce2d837d2a46ac1dbbea68d5b2bcfc618b06556a2661ce62bb55fdba3b5c3e44",
+      "width": 480,
+      "height": 800
+    },
+    {
+      "name": "claude-sessions.png",
+      "bytes": 159495,
+      "sha256": "0f0d7b96f5b195ca54185cdf113187a5337616c95d8797115f94e2199f1614fa",
+      "width": 480,
+      "height": 800
+    },
+    {
+      "name": "claude-width-1440.png",
+      "bytes": 193193,
+      "sha256": "a9a1a79e24a0a609a9430e54132e276c2eca066a57ea3579ea718e288c417c4f",
+      "width": 1440,
+      "height": 861
+    },
+    {
+      "name": "claude-width-320.png",
+      "bytes": 174654,
+      "sha256": "a0d2b5fe00780e1737a0e9cb9d842389ce6ac76ba261774520749111528f3106",
+      "width": 320,
+      "height": 861
+    },
+    {
+      "name": "claude-width-440.png",
+      "bytes": 177513,
+      "sha256": "edffe66a152aceea47e5dddacc585ced7a8e6fb2517ac6918062adc1443cba02",
+      "width": 440,
+      "height": 861
+    },
+    {
+      "name": "claude-width-800.png",
+      "bytes": 188463,
+      "sha256": "08f6163018a3c09515ca2a5579823ad8fc19929a629933830c7e02cd50a38207",
+      "width": 800,
+      "height": 861
+    },
+    {
+      "name": "codex-dark.png",
+      "bytes": 142644,
+      "sha256": "bfc60e1bb623cdd64d6e4d8ae45a012cd78978e221f78afe27a548604a6ebea3",
+      "width": 480,
+      "height": 800
+    },
+    {
+      "name": "codex-light.png",
+      "bytes": 133734,
+      "sha256": "05999cd5e05d27579829d87247d46b7462adb9931e5b27dcbd2f5917c8aa1f39",
+      "width": 480,
+      "height": 800
+    },
+    {
+      "name": "codex-models.png",
+      "bytes": 147109,
+      "sha256": "d4f56e871b3e08addffd0f0df1ba9956df68dabbc9342298ed7f87bb138c3d53",
+      "width": 480,
+      "height": 800
+    },
+    {
+      "name": "codex-sessions.png",
+      "bytes": 145720,
+      "sha256": "2ad0c3baf0d9f330956c5f915159b39f96b7049466c1044a6f449804734f0e60",
+      "width": 480,
+      "height": 800
+    },
+    {
+      "name": "codex-width-1440.png",
+      "bytes": 159883,
+      "sha256": "6365e1ce90edf4904798161abc7ea799c52bb00bd95a836dad1fa9ad8b34ac76",
+      "width": 1440,
+      "height": 861
+    },
+    {
+      "name": "codex-width-320.png",
+      "bytes": 116243,
+      "sha256": "8ce25e1ebce1e6ae0871da06fa37c77f1986cb2929586f22acedb4d719f9079f",
+      "width": 320,
+      "height": 861
+    },
+    {
+      "name": "codex-width-440.png",
+      "bytes": 142209,
+      "sha256": "2a420c908e3656b7450042905ba984cc8d3b4d2c78143aefcefda78ccacc7cfe",
+      "width": 440,
+      "height": 861
+    },
+    {
+      "name": "codex-width-800.png",
+      "bytes": 154325,
+      "sha256": "ff2146f473ff7f413ecc25693e4368dc0b18d81c1df3fc2d9b452c834bd5d3f8",
+      "width": 800,
+      "height": 861
+    },
+    {
+      "name": "electron.svg",
+      "bytes": 411,
+      "sha256": "15012c8a9de90a45e311194deeb1b90b443b04a1d57864a7beb535f63d6097f4"
+    },
+    {
+      "name": "file-context.png",
+      "bytes": 142644,
+      "sha256": "bfc60e1bb623cdd64d6e4d8ae45a012cd78978e221f78afe27a548604a6ebea3",
+      "width": 480,
+      "height": 800
+    },
+    {
+      "name": "permission-approval.png",
+      "bytes": 156891,
+      "sha256": "9b449aff1b29e51d0d0f181c9aee28e5e8d801d57f7868599fc6f6863aaef91a",
+      "date": "2026-11-02",
+      "source": "test-artifacts/native-interactions-2026-11-02/approval-allow-pending.png",
+      "evidence": "docs/native-interactions-2026-11-02.md",
+      "width": 748,
+      "height": 1267
+    },
+    {
+      "name": "plan-confirmation.png",
+      "bytes": 203480,
+      "sha256": "b5f58ce5013eed5722b6023ce027281b039acee1bb9fae9e2c8a0c4c693b6ce7",
+      "date": "2026-11-02",
+      "source": "test-artifacts/plan-source-2026-11-02/plan-manual-pending.png",
+      "evidence": "docs/plan-source-2026-11-02.md",
+      "width": 748,
+      "height": 1267
+    },
+    {
+      "name": "provider-switch.gif",
+      "bytes": 723754,
+      "sha256": "ab3d7f574f00e2b6c7969625683e4550764287574e354f2822ced1d52440d5fc"
+    },
+    {
+      "name": "runtimes.svg",
+      "bytes": 532,
+      "sha256": "7e8492f3e651d2c95278624d3c27cc51b68a57b215f2552084902aec3a0ecd72"
+    },
+    {
+      "name": "slash-commands.png",
+      "bytes": 161722,
+      "sha256": "204aedb91cac0377271ff98fde49fd1a839aba9a733d2e25ee4baa5bd024f8e1",
+      "width": 480,
+      "height": 800
+    },
+    {
+      "name": "status.svg",
+      "bytes": 523,
+      "sha256": "32838efe070a6f5c060819840d1321af6104b3e53124d3eac70fa01cd164c594"
+    },
+    {
+      "name": "user-question.png",
+      "bytes": 163083,
+      "sha256": "ef20fafda9faddda2abf97f4111ec92993b4aca6bf09fc0e7b1c868c6da5fa20",
+      "date": "2026-11-02",
+      "source": "test-artifacts/native-interactions-2026-11-02/question-pending.png",
+      "evidence": "docs/native-interactions-2026-11-02.md",
+      "width": 748,
+      "height": 1267
+    }
+  ],
+  "captureBoundary": "Electron webContents only; operating-system titlebar and controls are excluded",
+  "responsive": {
+    "capturedOn": "2026-11-05",
+    "theme": "dark",
+    "versions": {
+      "checkedOn": "2026-11-05",
+      "codex": "0.163.0",
+      "claudeCode": "2.1.283",
+      "node": "24.13.0"
+    },
+    "cases": [
+      {
+        "provider": "codex",
+        "requestedWidth": 320,
+        "viewport": {
+          "height": 861,
+          "width": 320
+        },
+        "pageOverflow": false,
+        "readingColumnWidth": 280,
+        "file": "codex-width-320.png"
+      },
+      {
+        "provider": "codex",
+        "requestedWidth": 440,
+        "viewport": {
+          "height": 861,
+          "width": 440
+        },
+        "pageOverflow": false,
+        "readingColumnWidth": 392.0000305175781,
+        "file": "codex-width-440.png"
+      },
+      {
+        "provider": "codex",
+        "requestedWidth": 800,
+        "viewport": {
+          "height": 861,
+          "width": 800
+        },
+        "pageOverflow": false,
+        "readingColumnWidth": 752.0000610351562,
+        "file": "codex-width-800.png"
+      },
+      {
+        "provider": "codex",
+        "requestedWidth": 1440,
+        "viewport": {
+          "height": 861,
+          "width": 1440
+        },
+        "pageOverflow": false,
+        "readingColumnWidth": 768.0000610351562,
+        "file": "codex-width-1440.png"
+      },
+      {
+        "provider": "claude",
+        "requestedWidth": 320,
+        "viewport": {
+          "height": 861,
+          "width": 320
+        },
+        "pageOverflow": false,
+        "readingColumnWidth": 304,
+        "file": "claude-width-320.png"
+      },
+      {
+        "provider": "claude",
+        "requestedWidth": 440,
+        "viewport": {
+          "height": 861,
+          "width": 440
+        },
+        "pageOverflow": false,
+        "readingColumnWidth": 424.0000305175781,
+        "file": "claude-width-440.png"
+      },
+      {
+        "provider": "claude",
+        "requestedWidth": 800,
+        "viewport": {
+          "height": 861,
+          "width": 800
+        },
+        "pageOverflow": false,
+        "readingColumnWidth": 784.0000610351562,
+        "file": "claude-width-800.png"
+      },
+      {
+        "provider": "claude",
+        "requestedWidth": 1440,
+        "viewport": {
+          "height": 861,
+          "width": 1440
+        },
+        "pageOverflow": false,
+        "readingColumnWidth": 832.0000610351562,
+        "file": "claude-width-1440.png"
+      }
+    ],
+    "realCalls": [
+      {
+        "provider": "claude",
+        "model": "claude-haiku-5-5",
+        "effort": "high",
+        "usage": {
+          "cacheCreationInputTokens": 38603,
+          "cacheReadInputTokens": 76608,
+          "contextTokens": 115217,
+          "contextWindow": 200000,
+          "contextWindowIsAuthoritative": true,
+          "inputTokens": 6,
+          "model": "claude-haiku-5-5",
+          "outputTokens": 712,
+          "percentage": 58,
+          "totalTokens": 115929
+        }
+      },
+      {
+        "provider": "codex",
+        "model": "gpt-6.1-sol",
+        "effort": "high",
+        "usage": {
+          "cacheCreationInputTokens": 0,
+          "cacheReadInputTokens": 16640,
+          "contextTokens": 16923,
+          "contextWindow": 475000,
+          "contextWindowIsAuthoritative": true,
+          "inputTokens": 16923,
+          "outputTokens": 74,
+          "percentage": 4,
+          "totalTokens": 16997
+        }
+      }
+    ]
+  }
+}

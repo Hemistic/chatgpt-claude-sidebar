@@ -1,92 +1,347 @@
+<div align="center">
+
 # AI Sidebar
 
-面向开发者的独立 AI 侧栏源码库。目标是在支持扩展或嵌入视图的应用中复用同一套对话界面，通过宿主适配器与应用交互，执行流程遵循 Codex CLI 和 Claude Code CLI。
+**English** · [简体中文](README.zh-CN.md)
 
-当前是已抽取的 Electron 侧栏代码，支持 Codex app-server 与 Claude Agent SDK 的会话、流式回答、工具调用、审批、模型选择和 MCP 设置。已提供独立 Electron 窗口，默认接入本机 Codex CLI。通用宿主 SDK 及跨软件适配尚待建设。
+**Reusable sidebar infrastructure for AI software developers**
 
-## 仓库边界
+Build your product. Reuse the AI interaction layer.
 
-- 本库独立开发、提交与测试，不依赖启动任何现有业务软件。
-- `src/` 是侧栏界面、CLI 运行时与现有宿主桥接；`index.cjs` 是 Node 入口。
-- `tests/` 的本地回归测试无需业务软件、CLI 登录或模型调用。
-- `PROVENANCE.json` 与 `licenses/` 记录原始代码来源和授权；源码中的历史命名会逐步整理。
-- CLI 登录信息、供应商配置、会话、二进制、测试日志及上游工作副本不进入 Git。
+![Development preview](docs/media/status.svg)
+![Electron](docs/media/electron.svg)
+![Runtimes](docs/media/runtimes.svg)
 
-## 本地开发
+[Screenshots](#screenshots) · [Responsive layouts](#responsive-layouts) · [CLI connection](#connected-through-real-clis) · [Why this project](#why-this-project) · [Feature matrix](docs/features.md) · [Quick start](#quick-start) · [Integration](#integrate-with-your-software) · [Development guide](docs/development.md)
 
-```powershell
-npm install
-npm test
+</div>
+
+AI applications often need the same foundations: a conversation interface, model and tool connections, session management, permission requests, plans, and readable execution results.
+
+**AI Sidebar aims to make that work reusable, so developers can focus on their own products.** It starts with a standalone Electron sidebar connected to real Codex CLI and Claude Code workflows, and is being developed into a shared interface and runtime for different host applications.
+
+> Development preview. The standalone window, CLI connections, and existing Electron host bridge are implemented. A unified host SDK and adapters for more applications are still in development.
+
+## Screenshots
+
+These screenshots show this project's actual standalone window. The conversations used real CLI calls to read a small, public tag utility. The captured interface uses the Chinese locale.
+
+<table>
+  <tr>
+    <th width="50%">Codex · Dark</th>
+    <th width="50%">Claude Code · Dark</th>
+  </tr>
+  <tr>
+    <td><img src="docs/media/codex-dark.png" alt="Codex dark interface showing a real file read, tool activity, and a code response" width="400"></td>
+    <td><img src="docs/media/claude-dark.png" alt="Claude Code dark interface showing a real file read, tool activity, and a code response" width="400"></td>
+  </tr>
+</table>
+
+<details>
+<summary><strong>View light themes</strong></summary>
+<br>
+
+<table>
+  <tr>
+    <th width="50%">Codex · Light</th>
+    <th width="50%">Claude Code · Light</th>
+  </tr>
+  <tr>
+    <td><img src="docs/media/codex-light.png" alt="Codex light interface" width="400"></td>
+    <td><img src="docs/media/claude-light.png" alt="Claude Code light interface" width="400"></td>
+  </tr>
+</table>
+
+</details>
+
+### Switch between CLI providers
+
+The top-left circular button shows the current CLI. Hover to expand the capsule, then **click the other icon to switch**. Each provider keeps its own conversations, drafts, and interface styles.
+
+<p align="center">
+  <img src="docs/media/provider-switch.gif" alt="Actual interface recording: expand the capsule, click to switch between Codex and Claude Code, and return to the original CLI conversation" width="480">
+</p>
+
+See the [media notes](docs/media/README.md) for capture details and real-call provenance.
+
+## Responsive layouts
+
+The sidebar adapts to a compact panel, a normal window, or a wide workspace. These are captures of **the same real conversation at four actual WebView widths**, rather than resized copies of one screenshot. Operating-system title bars are excluded.
+
+| WebView width | What the layout demonstrates |
+| --- | --- |
+| **320 px** | Compact sidebar: text reflows, long titles truncate, and the input controls remain available. |
+| **440 px** | Standard sidebar: conversation, tool activity, and composer share the available space. |
+| **800 px** | Expanded panel: paragraphs and code have more horizontal room. |
+| **1440 px** | Wide workspace: the reading column stays bounded, with margins on both sides. |
+
+<p align="center"><a href="docs/media/codex-width-1440.png"><img src="docs/media/codex-width-1440.png" alt="Codex at an actual 1440-pixel WebView width, with a bounded conversation column and side margins" width="960"></a></p>
+
+<details>
+<summary><strong>Compare 320 / 440 / 800 / 1440 px · Codex and Claude</strong></summary>
+<br>
+
+<h3>Codex</h3>
+<table>
+<tr><th width="50%">320 px</th><th width="50%">440 px</th></tr>
+<tr><td><a href="docs/media/codex-width-320.png"><img src="docs/media/codex-width-320.png" alt="codex · 320 px" width="320"></a></td><td><a href="docs/media/codex-width-440.png"><img src="docs/media/codex-width-440.png" alt="codex · 440 px" width="400"></a></td></tr>
+</table>
+<table>
+<tr><th width="50%">800 px</th><th width="50%">1440 px</th></tr>
+<tr><td><a href="docs/media/codex-width-800.png"><img src="docs/media/codex-width-800.png" alt="codex · 800 px" width="400"></a></td><td><a href="docs/media/codex-width-1440.png"><img src="docs/media/codex-width-1440.png" alt="codex · 1440 px" width="400"></a></td></tr>
+</table>
+<h3>Claude Code</h3>
+<table>
+<tr><th width="50%">320 px</th><th width="50%">440 px</th></tr>
+<tr><td><a href="docs/media/claude-width-320.png"><img src="docs/media/claude-width-320.png" alt="claude · 320 px" width="320"></a></td><td><a href="docs/media/claude-width-440.png"><img src="docs/media/claude-width-440.png" alt="claude · 440 px" width="400"></a></td></tr>
+</table>
+<table>
+<tr><th width="50%">800 px</th><th width="50%">1440 px</th></tr>
+<tr><td><a href="docs/media/claude-width-800.png"><img src="docs/media/claude-width-800.png" alt="claude · 800 px" width="400"></a></td><td><a href="docs/media/claude-width-1440.png"><img src="docs/media/claude-width-1440.png" alt="claude · 1440 px" width="400"></a></td></tr>
+</table>
+</details>
+
+Both providers were checked at all four widths. The page did not overflow horizontally; code blocks can retain their own horizontal scroll area. Each provider keeps its own layout rules. This is a desktop-width demonstration, not a claim of mobile-device support. Open any image to inspect it at full resolution.
+
+## Why this project
+
+AI products serve different purposes, but much of their interaction infrastructure is similar. Editors, readers, knowledge tools, and developer tools repeatedly need to solve the same problems.
+
+| Repeated work | Foundation to reuse |
+| --- | --- |
+| Building another chat window for every product | A sidebar that runs independently and can be embedded in a host |
+| Handling CLI startup, connections, and streaming events | A CLI runtime with clear lifecycle and event boundaries |
+| Rebuilding conversations, drafts, and history recovery | Reusable session management |
+| Creating one-off interfaces for tools, approvals, and plans | Clear, interactive views of task execution |
+| Reimplementing file and context integration | A bridge through which the host supplies context and actions |
+
+The focus is **reducing duplicate work for AI software developers**. The standalone window is a place to develop, verify, and demonstrate these capabilities. The longer-term goal is a reusable foundation that different AI applications can integrate.
+
+## What works today
+
+| Capability | Current implementation |
+| --- | --- |
+| **Two CLI backends** | Codex app-server; Claude Agent SDK with the local Claude Code execution workflow |
+| **Conversation and execution views** | Streaming responses, thinking and tool activity, code blocks, file changes, and structured reviews |
+| **Interactive task controls** | Permission requests, user questions, plan viewing and confirmation, send and stop |
+| **Session management** | Recent conversations grouped by project, search, history opening, per-session drafts, and recovery |
+| **File context** | File drag and drop, attachment display, and context supplied by the host |
+| **Separate interface systems** | Independently maintained Codex and Claude components and styles, each with dark and light themes |
+| **Traceable UI sources** | Import scripts, version manifests, component hashes, and host adapters |
+| **Standalone and existing embedding entry points** | Electron preview window, runtime registration, preload bridge, and iframe host bridge |
+
+Coverage is still expanding. See the [Codex connection guide](docs/codex-connection.md), [UI source notes](docs/ui-reference.md), and [conversation-menu integration record](docs/navigation-2026-11-04.md) for specific operations and validation boundaries. These supporting documents are currently in Chinese.
+
+## Feature highlights
+
+### Models and reasoning effort follow the active CLI
+
+Model catalogs come from the current CLI. Each provider has its own model menu and effort controls. Actual model access depends on the CLI and account.
+
+<table>
+  <tr><th width="50%">Codex · Model and effort</th><th width="50%">Claude Code · Model catalog</th></tr>
+  <tr>
+    <td><img src="docs/media/codex-models.png" alt="Codex model and reasoning-effort controls" width="400"></td>
+    <td><img src="docs/media/claude-models.png" alt="Claude Code model menu" width="400"></td>
+  </tr>
+</table>
+
+### Approve actions, answer questions, and confirm plans
+
+Actions that need a user decision have dedicated interaction views. The following screenshots come from real CLI validation on November 2, 2026.
+
+<table>
+  <tr><th>Permission request</th><th>User question</th><th>Plan confirmation</th></tr>
+  <tr>
+    <td><img src="docs/media/permission-approval.png" alt="Real file-operation approval with allow-once, deny, and session-level options" width="260"></td>
+    <td><img src="docs/media/user-question.png" alt="Real CLI question with answer options and multiple-question navigation" width="260"></td>
+    <td><img src="docs/media/plan-confirmation.png" alt="Real CLI plan with accept, revise, and reject controls" width="260"></td>
+  </tr>
+</table>
+
+<details>
+<summary><strong>View conversation menus, file context, and slash commands</strong></summary>
+<br>
+
+Each provider opens its own recent-conversation menu, with grouping, search, and recovery based on actual project paths.
+
+<table>
+  <tr><th width="50%">Codex · Projects and conversations</th><th width="50%">Claude Code · Projects and conversations</th></tr>
+  <tr>
+    <td><img src="docs/media/codex-sessions.png" alt="Codex conversation menu filtered to the demonstration project" width="400"></td>
+    <td><img src="docs/media/claude-sessions.png" alt="Claude Code conversation menu filtered to the demonstration project" width="400"></td>
+  </tr>
+</table>
+
+Added files appear as context chips. Type / to see commands supported by the active provider.
+
+<table>
+  <tr><th width="50%">File context</th><th width="50%">Slash commands</th></tr>
+  <tr>
+    <td><img src="docs/media/file-context.png" alt="A real tags.js file added as context in the composer" width="400"></td>
+    <td><img src="docs/media/slash-commands.png" alt="Actual command suggestions shown after typing a slash" width="400"></td>
+  </tr>
+</table>
+
+</details>
+
+## Feature checklist
+
+- **Runtime and integration:** standalone Electron window, workspace selection, separate configuration profiles, runtime registration, resource lookup, IPC / iframe bridges, host context, and shutdown cleanup.
+- **Task execution:** two CLI connections, native account configuration, streaming, send and stop, tool inputs and outputs, command records, error states, native usage reporting, and queuing.
+- **Conversations:** multiple sessions, project grouping, search, collapse, drafts, scroll positions, history recovery, close and reopen, and forking; Codex native pagination, renaming, archiving, goals, and queue operations.
+- **Content:** Markdown, tables, syntax highlighting and copying, math, tool activity, file changes, turn diffs, structured reviews, automatic scroll following, and return to bottom.
+- **Interaction:** permission requests, native decision options, single- and multiple-choice questions, supplemental answers, multiple-question navigation, plan viewing, confirmation, rejection, and revision feedback.
+- **Input and context:** file drag and drop, image attachments, paste, file / folder context, attachment removal, slash commands, and agent / skill mentions.
+- **Models and settings:** model-catalog synchronization, model and effort selection, permission preferences, separate dark and light themes, remembered appearance, font and input settings, path and connection diagnostics, and Codex account and usage views.
+- **Extensions and maintenance:** MCP configuration and connection tests; provider resource entry points for commands, agents, skills, hooks, and plugins; UI-resource import checks; real CLI validation; and UI debugging examples.
+
+**[Full feature matrix and provider differences →](docs/features.md)** The detailed matrix is currently in Chinese. Some capabilities are provider-specific; the unified host SDK, complete protocol coverage, and full cross-platform validation are still in development.
+
+## Connected through real CLIs
+
+The sidebar is an interaction layer over local coding-agent runtimes. Codex uses the local `codex app-server` process and JSON-RPC over stdio. Claude uses the bundled Agent SDK to run the configured local Claude Code executable. See the official [Codex app-server documentation](https://learn.chatgpt.com/docs/app-server) and [Claude Agent SDK overview](https://code.claude.com/docs/en/agent-sdk/overview) for these integration mechanisms.
+
+```mermaid
+flowchart LR
+  UI["Sidebar WebView"] <--> IPC["Preload / IPC"]
+  IPC <--> Runtime["Sidebar runtime"]
+  Runtime <-->|"JSON-RPC / stdio"| Codex["Local Codex CLI · app-server"]
+  Runtime <--> SDK["Claude Agent SDK"]
+  SDK <--> Claude["Local Claude Code"]
+```
+
+| Area | Codex CLI | Claude Code |
+| --- | --- | --- |
+| Connection | Child process, app-server handshake, RPC requests and event notifications | Agent SDK, configured local executable, streaming messages and control callbacks |
+| Account and configuration | Local CLI configuration; account and rate-limit reads where supported | Configured CLI environment and SDK setting sources |
+| Sessions | Native thread IDs, history, resume / fork, pagination, renaming and archiving | Native session IDs, resume / fork and local history discovery |
+| Interaction | Tool events, approval and question requests, plans, diffs and reviews | Tool messages, permission callbacks, questions and plan interactions |
+| Stop and cleanup | Interrupt the active turn and release the window's child processes | Abort / interrupt the active SDK query and release its execution resources |
+
+### What this means for developers
+
+- **Keep the execution workflow in the CLI.** The sidebar translates real events into conversation and tool views, then sends user decisions back to the runtime.
+- **Use your existing CLI setup.** Authenticate with the corresponding CLI first. Sidebar model, effort, permission and workspace selections are passed into the execution workflow.
+- **Keep session identity.** History reopening continues with the corresponding native thread or session ID instead of starting an unrelated chat.
+- **See real results and usage.** Tool output, failures and token usage come from runtime events; missing usage is not reported as zero. Actual calls consume the configured account's quota.
+- **Respect provider boundaries.** Model access, supported effort levels, approval options, tools and MCP availability depend on the CLI version, configuration and account. Not every native CLI feature has a sidebar control yet.
+
+### Checked environment
+
+| Component | Local version checked on November 5, 2026 |
+| --- | --- |
+| Codex CLI | 0.163.0 |
+| Claude Code | 2.1.283 |
+| Node.js | 24.13.0 |
+
+These are recorded local versions, not hard version requirements. Imported desktop UI resource versions are tracked separately from CLI versions.
+
+Before launching, confirm that the CLI you intend to use runs and is authenticated in your terminal. If it is not discovered automatically, check the provider's executable path and connection diagnostics in Settings. Complete any tool approval in the sidebar when requested. For supported Codex operations and compatibility limits, see the [connection guide](docs/codex-connection.md) and [feature matrix](docs/features.md) (Chinese).
+
+## Quick start
+
+### Prerequisites
+
+- Node.js and npm; Node.js 24 is recommended.
+- Codex CLI or Claude Code installed and authenticated. Use either or both as needed.
+- Development and validation currently focus on Windows. Other platforms have not completed full validation.
+
+Check that the CLI you want to use is available in your terminal:
+
+```shell
+codex --version
+claude --version
+```
+
+### Launch the standalone sidebar
+
+From the repository root:
+
+```shell
+git clone https://github.com/Hemistic/ai-sidebar.git
+cd ai-sidebar
+npm ci
 npm start
 ```
 
-本机独立仓库：`D:/Project/ai-sidebar`。目前没有远程仓库，也没有对外发布 npm 包。
+Use a specific workspace:
 
-`npm start` 启动本库自带的 Electron 窗口，直接加载侧栏。需要本机已安装、登录并可用的 Codex CLI；沿用其原生模型与认证配置，不在本库保存密钥。启动时建立 app-server 连接，发送消息后才调用模型。
-
-默认工作区为本库目录，可用 `npm start -- --workspace="D:/your-project"` 指定。独立界面配置与日志保存在系统应用数据目录下的 `ai-sidebar-standalone`（Windows 为 `%APPDATA%/ai-sidebar-standalone`），不读取原业务软件的侧栏设置。关闭窗口会关闭本窗口创建的 CLI 进程。
-
-`npm run test:live` 显式发起一次真实模型请求：在隔离测试工作区生成随机内容，通过界面要求 CLI 读取文件，核对工具事件、流式输出、最终显示和文件未修改。不会自动批准权限请求。报告和截图保存在 `.tmp-standalone/`，测试后自动关闭测试窗口。此测试使用原生 CLI 账户，会消耗模型额度。
-
-`npm run test:live:smoke` 覆盖真实普通对话、随机文件读取、命令批准、命令取消和计划模式单选提问，保存原生 token 用量事件与逐项截图。批准测试仅允许指定的 `Write-Output APPROVAL_UI_OK`，取消测试拒绝另一个指定的输出命令；不会批准其他命令。取消回合未上报用量时记录为 `null`，不记为零。缓存输入包含在输入 token 中。
-
-## 界面维护
-
-会话身份、切换绘制与设置背景／主题记忆的后续修复及六轮真实验收见 [会话切换记录](docs/conversation-switch-2026-11-01.md)。
-
-2026-11-01：Codex 模型／权限／加号／slash 的原生组件及日夜主题已导入 26.1027.3384.0；Claude 的两套主题保持独立，修复宽度卡顿和强度同步。来源、真实测试、失败记录及适配边界见 [菜单与主题修复报告](docs/menus-themes-2026-11-01.md)。
-
-模型选择后续修复：Claude 模型／强度／加号／slash 控件已导入当前 4.4212.0.0；Codex 补齐原控件基础样式和模型弹层几何。四轮真实请求及往返模型选择的证据见 [模型选择修复报告](docs/model-picker-repair-2026-11-01.md)。
-
-界面根据提供方切换源码组件：Codex 使用本机 ChatGPT 26.1023.6621.0 的前端 JS/CSS；Claude Code 使用本机 Claude 2.9939.2.0 的 Code 页面前端 JS/CSS。Claude 消息、输入框、工具折叠、菜单、审批、提问和计划确认使用导入的原生渲染函数或原始 JSX 表达式。CLI 事件、草稿、附件和编辑控制器通过宿主适配层接入。源码位置、哈希、适配范围与复现方式见 [docs/ui-reference.md](docs/ui-reference.md)。截图用于实际渲染自查。
-
-- `scripts/import-claude-ui.cjs`：从安装包提取界面声明、内联样式、CSS 和字体；`--check` 校验生成文件。
-- `src/claude-ui.native.js` / `src/claude-ui.source.css`：生成的原生组件和隔离样式，禁止手工修改组件声明。
-- `src/claude-surface.js` / `src/claude-editor-bridge.js`：CLI 数据与原生界面的适配，编辑区保留现有草稿和输入事件。
-- `src/claude-code-composer.js`：按 Claude Code 的 Kp/Ol/fl 源码模板组装输入框、底栏、加号和发送／停止控件。
-- `src/sidebar-provider-styles.js`：互斥启用两种提供方的样式；Claude 只启用 `claude-ui.source.css`、`claude-controls.source.css`、`claude-surface.css` 和 `claude-shell.css`，不启用 ChatGPT／Codex／旧共享样式。
-- `src/claude-shell.js` / `src/claude-shell.css`：Claude 专用的顶栏、会话行和宿主页面适配，使用 Claude 原生控件及 `--cds-*` 变量。
-- `npm start -- --claude-ui-test --background-test`：隔离工作区里的 Claude 界面、交互和宽度检查；加 `--real-claude-suite` 尝试真实 Claude 文件读取，会消耗该 CLI 配置通道的额度。
-
-- `src/chatgpt-surface.js`：消息框架与 ComposerLayout 输入／前置／后置控件槽位。
-- `src/chatgpt-composer.source.css`：固定版本的原组件 CSS，由导入脚本生成。
-- `src/chatgpt-surface.css`：独立宿主的字号、主题变量和 CLI 控件适配。
-- `src/sidebar-header.js`：当前 CLI 的圆形导航图标、悬停切换胶囊、居中标题与对话管理；`src/sidebar-shell.js` 提供欢迎页和发送／停止按钮。
-- `src/sidebar-samples.js`：八类工作样例，交互不调用真实 CLI。
-- `src/codex-approval.native.js`：安装版审批卡片、按钮与组合按钮的原始渲染函数；CLI 数据适配位于 `src/codex-approval.js`。
-- `src/codex-desktop-theme.source.css` / `src/codex-approval.source.css`：完整桌面 CSS 级联解析后的变量及原版组件工具样式。
-- `src/sidebar-palette.css`：仅供 Codex 使用的颜色、字体变量和兼容别名。
-- `src/sidebar-shell.css`：仅供 Codex 使用的窗口布局、输入区和窄窗口适配。
-- `src/codex-conversation.js` / `src/codex-conversation.css`：Codex 的对话组件、工具活动行、文件差异和模型／权限菜单。
-- `docs/ui-reference.md`：已读取的 Codex App 打包前端资源、截图尺寸和组件边界。
-- `src/claudian-chat.css`：嵌入区域的尺寸和溢出约束。
-
-每次功能增量都做对应自动化检查和真实 CLI 验证；测试完成后保存实际窗口截图，并人工查看字体、换行、溢出、重复内容和交互状态。截图使用 Chromium 当前合成表面，避免窗口后台时截到黑图或旧帧。最后打开独立 Electron 窗口供用户验证。
-
-## 现有接入接口
-
-宿主主进程通过 `register(ipcMain, options)` 注册运行时，关闭时调用 `runtime.shutdown()`：
-
-```js
-const sidebar = require('/path/to/ai-sidebar');
-const runtime = sidebar.register(ipcMain, {
-  projectRoot: workspacePath,
-  electronDir: hostResourceDirectory,
-  defaultWorkspace: workspacePath,
-  allowedEntryUrls: [trustedHostPageUrl],
-});
+```shell
+npm start -- --workspace="D:/Projects/my-app"
 ```
 
-预加载入口：`src/claudian-sidebar-preload.js`。页面入口：`src/claudian-sidebar.html`。使用 `surface=chat` 可选择纯聊天视图，`theme=light` 或 `theme=dark` 指定主题。
+For an initial launch, you can choose Claude as the starting provider:
 
-顶层页面可通过 `claudianSidebarHostBridge.attach({ sourceSelector: '#ai-sidebar-frame' })` 绑定 iframe，卸载时 dispose。上下文通过 `claudian-sidebar:set-context` 消息传入。现有接口仍保留抽取时的结构，后续统一为明确的开发者 API。
+```shell
+npm start -- --provider=claude --workspace="D:/Projects/my-app"
+```
 
-应用需要提供可嵌入区域及交互接口，才能实现真正的内嵌侧栏。缺少扩展接口的原生软件需要额外适配，不能假设 Electron 可以直接注入任意软件。
+Existing conversations restore their saved local state. You can also switch CLI providers through the top-left capsule. Choose the model and reasoning effort in the interface; the product does not lock you to a particular model.
 
-## 后续建设
+The sidebar uses your local CLI authentication and configuration. Launching the window establishes a connection; model turns start when you send a message. Real calls consume the corresponding account's quota.
 
-见 [独立侧栏建设边界](docs/architecture.md)：先完成独立预览与宿主契约，再按软件类型增加适配器，建立测试与性能测量矩阵。
+## Integrate with your software
 
-多会话共用一行紧凑顶栏：左上角默认只显示当前 CLI 的圆形图标（OpenAI 或 Claude 花形标志），点击打开按项目分类的近期会话；鼠标悬停时展开左 OpenAI、右 Claude 的切换胶囊，移入对应标志即切换 CLI，保持原位展开，移开后收起；中间显示当前标题并省略超长末端。菜单左对齐、最大宽度 280px，搜索框固定、列表独立滚动；草稿与回复独立。工作样例位于设置 → 调试与样例。实现与验证见 `docs/multiple-sessions.md`。运行 `npm start -- --showcase` 打开工作样例，或 `npm start -- --live-showcase --background-test` 执行隔离样例及真实 CLI 审批／提问检查。
+An Electron host can register the runtime and load the sidebar page. The repository has not been published as an npm package, so this example uses a local source path.
 
-Codex 原生连接已增加账户／用量读取、CLI 模型同步、原生会话分页恢复与重命名、`/review` 审查、整轮差异、完整计划模式、会话目标及归档／恢复。接口、版本与测试边界见 [Codex CLI 连接](docs/codex-connection.md)。运行 `npm run test:live:codex`、`npm run test:live:plan`、`npm run test:live:thread-tools` 执行对应隔离工作区的真实增量测试；会消耗当前 CLI 账户的 token，测试后保留窗口。
+```js
+const path = require('node:path');
+const { pathToFileURL } = require('node:url');
+const sidebar = require('/path/to/ai-sidebar');
+
+const entry = sidebar.sourcePath('claudian-sidebar.html');
+const runtime = sidebar.register(ipcMain, {
+  projectRoot: workspacePath,
+  electronDir: path.dirname(entry),
+  defaultWorkspace: workspacePath,
+  allowedEntryUrls: [pathToFileURL(entry).href],
+});
+
+// On host shutdown, release this window's CLI connections and processes.
+await runtime.shutdown();
+```
+
+The page entry is `src/claudian-sidebar.html`; the preload entry is `src/claudian-sidebar-preload.js`. Set `surface=chat` for the chat view. The existing iframe entry uses `claudianSidebarHostBridge.attach()` to communicate with the host.
+
+The host supplies a sidebar region and interfaces for files, context, and actions. **A unified, stable developer SDK is the next major infrastructure goal.** See the [architecture notes](docs/architecture.md) for current interfaces and integration boundaries.
+
+## Roadmap
+
+- [x] Provide a standalone Electron sidebar window.
+- [x] Connect to real Codex and Claude execution workflows.
+- [x] Establish conversation, tool, approval, question, and plan interactions.
+- [x] Maintain separate provider interfaces, menus, and dark / light themes.
+- [ ] Define clear, stable host interfaces and event contracts.
+- [ ] Further separate the interface, session state, CLI runtime, and host capabilities.
+- [ ] Add more host integration examples and adapters.
+- [ ] Build a broader matrix for functional, rendering, performance, and long-task measurements.
+- [ ] Improve releases, version compatibility, and upgrades.
+
+## Development and validation
+
+```shell
+# Local regression checks; no model calls
+npm test
+
+# Real CLI smoke validation; consumes account quota
+npm run test:live
+```
+
+Real validation checks CLI events, usage, rendered output, and screenshots. After inspection, test conversations are removed by their dedicated workspace and session IDs. See the [development guide](docs/development.md) for commands, repository layout, and maintenance details.
+
+```text
+ai-sidebar/
+├── src/          Interface, CLI runtime, sessions, and host bridges
+├── standalone/   Standalone window and real interaction validation
+├── scripts/      Startup, UI-resource imports, and source checks
+├── tests/        Local regression checks
+├── docs/         Architecture, provenance, validation records, and media
+└── index.cjs     Existing Node / Electron integration entry
+```
+
+## Sources and references
+
+The extracted sidebar's origin is recorded in [PROVENANCE.json](PROVENANCE.json); related license notices are in [licenses/](licenses/). Imported Codex and Claude UI resources have separate version and hash records; see the [UI source notes](docs/ui-reference.md). This is not an official OpenAI or Anthropic product. Third-party resources retain their respective license terms.
+
+The README's structure takes inspiration from [Cline](https://github.com/cline/cline/blob/main/README.md), [LobeHub](https://github.com/lobehub/lobehub/blob/main/README.md), and [lencx/ChatGPT](https://github.com/lencx/ChatGPT/blob/main/README.md): show the actual interface first, then explain capabilities, setup, and developer integration. The screenshots, animation, and copy were produced for this project.
