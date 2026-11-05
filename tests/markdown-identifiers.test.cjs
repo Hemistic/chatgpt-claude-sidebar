@@ -12,6 +12,7 @@ function loadRenderer() {
   const window = { __CLAUDIAN_ENABLE_TESTING__: true, location: { search: '', href: 'file:///sidebar.html' },
     addEventListener() {}, removeEventListener() {} };
   window.parent = window;
+  window.SidebarProviderStyles={ready:Promise.resolve(),apply(){}};
   const context = { React, ReactDOM: { createRoot: () => ({ render() {} }) }, window,
     document: { documentElement: { dataset: {} }, getElementById: () => ({}) },
     URL, URLSearchParams, console, setTimeout, clearTimeout };
@@ -33,4 +34,20 @@ test('standalone Markdown emphasis and strong text still render', () => {
     assert.equal(nodes[0].type, tag);
     assert.equal(flatten(nodes), text);
   }
+});
+
+test('display formulas immediately after prose remain standalone math blocks', () => {
+  for (const [open,close] of [['\\[','\\]'],['$$','$$']]) {
+    const blocks=renderer.parseMarkdownBlocks('公式：\n'+open+'\n\\frac{n(n+1)}{2}\n'+close+'\n下一段');
+    assert.deepEqual(Array.from(blocks,b=>b.type),['paragraph','math','paragraph']);
+    assert.equal(blocks[1].latex,'\\frac{n(n+1)}{2}');
+  }
+});
+
+test('unclosed formulas and fenced examples remain literal', () => {
+  const incomplete=renderer.parseMarkdownBlocks('公式：\n\\[\nx + y');
+  assert.deepEqual(Array.from(incomplete,b=>b.type),['paragraph']);
+  const code=renderer.parseMarkdownBlocks('```text\n\\[\nx + y\n\\]\n```');
+  assert.equal(code[0].type,'code');
+  assert.equal(code[0].code,'\\[\nx + y\n\\]');
 });

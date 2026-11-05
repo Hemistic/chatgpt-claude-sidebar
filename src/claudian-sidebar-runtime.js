@@ -10,6 +10,9 @@ const { app, dialog, net, shell } = require('electron');
 const tar = require('tar');
 const { decompressZstd } = require('./zstd');
 const { EnvironmentManager } = require('./environment-manager');
+const { CodexNativeClient, reviewTarget, parseReview } = require('./codex-native-client.cjs');
+const { CodexPlan } = require('./codex-plan.cjs');
+const { ClaudePlanTracker } = require('./claude-plan-tracker.cjs');
 const { activatePlatformEnvironment, unixExecutableCandidates } = require('./platform-environment');
 activatePlatformEnvironment();
 const {
@@ -24,6 +27,7 @@ const { getHostConfig } = require('./host-config');
 
 const IPC = {
 	getState: 'claudian-sidebar:get-state',
+    codexAction: 'claudian-sidebar:codex-action',
 	getDiagnostics: 'claudian-sidebar:get-diagnostics',
 	environment: 'claudian-sidebar:environment',
 	updateSettings: 'claudian-sidebar:update-settings',
@@ -1495,6 +1499,13 @@ const NOTIFICATION_METHODS = [
 	'item/fileChange/patchUpdated',
 	'thread/tokenUsage/updated',
 	'turn/plan/updated',
+    'turn/diff/updated',
+    'account/updated',
+    'account/rateLimits/updated',
+    'model/rerouted',
+    'thread/goal/updated',
+    'thread/goal/cleared',
+    'thread/queue/changed',
 	'error',
 	'event_msg',
 	'rawResponseItem/completed',
@@ -3919,7 +3930,8 @@ function getReasoningEffortCapabilities(providerId, model, options = {}) {
 			return explicit.filter((effort) => effort !== 'ultra');
 		}
 		const known = [];
-		if (supportsClaudeMaxEffort(model)) known.push('low', 'medium', 'high', 'max');
+        if (/^claude-(?:haiku|sonnet|opus)-[5-9](?:-|$)/u.test(reasoningModelId('claude', model).toLowerCase())) known.push('low', 'medium', 'high');
+		if (supportsClaudeMaxEffort(model)) known.splice(0, known.length, 'low', 'medium', 'high', 'max');
 		if (supportsClaudeXHighEffort(model)) known.splice(3, 0, 'xhigh');
 		// Claude's `ultracode` is a separate workflow mode, not a model
 		// reasoning effort. It is intentionally not represented by `ultra` here.
@@ -6935,7 +6947,7 @@ function updateNativeCodexPersistedToolOutput(messages, blocks, callId, rawOutpu
 	return false;
 }
 
-function buildNativeHistory(providerId, sessionId, filePath, messages, mtimeMs) {
+function buildNativeHistory(providerId, sessionId, filePath, messages, mtimeMs, workspace = '') {
 	if (!sessionId || messages.length === 0) {
 		return null;
 	}
@@ -6962,6 +6974,7 @@ function buildNativeHistory(providerId, sessionId, filePath, messages, mtimeMs) 
 		nativeSessionPath: filePath,
 		nativeSessionMtimeMs: fallbackTime,
 		nativeHistory: true,
+		workspace,
 	};
 }
 
@@ -7219,7 +7232,7 @@ function parseClaudeNativeHistoryBundle(fileInfo, resumeAtMessageId = '', option
 	flushAssistant();
 	messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
 	return {
-		history: buildNativeHistory('claude', sessionId, fileInfo.path, messages, fileInfo.mtimeMs),
+		history: buildNativeHistory('claude', sessionId, fileInfo.path, messages, fileInfo.mtimeMs, records.find(record => record.cwd)?.cwd || options.workspace || ''),
 		sessionId,
 		messages,
 	};
@@ -7647,7 +7660,7 @@ function parseCodexNativeHistoryBundle(fileInfo) {
 		sessionId = match ? match[0] : path.basename(fileInfo.path, '.jsonl');
 	}
 	return {
-		history: buildNativeHistory('codex', sessionId, fileInfo.path, messages, fileInfo.mtimeMs),
+		history: buildNativeHistory('codex', sessionId, fileInfo.path, messages, fileInfo.mtimeMs, records.find(record => record.type === 'session_meta')?.payload?.cwd || ''),
 		sessionId,
 		turns: buildCodexNativeTurns(messages),
 	};
@@ -8706,9 +8719,9 @@ function resolveCodexLaunchSpec(settings) {
 function resolveClaudeCommand(settings) {
 	const configured = String(settings.claudePath || '').trim();
 	if (configured) {
-		return assertSafeLaunchCommand(configured, 'Claude executable');
+		return resolveClaudeNativeWindowsCommand(assertSafeLaunchCommand(configured, 'Claude executable'));
 	}
-	return resolveNativeClaudeCodeExecutable() || (process.platform === 'win32' ? 'claude.cmd' : 'claude');
+	return resolveClaudeNativeWindowsCommand(resolveNativeClaudeCodeExecutable() || (process.platform === 'win32' ? 'claude.cmd' : 'claude'));
 }
 
 function buildClaudeEnvironment(settings) {
@@ -8939,7 +8952,13 @@ function resolveClaudeEffort(value, options = {}) {
 	const hasModelContext = !!options.model || !!options.settings || !!options.modelAsset;
 	if (!hasModelContext) return effort === 'ultra' ? 'max' : effort;
 	const capabilities = getReasoningEffortCapabilities('claude', options.model, options);
-	if (capabilities.length === 0) return '';
+	if (capabilities.length === 0) {
+		const asset = findReasoningModelAsset('claude', options.model, options);
+		const model = reasoningModelId('claude', options.model).toLowerCase();
+		if (asset?.supportsReasoningEffort === false || model === 'haiku' || /^claude-haiku-[34](?:-|$)/u.test(model)) return '';
+		// Unknown/new model metadata must not silently discard an explicit effort.
+		return effort === 'ultra' ? 'max' : effort;
+	}
 	return capabilities.includes(effort)
 		? effort
 		: safeReasoningEffort('claude', options.model, effort, options);
@@ -9492,6 +9511,11 @@ function buildCodexWritableRoots(settings, options = {}) {
 }
 
 function resolveSandboxConfig(settings, options = {}) {
+	if (settings.permissionMode === 'plan') {
+		return { approvalPolicy: 'never', sandbox: 'read-only', sandboxPolicy: {
+			type: 'readOnly', access: { type: 'fullAccess' }, networkAccess: false,
+		} };
+	}
 	if (settings.permissionMode === 'yolo') {
 		return {
 			approvalPolicy: 'never',
@@ -10150,13 +10174,13 @@ function buildClaudeSdkExtraArgs(settings) {
 function buildClaudeSdkQueryOptions(settings, launch, payload, canUseTool, abortController) {
 	const activeMcp = launch.activeMcp || {};
 	const mcpServers = isRecord(activeMcp.mcpServers) ? activeMcp.mcpServers : {};
-	const effort = resolveClaudeEffort(payload.effort || settings.effort, {
+	const effort = launch.effort ?? resolveClaudeEffort(payload.effort || settings.effort, {
 		model: launch.model,
 		settings,
 	});
 	const options = {
 		cwd: launch.workspace,
-		pathToClaudeCodeExecutable: launch.command,
+		pathToClaudeCodeExecutable: resolveClaudeNativeWindowsCommand(launch.command),
 		env: launch.env,
 		model: launch.model,
 		permissionMode: resolveClaudeSdkPermissionMode(settings),
@@ -10198,6 +10222,16 @@ function buildClaudeSdkQueryOptions(settings, launch, payload, canUseTool, abort
 		}
 	}
 	return options;
+}
+
+// npm's Windows shim cannot be spawned directly by the SDK (shell: false).
+// Use the installed native binary only for this known npm package layout.
+function resolveClaudeNativeWindowsCommand(command) {
+	if (process.platform !== 'win32' || !/\.cmd$/i.test(command)) return command;
+	const resolved = /[\\/]/.test(command) ? command : probeExecutable(command, process.env, process.cwd()).resolvedPath;
+	if (!resolved) return command;
+	const native = path.join(path.dirname(resolved), 'node_modules', '@anthropic-ai', 'claude-code', 'bin', 'claude.exe');
+	return fs.existsSync(native) ? native : command;
 }
 
 function getClaudeActionPattern(toolName, input) {
@@ -10627,11 +10661,14 @@ function normalizeCodexTokenUsage(params = {}) {
 	const tokenUsage = params?.tokenUsage && typeof params.tokenUsage === 'object' ? params.tokenUsage : {};
 	const last = tokenUsage.last && typeof tokenUsage.last === 'object' ? tokenUsage.last : tokenUsage;
 	const inputTokens = Number(last.inputTokens ?? last.input_tokens ?? 0) || 0;
+	const outputTokens = Number(last.outputTokens ?? last.output_tokens ?? 0) || 0;
 	const cacheReadInputTokens = Number(last.cachedInputTokens ?? last.cacheReadInputTokens ?? last.cached_input_tokens ?? 0) || 0;
 	const contextWindow = Number(tokenUsage.modelContextWindow ?? tokenUsage.model_context_window ?? last.contextWindow ?? 0) || 0;
 	const contextTokens = inputTokens;
 	return {
 		inputTokens,
+		outputTokens,
+		totalTokens: Number(last.totalTokens ?? last.total_tokens ?? inputTokens + outputTokens) || 0,
 		cacheCreationInputTokens: 0,
 		cacheReadInputTokens,
 		contextWindow,
@@ -10763,7 +10800,9 @@ class CodexRpcTransport {
 			clearTimeout(pending.timer);
 		}
 		if (message.error) {
-			pending.reject(new Error(message.error.message || pending.method));
+			pending.reject(Object.assign(new Error(message.error.message || pending.method), {
+				code: message.error.code, data: message.error.data,
+			}));
 			return;
 		}
 		pending.resolve(message.result);
@@ -11029,6 +11068,7 @@ class ClaudianSidebarRuntime {
 		}
 		const registrations = [
 			[IPC.getState, (event) => this.handleGetState(event)],
+            [IPC.codexAction, (event, payload) => this.handleCodexAction(event, payload)],
 			[IPC.getDiagnostics, (event) => this.handleGetDiagnostics(event)],
 			[IPC.environment, (_event, payload) => this.handleEnvironment(payload)],
 			[IPC.updateSettings, (event, payload) => this.handleUpdateSettings(event, payload)],
@@ -11052,7 +11092,7 @@ class ClaudianSidebarRuntime {
 			[IPC.startMarkdownNoteAi, (event, payload) => this.handleStartMarkdownNoteAi(event, payload)],
 			[IPC.cancelMarkdownNoteAi, (_event, payload) => this.handleCancelMarkdownNoteAi(payload)],
 			[IPC.respondApproval, (_event, payload) => this.handleApprovalResponse(payload)],
-			[IPC.pickWorkspace, (event) => this.handlePickWorkspace(event)],
+			[IPC.pickWorkspace, (event, options) => this.handlePickWorkspace(event, options)],
 			[IPC.openLogFolder, () => this.handleOpenLogFolder()],
 			[IPC.openPath, (event, payload) => this.handleOpenPath(event, payload)],
 			[IPC.getMineruWorkspaceTrees, (_event, payload) => this.handleGetMineruWorkspaceTrees(payload)],
@@ -11555,7 +11595,11 @@ class ClaudianSidebarRuntime {
 			}
 			if (!provider || provider === 'codex') {
 				try {
-					const models = await fetchCodexRuntimeModelAssets(effectiveSettings);
+					// The CLI catalog follows the authenticated native route, including custom providers.
+					if (this.settings.provider === 'codex' && !this.codexNative) await this.ensureCodex();
+					const models = this.settings.provider === 'codex' && this.codexNative
+						? normalizeRuntimeModelAssets('codex', await this.codexNative.models())
+						: await fetchCodexRuntimeModelAssets(effectiveSettings);
 					if (models.length > 0) {
 						this.runtimeModelAssets.codexRuntimeModels = mergeRuntimeModelAssets(
 							'codex',
@@ -11733,6 +11777,93 @@ class ClaudianSidebarRuntime {
 			});
 		});
 	}
+
+    async handleCodexAction(event, payload = {}) {
+        this.webContents = event.sender;
+        // Browsing Codex history must also work while a Claude conversation is open.
+        // Use a separate read-only connection so it cannot steal the active turn.
+        if (this.settings.provider !== 'codex' && ['threads', 'history'].includes(payload.action)) {
+            try { return { ok: true, data: await this.readCodexHistory(payload) }; }
+            catch (error) { return { ok: false, error: error.message, code: error.code || '' }; }
+        }
+        if (this.settings.provider !== 'codex') return { ok: false, error: '请切换到 Codex 会话后再读取 CLI 信息' };
+        try {
+            await this.ensureCodex();
+            if (payload.action === 'queueAdd' || payload.action === 'queueStart') {
+                this.codexQueueOwners ||= new Map();
+                if (payload.action === 'queueAdd' && (!this.currentTurnId || this.threadId !== payload.threadId || !this.activeSessionKey)) throw new Error('当前任务已结束或正在其他会话执行，请直接发送消息');
+                if (payload.action === 'queueStart') {
+                    if (this.currentTurnId) throw new Error('请等待当前任务结束后再启动待发队列');
+                    if (!payload.sessionKey || typeof payload.sessionKey !== 'string') throw new Error('Invalid queue session');
+                    await this.resumeCodexThread(payload.threadId, {});
+                    this.threadId = payload.threadId; this.activeSessionKey = payload.sessionKey;
+                }
+                this.codexQueueOwners.set(payload.threadId, this.activeSessionKey);
+            }
+            if (payload.action === 'archive' && this.currentTurnId && payload.threadId === this.threadId) throw new Error('请先停止当前任务，再归档会话');
+            if (['goalSet', 'goalClear'].includes(payload.action) && this.loadedThreadId !== payload.threadId) {
+                if (typeof payload.threadId !== 'string' || !payload.threadId.trim()) throw new Error('Invalid threadId');
+                if (this.currentTurnId) throw new Error('请等待当前任务结束后，再修改其他会话的目标');
+                // Unarchive restores the rollout, but does not load its live session.
+                // Goal mutations also record an instruction and must use that session's writer.
+                await this.resumeCodexThread(payload.threadId, {});
+            }
+            const data = await this.codexNative.action(payload, this.resolveCodexRepoTargetRoot());
+            if (payload.action.startsWith('queue') && payload.action !== 'queueList') void this.refreshCodexQueue(payload.threadId);
+            if (payload.action === 'archive' && payload.threadId === this.loadedThreadId) this.loadedThreadId = null;
+            if (payload.action === 'models') {
+                const models = normalizeRuntimeModelAssets('codex', data);
+                this.runtimeModelAssets.codexRuntimeModels = models;
+                this.emit({ type: 'provider-assets', assets: { codexRuntimeModels: models, codexRuntimeModelsLoaded: true } });
+            }
+            return { ok: true, data };
+        } catch (error) { return { ok: false, error: error.message, code: error.code || '' }; }
+    }
+
+    async readCodexHistory(payload) {
+        if (!['threads', 'history'].includes(payload.action)) throw new Error('History connection is read-only');
+        const spec = await this.buildCodexRuntimeLaunchSpec();
+        const proc = this.spawnProcess(spec.command, spec.args, {
+            cwd: spec.cwd, env: spec.env, stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true, shell: spec.shell,
+        });
+        const transport = new CodexRpcTransport(proc);
+        proc.stderr?.resume();
+        proc.once('error', error => transport.dispose(error.message));
+        const connection = { proc, transport };
+        this.historyReaders ||= new Set();
+        this.historyReaders.add(connection);
+        try {
+            transport.start();
+            await transport.request('initialize', {
+                clientInfo: { name: 'ai-sidebar-history', title: 'AI Sidebar history', version: '0.1.0' },
+                capabilities: { experimentalApi: true },
+            });
+            transport.notify('initialized');
+            const client = new CodexNativeClient((method, params, timeout) => transport.request(method, params, timeout));
+            return await client.action(payload, this.resolveCodexRepoTargetRoot());
+        } finally {
+            this.historyReaders.delete(connection);
+            transport.dispose();
+            terminateProcess(proc);
+        }
+    }
+
+    async refreshCodexQueue(threadId) {
+        try {
+            const { data } = await this.codexNative.queue({ action: 'queueList', threadId });
+            this.emit({ type: 'codex-queue', threadId, items: data });
+            if (!data.length && !this.currentTurnId && this.codexQueueOwners?.has(threadId)) {
+                const sessionKey = this.codexQueueOwners.get(threadId);
+                this.codexQueueOwners.delete(threadId);
+                if (this.activeSessionKey === sessionKey) this.activeSessionKey = null;
+                this.emit({ type: 'native-queue-idle', sessionKey, threadId });
+            }
+            return data;
+        } catch (error) {
+            this.emit({ type: 'codex-queue', threadId, error: error.message });
+            return null;
+        }
+    }
 
 	async handleGetState(event) {
 		this.webContents = event.sender;
@@ -13148,16 +13279,16 @@ class ClaudianSidebarRuntime {
 		this.inlineEditSession = null;
 	}
 
-	async handlePickWorkspace(event) {
+	async handlePickWorkspace(event, options = {}) {
 		const browserWindow = event.sender.getOwnerBrowserWindow();
 		const result = await dialog.showOpenDialog(browserWindow, {
-			properties: ['openDirectory', 'createDirectory'],
-			title: 'Choose AI sidebar workspace',
+			properties: options?.kind === 'files' ? ['openFile', 'multiSelections'] : ['openDirectory', 'createDirectory'],
+			title: options?.kind === 'files' ? 'Add files to this conversation' : 'Choose AI sidebar workspace',
 		});
 		if (result.canceled || !result.filePaths?.[0]) {
 			return { ok: false };
 		}
-		return { ok: true, path: result.filePaths[0] };
+		return { ok: true, path: result.filePaths[0], paths: result.filePaths };
 	}
 
 	requiresRestart(previous, next) {
@@ -13368,6 +13499,15 @@ class ClaudianSidebarRuntime {
 	}
 
 	async ensureCodex() {
+		if (!this.codexConnecting) {
+			this.codexConnecting = this.connectCodex();
+		}
+		const connecting = this.codexConnecting;
+		try { await connecting; }
+		finally { if (this.codexConnecting === connecting) this.codexConnecting = null; }
+	}
+
+	async connectCodex() {
 		if (this.settings.provider !== 'codex') {
 			throw new Error('Only Codex runtime is implemented in this migration slice.');
 		}
@@ -13381,6 +13521,7 @@ class ClaudianSidebarRuntime {
 			return;
 		}
 		if (this.transport || this.proc) {
+			this.codexNative = null;
 			this.transport?.dispose();
 			if (this.proc && !this.proc.killed) {
 				terminateProcess(this.proc);
@@ -13420,6 +13561,10 @@ class ClaudianSidebarRuntime {
 			if (this.proc !== proc) {
 				return;
 			}
+			if (this.currentTurnId) {
+				this.emit({ type: 'error', content: `Codex 连接中断（${code ?? signal ?? 'unknown'}），请重试本轮。` });
+				this.emit({ type: 'done', sessionKey: this.activeSessionKey, status: 'failed' });
+			}
 			this.emit({
 				type: 'status',
 				status: 'stopped',
@@ -13427,6 +13572,7 @@ class ClaudianSidebarRuntime {
 			});
 			this.cleanupCodexProcessState(`Codex app-server exited (${code ?? signal ?? 'unknown'})`);
 			this.transport = null;
+			this.codexNative = null;
 			this.proc = null;
 			this.threadId = null;
 			this.currentTurnId = null;
@@ -13448,10 +13594,11 @@ class ClaudianSidebarRuntime {
 		}
 
 		const init = await this.transport.request('initialize', {
-			clientInfo: { name: 'pdf-ai-claudian-sidebar', version: '0.1.0' },
+			clientInfo: { name: 'ai-sidebar', title: 'AI Sidebar', version: '0.1.0' },
 			capabilities: { experimentalApi: true },
 		});
 		this.transport.notify('initialized');
+        this.codexNative = new CodexNativeClient((method, params, timeout) => this.transport.request(method, params, timeout));
 		this.emit({ type: 'status', status: 'ready', detail: init?.userAgent || 'Codex ready' });
 		this.emitProviderAssetsForWorkspace(this.settings.workspace || this.defaultWorkspace, {
 			forceReload: true,
@@ -14736,7 +14883,17 @@ class ClaudianSidebarRuntime {
 				? await this.prepareCodexFork(sessionKey, payload, codexFork)
 				: await this.ensureThread(sessionKey, payload);
 			this.resetCodexTurnState();
-			if (isCompactCommand(text)) {
+            if (/^\/review(?:\s|$)/i.test(text)) {
+                this.reviewTurn = true;
+                const result = await this.transport.request('review/start', { threadId, delivery: 'inline', target: reviewTarget(text) }, 60000);
+                this.currentTurnId = result?.turn?.id || null;
+                if (!this.currentTurnId) throw new Error('Codex review did not return a turn id');
+                this.emit({ type: 'turn-started', sessionKey, threadId, turnId: this.currentTurnId });
+                this.flushPendingTurnNotifications();
+                return { ok: true, sessionKey, threadId, turnId: this.currentTurnId, review: true };
+            }
+			this.codexPlan = new CodexPlan(this.settings.permissionMode === 'plan');
+            if (isCompactCommand(text)) {
 				if (text !== '/compact') {
 					throw new Error('/compact does not accept arguments');
 				}
@@ -15171,6 +15328,11 @@ class ClaudianSidebarRuntime {
 		});
 	}
 
+	isExpectedClaudeUserInterruption(message) {
+		return this.activeClaudeLaunch?.userInterrupted === true
+			&& /(?:\[ede_diagnostic\].*result_type=user|user interrupted|user declined)/iu.test(String(message || ''));
+	}
+
 	createClaudeSdkApprovalCallback() {
 		return async (toolName, input, options = {}) => {
 			const normalizedToolName = String(toolName || 'Tool');
@@ -15198,7 +15360,7 @@ class ClaudianSidebarRuntime {
 						title: 'Plan complete',
 						description: options.description || 'Claude is ready to leave plan mode.',
 						input: normalizedInput,
-						plan: readClaudePlanContent(normalizedInput),
+						plan: this.resolveClaudePlanContent(normalizedInput),
 						permissions: getClaudePlanPermissions(normalizedInput),
 					}, commonMeta);
 					return this.buildClaudeControlApprovalResponse(controlRequest, answer);
@@ -15283,6 +15445,7 @@ class ClaudianSidebarRuntime {
 			textDeltaSeen: false,
 			thinkingDeltaSeen: false,
 			toolBlocks: new Map(),
+			planTracker: new ClaudePlanTracker(),
 			sawAnyChunk: false,
 		};
 		this.activeClaudeLaunch = {
@@ -15329,18 +15492,19 @@ class ClaudianSidebarRuntime {
 				}
 			}
 			catch (error) {
-				failed = true;
 				const message = error instanceof Error ? error.message : String(error);
-				if (!this.claudeAbortController?.signal.aborted) {
+				failed = !this.isExpectedClaudeUserInterruption(message);
+				if (failed && !this.claudeAbortController?.signal.aborted) {
 					this.emit({ type: 'error', content: message });
 				}
 			}
 			finally {
-				this.emit({ type: 'done', sessionKey });
+				const interrupted = this.activeClaudeLaunch?.userInterrupted === true;
+				this.emit({ type: 'done', sessionKey, ...(interrupted ? { status: 'interrupted' } : {}) });
 				this.emit({
 					type: 'status',
-					status: failed ? 'failed' : 'ready',
-					detail: failed ? 'Claude turn failed' : 'Claude ready',
+					status: failed ? 'failed' : interrupted ? 'cancelled' : 'ready',
+					detail: failed ? 'Claude turn failed' : interrupted ? 'Stopped by user' : 'Claude ready',
 				});
 				this.resolvePendingClaudeTurnApprovals('deny', 'Claude turn ended before the request was answered.');
 				cleanupTempDir(launch.activeMcp?.tempDir);
@@ -15455,6 +15619,7 @@ class ClaudianSidebarRuntime {
 			historyRebuilt: !!historyContext,
 			stdinMessage,
 			stdinText,
+			effort,
 			activeMcp,
 			allowedTools,
 			disallowedTools,
@@ -15484,6 +15649,7 @@ class ClaudianSidebarRuntime {
 			textDeltaSeen: false,
 			thinkingDeltaSeen: false,
 			toolBlocks: new Map(),
+			planTracker: new ClaudePlanTracker(),
 			sawAnyChunk: false,
 		};
 		this.activeClaudeLaunch = {
@@ -15511,6 +15677,7 @@ class ClaudianSidebarRuntime {
 					textDeltaSeen: false,
 					thinkingDeltaSeen: false,
 					toolBlocks: new Map(),
+			planTracker: new ClaudePlanTracker(),
 					sawAnyChunk: false,
 				};
 				this.activeClaudeLaunch = {
@@ -15748,15 +15915,16 @@ class ClaudianSidebarRuntime {
 			return;
 		}
 		if (message.type === 'result') {
+			this.emitClaudeUsage(message.usage, message.modelUsage);
 			const resultSubtype = String(message.subtype || '');
 			if (message.is_error || (resultSubtype && resultSubtype !== 'success')) {
 				const errors = Array.isArray(message.errors)
 					? message.errors.map((entry) => String(entry || '').trim()).filter(Boolean).join('\n')
 					: '';
+				if (this.isExpectedClaudeUserInterruption(errors || message.result || message.error)) return;
 				this.emit({ type: 'error', content: errors || message.result || message.error || `Claude result error: ${resultSubtype || 'error'}`, raw: message });
 				return;
 			}
-			this.emitClaudeUsage(message.usage, message.modelUsage);
 		}
 	}
 
@@ -15807,7 +15975,7 @@ class ClaudianSidebarRuntime {
 				title: 'Plan complete',
 				description: request.description || 'Claude is ready to leave plan mode.',
 				input,
-				plan: readClaudePlanContent(input),
+				plan: this.resolveClaudePlanContent(input),
 				permissions: getClaudePlanPermissions(input),
 			}, commonMeta);
 			return;
@@ -15917,13 +16085,17 @@ class ClaudianSidebarRuntime {
 					interrupt: false,
 				};
 			}
+			const acceptedModes = ['default', 'acceptEdits', 'auto', 'bypassPermissions'];
+			const fallbackMode = this.settings?.claudeSafeMode || 'acceptEdits';
+			const targetMode = acceptedModes.includes(planDecision.targetMode)
+				? planDecision.targetMode : acceptedModes.includes(fallbackMode) ? fallbackMode : 'default';
 			return {
 				...response,
 				behavior: 'allow',
 				updatedInput: control.input || {},
 				updatedPermissions: [{
 					type: 'setMode',
-					mode: resolveClaudeSdkPermissionMode(this.settings),
+					mode: targetMode,
 					destination: 'session',
 				}],
 			};
@@ -16024,6 +16196,10 @@ class ClaudianSidebarRuntime {
 		}
 	}
 
+	resolveClaudePlanContent(input) {
+		return readClaudePlanContent(input) || readClaudePlanContent({ planFilePath: this.claudeStreamState?.planTracker?.filePath });
+	}
+
 	handleClaudeAssistantBlocks(message) {
 		const blocks = Array.isArray(message?.message?.content) ? message.message.content : [];
 		for (const block of blocks) {
@@ -16036,6 +16212,7 @@ class ClaudianSidebarRuntime {
 			}
 			if (block.type === 'tool_use') {
 				const id = block.id || `claude-tool-${Date.now()}`;
+				this.claudeStreamState?.planTracker?.observe(id, block.name, getClaudeToolInput(block.input));
 				this.emit({
 					type: 'chunk',
 					chunk: {
@@ -16062,6 +16239,7 @@ class ClaudianSidebarRuntime {
 			});
 		}
 		if (message.tool_use_result !== undefined && parentToolUseId) {
+			this.claudeStreamState?.planTracker?.complete(parentToolUseId, message.tool_use_result?.is_error === true);
 			const content = extractClaudeToolResultContent(message.tool_use_result);
 			this.emit({
 				type: 'chunk',
@@ -16086,6 +16264,7 @@ class ClaudianSidebarRuntime {
 				continue;
 			}
 			const content = extractClaudeToolResultContent(block.content);
+			this.claudeStreamState?.planTracker?.complete(id, block.is_error === true);
 			this.emit({
 				type: 'chunk',
 				chunk: {
@@ -16185,6 +16364,7 @@ class ClaudianSidebarRuntime {
 					},
 					raw: event,
 				});
+				this.claudeStreamState?.planTracker?.observe(tool.id, tool.name, input);
 				this.claudeStreamState.toolBlocks.delete(event.index);
 			}
 			return;
@@ -16258,6 +16438,10 @@ class ClaudianSidebarRuntime {
 	}
 
 	resetCodexTurnState() {
+		this.codexPlan = new CodexPlan();
+		this.currentReviewResult = false;
+		this.reviewTurn = false;
+		this.reviewModeExited = false;
 		this.agentTextDeltaSeen = false;
 		this.sawPlanDelta = false;
 		this.currentPlanText = '';
@@ -16300,8 +16484,10 @@ class ClaudianSidebarRuntime {
 			return;
 		}
 		if (!this.currentTurnId) {
+			const owner = this.codexQueueOwners?.get(threadId);
+			if (owner) { this.resetCodexTurnState(); this.activeSessionKey = owner; }
 			this.currentTurnId = turnId;
-			this.emit({ type: 'turn-started', sessionKey: this.activeSessionKey, threadId, turnId: this.currentTurnId });
+			this.emit({ type: 'turn-started', sessionKey: this.activeSessionKey, threadId, turnId: this.currentTurnId, nativeQueued: !!owner });
 			this.flushPendingTurnNotifications();
 		}
 	}
@@ -16355,6 +16541,22 @@ class ClaudianSidebarRuntime {
 		this.currentAssistantSegmentText = '';
 	}
 
+	captureCodexPlan(text, native = false, raw) {
+		if (!this.codexPlan?.capture(text, native)) return false;
+		this.emit({ type: 'chunk', chunk: { type: 'plan_proposal', id: `proposal-${this.currentTurnId}`, plan: this.codexPlan.text }, raw });
+		return true;
+	}
+
+	emitCodexReview(text, raw) {
+		const review = parseReview(text);
+		if (!review) return false;
+		if (!this.currentReviewResult) {
+			this.currentReviewResult = true;
+			this.emit({ type: 'chunk', chunk: { type: 'review_result', id: `review-${this.currentTurnId}`, review, sourceText: text }, raw });
+		}
+		return true;
+	}
+
 	emitRawAssistantText(item = {}) {
 		if (item.role && item.role !== 'assistant') {
 			return;
@@ -16365,6 +16567,9 @@ class ClaudianSidebarRuntime {
 		if (!text) {
 			return;
 		}
+		if (this.captureCodexPlan(text, false, { method: 'rawResponseItem/completed', params: { item } })) return;
+		if (this.emitCodexReview(text, { method: 'rawResponseItem/completed', params: { item } })) return;
+		if (this.reviewTurn) return;
 		let missing = text;
 		if (this.currentAssistantSegmentText && text.startsWith(this.currentAssistantSegmentText)) {
 			missing = text.slice(this.currentAssistantSegmentText.length);
@@ -16422,6 +16627,7 @@ class ClaudianSidebarRuntime {
 				input: rawResult.input || {},
 				content: rawResult.content,
 				result: rawResult.result ?? rawResult.content,
+				nativeStatus: raw?.params?.item?.status,
 				isError: !!rawResult.isError,
 			},
 			raw: raw || { method: 'rawResponseItem/completed', params: {} },
@@ -16501,6 +16707,9 @@ class ClaudianSidebarRuntime {
 			return;
 		}
 		const text = String(payload.text || payload.message || '');
+		if (this.captureCodexPlan(text, false, { method: 'event_msg', params })) return;
+		if (this.emitCodexReview(text, { method: 'event_msg', params })) return;
+		if (this.reviewTurn) return;
 		if (!text) {
 			return;
 		}
@@ -16576,6 +16785,16 @@ class ClaudianSidebarRuntime {
 
 	handleNotification(method, params) {
 		this.log('runtime.codex.notification', summarizeCodexNotification(method, params));
+        if (method === 'thread/queue/changed') { void this.refreshCodexQueue(params.threadId); return; }
+        if (method === 'thread/goal/updated' || method === 'thread/goal/cleared') {
+            this.emit({ type: 'codex-goal', threadId: params.threadId, goal: params.goal || null });
+            return;
+        }
+        if (method === 'account/updated' || method === 'account/rateLimits/updated') {
+            this.emit({ type: 'codex-account', change: method, data: params });
+            return;
+        }
+
 		if (method === 'serverRequest/resolved' || method === 'server/requestResolved') {
 			this.handleServerRequestResolved(params);
 			return;
@@ -16589,33 +16808,33 @@ class ClaudianSidebarRuntime {
 	dispatchNotification(method, params) {
 		switch (method) {
 			case 'item/agentMessage/delta':
+				// The final native plan item is authoritative. Buffer plan-mode prose so
+				// protocol tags never flash in the conversation while streaming.
+				if (this.codexPlan?.enabled) break;
 				this.agentTextDeltaSeen = true;
 				if (params?.itemId) {
 					addBoundedSetEntry(this.agentMessageDeltaIds, params.itemId);
 				}
 				this.currentAssistantSegmentText = appendLimitedText(this.currentAssistantSegmentText, params?.delta || '', CODEX_TURN_TEXT_MEMORY_MAX_CHARS);
 				this.streamedAssistantTurnText = appendLimitedText(this.streamedAssistantTurnText, params?.delta || '', CODEX_TURN_TEXT_MEMORY_MAX_CHARS);
-				this.emit({ type: 'chunk', chunk: { type: 'text', content: params?.delta || '' }, raw: { method, params } });
+				if (!this.reviewTurn) this.emit({ type: 'chunk', chunk: { type: 'text', content: params?.delta || '' }, raw: { method, params } });
 				break;
 			case 'item/reasoning/summaryTextDelta':
 			case 'item/reasoning/textDelta':
 				this.emit({ type: 'chunk', chunk: { type: 'thinking', content: params?.delta || '' }, raw: { method, params } });
 				break;
 			case 'item/plan/delta':
-				this.sawPlanDelta = true;
-				this.currentPlanText = appendLimitedText(this.currentPlanText, params?.delta || '', CODEX_PLAN_TEXT_MEMORY_MAX_CHARS);
-				this.emit({ type: 'chunk', chunk: { type: 'text', content: params?.delta || '' }, raw: { method, params } });
+				this.codexPlan.delta(params?.delta);
+				this.emit({ type: 'chunk', chunk: { type: 'plan_proposal', id: `proposal-${params.turnId}`, plan: this.codexPlan.text }, raw: { method, params } });
 				break;
-			case 'turn/plan/updated':
-				this.planUpdateCounter += 1;
-				{
-					const syntheticId = `plan-update-${params?.turnId || this.planUpdateCounter}`;
-					const input = { todos: buildCodexPlanTodos(params?.plan || []) };
-					this.resetAssistantSegmentText();
-					this.emit({ type: 'chunk', chunk: { type: 'tool_use', id: syntheticId, name: 'TodoWrite', input }, raw: { method, params } });
-					this.emit({ type: 'chunk', chunk: { type: 'tool_result', id: syntheticId, name: 'TodoWrite', input, content: 'Plan updated', result: 'Plan updated', isError: false }, raw: { method, params } });
-				}
-				break;
+
+            case 'turn/plan/updated':
+                this.emit({ type: 'chunk', chunk: { type: 'task_plan', id: `task-plan-${params.turnId}`, steps: params.plan || [], explanation: params.explanation || '' }, raw: { method, params } });
+                break;
+            case 'turn/diff/updated':
+                this.emit({ type: 'chunk', chunk: { type: 'turn_diff', id: `turn-diff-${params.turnId}`, diff: params.diff || '' }, raw: { method, params } });
+                break;
+
 			case 'thread/tokenUsage/updated':
 				this.emit({ type: 'chunk', chunk: { type: 'usage', usage: normalizeCodexTokenUsage(params), sessionId: params?.threadId || this.threadId || '' }, raw: { method, params } });
 				break;
@@ -16667,21 +16886,23 @@ class ClaudianSidebarRuntime {
 				if (params?.turn?.status === 'failed' && params?.turn?.error) {
 					this.emit({ type: 'error', content: params.turn.error.message || 'Codex error', raw: { method, params } });
 				}
-				if (params?.turn?.status === 'completed' && this.sawPlanDelta) {
-					this.emit({ type: 'chunk', chunk: { type: 'plan_completed', plan: this.currentPlanText || 'Plan complete.' }, raw: { method, params } });
+				if (this.codexPlan?.completed(params?.turn?.status)) {
+					this.emit({ type: 'chunk', chunk: { type: 'plan_completed', id: `approval-plan-${params.turn.id}`, plan: this.codexPlan.text }, raw: { method, params } });
 				}
 				this.flushPendingRawToolOutputs(method, params);
 				this.emit({
 					type: 'done',
 					sessionKey: this.activeSessionKey,
+					nativeQueuePending: this.codexQueueOwners?.has(params?.threadId || this.threadId) === true,
 					status: String(params?.turn?.status || 'completed').trim() || 'completed',
 					raw: { method, params },
 				});
 				this.currentTurnId = null;
-				this.activeSessionKey = null;
+				if (!this.codexQueueOwners?.has(params?.threadId || this.threadId)) this.activeSessionKey = null;
 				this.activeToolIds.clear();
 				this.pendingTurnNotifications = [];
 				this.resetCodexTurnState();
+				if (this.codexQueueOwners?.has(params?.threadId || this.threadId)) void this.refreshCodexQueue(params?.threadId || this.threadId);
 				break;
 			default:
 				this.emit({ type: 'raw', method, params });
@@ -16749,6 +16970,9 @@ class ClaudianSidebarRuntime {
 
 	handleItemStarted(params) {
 		const item = params?.item;
+		if (item?.type === 'plan') return;
+		if (item?.type === 'enteredReviewMode') { this.reviewTurn = true; return; }
+		if (item?.type === 'exitedReviewMode') return;
 		const id = getItemId(item);
 		if (!id || !item || item.type === 'reasoning') {
 			return;
@@ -16790,10 +17014,17 @@ class ClaudianSidebarRuntime {
 
 	handleItemCompleted(params) {
 		const item = params?.item;
+		if (item?.type === 'plan') { this.captureCodexPlan(item.text, true, { method: 'item/completed', params }); return; }
 		if (isCodexContextCompactionItem(item)) {
 			this.emit({ type: 'chunk', chunk: { type: 'context_compacted' }, raw: { method: 'item/completed', params } });
 			return;
 		}
+
+        if (item?.type === 'exitedReviewMode' && item.review) {
+            this.reviewModeExited = true;
+            if (!this.currentReviewResult) this.emitMissingAssistantText(item.review, { method: 'item/completed', params });
+            return;
+        }
 		const id = getItemId(item);
 		if (!id || !item) {
 			return;
@@ -16807,6 +17038,9 @@ class ClaudianSidebarRuntime {
 		}
 		if (item.type === 'agentMessage') {
 			this.emitAgentMessageBoundary(item, params);
+			if (this.captureCodexPlan(item.text, false, { method: 'item/completed', params })) return;
+			if (this.emitCodexReview(item.text, { method: 'item/completed', params })) return;
+			if (this.reviewTurn) return;
 			if (!this.agentMessageDeltaIds.has(id) && item.text) {
 				this.emitMissingAssistantText(item.text, { method: 'item/completed', params });
 			}
@@ -16833,6 +17067,7 @@ class ClaudianSidebarRuntime {
 				input: getToolInput(item),
 				...(typeof result === 'string' ? { content: result } : {}),
 				result,
+				nativeStatus: item.status,
 				isError: item.status === 'failed' || item.status === 'error' || item.status === 'declined' || item.exitCode > 0 || item.exit_code > 0,
 			},
 			raw: { method: 'item/completed', params },
@@ -16972,6 +17207,9 @@ class ClaudianSidebarRuntime {
 		const requestId = requestMeta.requestId || '';
 		const threadId = requestMeta.threadId || '';
 		const controlRequest = isRecord(requestMeta.controlRequest) ? requestMeta.controlRequest : null;
+		if (payload?.kind === 'exit_plan' && payload.plan && (source === 'claude-sdk' || source === 'claude-control')) {
+			this.emit({ type: 'chunk', chunk: { type: 'plan_proposal', id: `${approvalId}-plan`, plan: payload.plan } });
+		}
 		this.log('runtime.approval.request', {
 			approvalId,
 			...summarizeApprovalPayloadForLog(payload, { ...requestMeta, source, requestId, threadId }),
@@ -16989,10 +17227,11 @@ class ClaudianSidebarRuntime {
 			const finish = (value, reason = 'answered') => {
 				if (source === 'claude-control') {
 					if (controlRequest) {
-						this.writeClaudeControlResponse(
+						const delivered = this.writeClaudeControlResponse(
 							requestId,
 							this.buildClaudeControlApprovalResponse(controlRequest, value),
 						);
+						if (!delivered && reason === 'answered') return false;
 					}
 					if (requestId) {
 						this.pendingClaudeControlRequests.delete(requestId);
@@ -17000,6 +17239,7 @@ class ClaudianSidebarRuntime {
 				}
 				this.emitApprovalResolved(approvalId, requestId, threadId, reason);
 				resolve(value);
+				return true;
 			};
 			const timer = setTimeout(() => {
 				this.pendingApprovals.delete(approvalId);
@@ -17033,8 +17273,6 @@ class ClaudianSidebarRuntime {
 			});
 			return { ok: false, error: 'Approval request not found' };
 		}
-		this.pendingApprovals.delete(id);
-		clearTimeout(pending.timer);
 		this.log('runtime.approval.response', {
 			approvalId: id,
 			requestId: pending.requestId || '',
@@ -17045,18 +17283,31 @@ class ClaudianSidebarRuntime {
 			hasAnswers: !!(payload?.answers && typeof payload.answers === 'object'),
 			hasPlanDecision: isRecord(payload?.planDecision),
 		});
-		if (payload?.cancelled) {
-			pending.resolve({ cancelled: true, answers: isRecord(payload.answers) ? payload.answers : {} });
+		const value = payload?.cancelled
+			? { cancelled: true, answers: isRecord(payload.answers) ? payload.answers : {} }
+			: isRecord(payload?.planDecision) ? { planDecision: payload.planDecision }
+				: payload?.answers && typeof payload.answers === 'object' ? { answers: payload.answers }
+					: payload?.decision || 'deny';
+		if (pending.resolve(value) === false) {
+			return { ok: false, error: 'Claude connection is closed. Reconnect before retrying this response.' };
 		}
-		else if (isRecord(payload?.planDecision)) {
-			pending.resolve({ planDecision: payload.planDecision });
+		// The CLI already receives setMode in the approval response. Mirror that
+		// accepted mode without restarting the active query or widening permission.
+		if ((pending.source === 'claude-sdk' || pending.source === 'claude-control')
+			&& pending.kind === 'exit_plan' && !payload?.cancelled
+			&& payload?.planDecision?.type === 'approve') {
+			const response = this.buildClaudeControlApprovalResponse(
+				{ toolName: 'ExitPlanMode', input: pending.controlRequest?.input || {} }, value);
+			const mode = response.updatedPermissions?.find(update => update.type === 'setMode')?.mode;
+			if (mode) this.settings = { ...this.settings, claudeSafeMode: mode,
+				permissionMode: mode === 'bypassPermissions' ? 'yolo' : 'normal' };
 		}
-		else if (payload?.answers && typeof payload.answers === 'object') {
-			pending.resolve({ answers: payload.answers });
+		if ((pending.source === 'claude-sdk' || pending.source === 'claude-control') && this.activeClaudeLaunch
+			&& (payload?.cancelled || payload?.planDecision?.type === 'cancel')) {
+			this.activeClaudeLaunch.userInterrupted = true;
 		}
-		else {
-			pending.resolve(payload?.decision || 'deny');
-		}
+		this.pendingApprovals.delete(id);
+		clearTimeout(pending.timer);
 		return { ok: true };
 	}
 
@@ -17079,6 +17330,8 @@ class ClaudianSidebarRuntime {
 	}
 
 	async shutdown(options = {}) {
+        for (const reader of this.historyReaders || []) { reader.transport.dispose(); terminateProcess(reader.proc); }
+        this.historyReaders?.clear();
 		this.stateSupplementGeneration += 1;
 		this.clearStateSupplementTimers();
 		this.cleanupAllTitleGenerations();
@@ -17104,7 +17357,7 @@ class ClaudianSidebarRuntime {
 		this.claudeAbortController = null;
 		for (const pending of this.pendingApprovals.values()) {
 			clearTimeout(pending.timer);
-			pending.resolve('deny');
+			pending.resolve('deny', 'shutdown');
 		}
 		this.pendingApprovals.clear();
 		this.pendingClaudeControlRequests.clear();

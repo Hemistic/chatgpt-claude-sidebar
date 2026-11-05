@@ -1,0 +1,1131 @@
+/* Scoped native utilities and registered properties for approval and Plan renderers. */
+:where([data-codex-request-surface]) :is(.button-limited-outline){width: calc(100% + 2px); height: calc(100% + 2px); color: var(--color-border-strong); pointer-events: none; position: absolute; inset: -1px;}
+:where([data-codex-request-surface]) :is(.icon-xxs){width: 12px; height: 12px;}
+:where([data-codex-request-surface]) :is(.icon-2xs){height: var(--icon-secondary-size,14px); width: var(--icon-secondary-size,14px);}
+:where([data-codex-request-surface]) :is(.icon-sm){width: 18px; height: 18px;}
+@property --tw-leading { syntax: "*"; inherits: false; }
+@property --tw-duration { syntax: "*"; inherits: false; }
+@property --tw-ease { syntax: "*"; inherits: false; }
+@property --tw-backdrop-blur { syntax: "*"; inherits: false; }
+@property --tw-backdrop-brightness { syntax: "*"; inherits: false; }
+@property --tw-backdrop-contrast { syntax: "*"; inherits: false; }
+@property --tw-backdrop-grayscale { syntax: "*"; inherits: false; }
+@property --tw-backdrop-hue-rotate { syntax: "*"; inherits: false; }
+@property --tw-backdrop-invert { syntax: "*"; inherits: false; }
+@property --tw-backdrop-opacity { syntax: "*"; inherits: false; }
+@property --tw-backdrop-saturate { syntax: "*"; inherits: false; }
+@property --tw-backdrop-sepia { syntax: "*"; inherits: false; }
+@property --tw-translate-x { syntax: "*"; inherits: false; initial-value: 0; }
+@property --tw-translate-y { syntax: "*"; inherits: false; initial-value: 0; }
+@property --tw-translate-z { syntax: "*"; inherits: false; initial-value: 0; }
+@property --tw-shadow { syntax: "*"; inherits: false; initial-value: 0 0 #0000; }
+@property --tw-shadow-color { syntax: "*"; inherits: false; }
+@property --tw-shadow-alpha { syntax: "<percentage>"; inherits: false; initial-value: 100%; }
+@property --tw-inset-shadow { syntax: "*"; inherits: false; initial-value: 0 0 #0000; }
+@property --tw-inset-shadow-color { syntax: "*"; inherits: false; }
+@property --tw-inset-shadow-alpha { syntax: "<percentage>"; inherits: false; initial-value: 100%; }
+@property --tw-ring-color { syntax: "*"; inherits: false; }
+@property --tw-ring-shadow { syntax: "*"; inherits: false; initial-value: 0 0 #0000; }
+@property --tw-inset-ring-color { syntax: "*"; inherits: false; }
+@property --tw-inset-ring-shadow { syntax: "*"; inherits: false; initial-value: 0 0 #0000; }
+@property --tw-ring-inset { syntax: "*"; inherits: false; }
+@property --tw-ring-offset-width { syntax: "<length>"; inherits: false; initial-value: 0; }
+@property --tw-ring-offset-color { syntax: "*"; inherits: false; initial-value: #fff; }
+@property --tw-ring-offset-shadow { syntax: "*"; inherits: false; initial-value: 0 0 #0000; }
+@property --tw-font-weight { syntax: "*"; inherits: false; }
+@property --tw-tracking { syntax: "*"; inherits: false; }
+@property --tw-border-style { syntax: "*"; inherits: false; initial-value: solid; }
+@property --tw-content { syntax: "*"; inherits: false; initial-value: ""; }
+:where([data-codex-request-surface]) :is(*, ::after, ::before, ::backdrop){box-sizing: border-box; border: 0px solid; margin: 0px; padding: 0px;}
+:where([data-codex-request-surface]) :is(button, input, select, optgroup, textarea){font: inherit; letter-spacing: inherit; color: inherit; opacity: 1; background-color: rgba(0, 0, 0, 0); border-radius: 0px;}
+:where([data-codex-request-surface]) :is(button, input:where([type="button"], [type="reset"], [type="submit"])){appearance: button;}
+:where([data-codex-request-surface]) :is(.\@container\/approval-card){container: approval-card / inline-size;}
+:where([data-codex-request-surface]) :is(.pointer-events-auto){pointer-events: auto;}
+:where([data-codex-request-surface]) :is(.pointer-events-none){pointer-events: none;}
+:where([data-codex-request-surface]) :is(.invisible){visibility: hidden;}
+:where([data-codex-request-surface]) :is(.visible){visibility: visible;}
+:where([data-codex-request-surface]) :is(.absolute){position: absolute;}
+:where([data-codex-request-surface]) :is(.absolute\!){position: absolute !important;}
+:where([data-codex-request-surface]) :is(.relative){position: relative;}
+:where([data-codex-request-surface]) :is(.inset-0){inset: 0px;}
+:where([data-codex-request-surface]) :is(.inset-x-0){inset-inline: 0px;}
+:where([data-codex-request-surface]) :is(.inset-x-0\.5){inset-inline: calc(var(--spacing) * .5);}
+:where([data-codex-request-surface]) :is(.bottom-0){bottom: 0px;}
+:where([data-codex-request-surface]) :is(.bottom-0\.5){bottom: calc(var(--spacing) * .5);}
+:where([data-codex-request-surface]) :is(.bottom-3){bottom: calc(var(--spacing) * 3);}
+:where([data-codex-request-surface]) :is(.bottom-3\.5){bottom: calc(var(--spacing) * 3.5);}
+:where([data-codex-request-surface]) :is(.bottom-3\/4){bottom: 75%;}
+:where([data-codex-request-surface]) :is(.isolate){isolation: isolate;}
+:where([data-codex-request-surface]) :is(.z-10){z-index: 10;}
+:where([data-codex-request-surface]) :is(.z-20){z-index: 20;}
+:where([data-codex-request-surface]) :is(.col-start-1){grid-column-start: 1;}
+:where([data-codex-request-surface]) :is(.row-start-1){grid-row-start: 1;}
+:where([data-codex-request-surface]) :is(.ms-auto){margin-inline-start: auto;}
+:where([data-codex-request-surface]) :is(.block){display: block;}
+:where([data-codex-request-surface]) :is(.flex){display: flex;}
+:where([data-codex-request-surface]) :is(.flex\!){display: flex !important;}
+:where([data-codex-request-surface]) :is(.grid){display: grid;}
+:where([data-codex-request-surface]) :is(.grid\!){display: grid !important;}
+:where([data-codex-request-surface]) :is(.hidden){display: none;}
+:where([data-codex-request-surface]) :is(.hidden\!){display: none !important;}
+:where([data-codex-request-surface]) :is(.inline-flex){display: inline-flex;}
+:where([data-codex-request-surface]) :is(.aspect-square){aspect-ratio: 1 / 1;}
+:where([data-codex-request-surface]) :is(.size-5){width: calc(var(--spacing) * 5); height: calc(var(--spacing) * 5);}
+:where([data-codex-request-surface]) :is(.size-5\.5){width: calc(var(--spacing) * 5.5); height: calc(var(--spacing) * 5.5);}
+:where([data-codex-request-surface]) :is(.size-6){width: calc(var(--spacing) * 6); height: calc(var(--spacing) * 6);}
+:where([data-codex-request-surface]) :is(.\!h-9){height: calc(var(--spacing) * 9) !important;}
+:where([data-codex-request-surface]) :is(.h-10){height: calc(var(--spacing) * 10);}
+:where([data-codex-request-surface]) :is(.h-10\.5){height: calc(var(--spacing) * 10.5);}
+:where([data-codex-request-surface]) :is(.h-40){height: calc(var(--spacing) * 40);}
+:where([data-codex-request-surface]) :is(.h-\[var\(--height-token-row\)\]){height: var(--height-token-row);}
+:where([data-codex-request-surface]) :is(.h-full){height: 100%;}
+:where([data-codex-request-surface]) :is(.h-token-button-composer){height: var(--spacing-token-button-composer);}
+:where([data-codex-request-surface]) :is(.max-h-80){max-height: calc(var(--spacing) * 80);}
+:where([data-codex-request-surface]) :is(.max-h-\[200px\]){max-height: 200px;}
+:where([data-codex-request-surface]) :is(.min-h-0){min-height: 0px;}
+:where([data-codex-request-surface]) :is(.min-h-8){min-height: calc(var(--spacing) * 8);}
+:where([data-codex-request-surface]) :is(.min-h-8\.5){min-height: calc(var(--spacing) * 8.5);}
+:where([data-codex-request-surface]) :is(.min-h-\[var\(--height-token-row\)\]){min-height: var(--height-token-row);}
+:where([data-codex-request-surface]) :is(.w-4){width: calc(var(--spacing) * 4);}
+:where([data-codex-request-surface]) :is(.w-4\.5){width: calc(var(--spacing) * 4.5);}
+:where([data-codex-request-surface]) :is(.w-4\/5){width: 80%;}
+:where([data-codex-request-surface]) :is(.w-4\/6){width: 66.6667%;}
+:where([data-codex-request-surface]) :is(.w-full){width: 100%;}
+:where([data-codex-request-surface]) :is(.max-w-full){max-width: 100%;}
+:where([data-codex-request-surface]) :is(.min-w-0){min-width: 0px;}
+:where([data-codex-request-surface]) :is(.min-w-0\!){min-width: 0px !important;}
+:where([data-codex-request-surface]) :is(.min-w-\[160px\]){min-width: 160px;}
+:where([data-codex-request-surface]) :is(.flex-1){flex: 1 1 0%;}
+:where([data-codex-request-surface]) :is(.shrink-0){flex-shrink: 0;}
+:where([data-codex-request-surface]) :is(.rotate-0){rotate: 0deg;}
+:where([data-codex-request-surface]) :is(.rotate-180){rotate: 180deg;}
+:where([data-codex-request-surface]) :is(.cursor-default){cursor: default;}
+:where([data-codex-request-surface]) :is(.cursor-interaction){cursor: var(--cursor-interaction);}
+:where([data-codex-request-surface]) :is(.grid-cols-\[1fr_auto_1fr\]){grid-template-columns: 1fr auto 1fr;}
+:where([data-codex-request-surface]) :is(.flex-col){flex-direction: column;}
+:where([data-codex-request-surface]) :is(.flex-wrap){flex-wrap: wrap;}
+:where([data-codex-request-surface]) :is(.items-baseline){align-items: baseline;}
+:where([data-codex-request-surface]) :is(.items-center){align-items: center;}
+:where([data-codex-request-surface]) :is(.items-start){align-items: flex-start;}
+:where([data-codex-request-surface]) :is(.items-stretch){align-items: stretch;}
+:where([data-codex-request-surface]) :is(.justify-between){justify-content: space-between;}
+:where([data-codex-request-surface]) :is(.justify-center){justify-content: center;}
+:where([data-codex-request-surface]) :is(.justify-end){justify-content: flex-end;}
+:where([data-codex-request-surface]) :is(.gap-0){gap: 0px;}
+:where([data-codex-request-surface]) :is(.gap-0\!){gap: 0px !important;}
+:where([data-codex-request-surface]) :is(.gap-0\.5){gap: calc(var(--spacing) * .5);}
+:where([data-codex-request-surface]) :is(.gap-0\.75){gap: calc(var(--spacing) * .75);}
+:where([data-codex-request-surface]) :is(.gap-1){gap: var(--spacing);}
+:where([data-codex-request-surface]) :is(.gap-1\.5){gap: calc(var(--spacing) * 1.5);}
+:where([data-codex-request-surface]) :is(.gap-1\.25){gap: calc(var(--spacing) * 1.25);}
+:where([data-codex-request-surface]) :is(.gap-1\.75){gap: calc(var(--spacing) * 1.75);}
+:where([data-codex-request-surface]) :is(.gap-2){gap: calc(var(--spacing) * 2);}
+:where([data-codex-request-surface]) :is(.gap-2\!){gap: calc(var(--spacing) * 2) !important;}
+:where([data-codex-request-surface]) :is(.gap-2\.5){gap: calc(var(--spacing) * 2.5);}
+:where([data-codex-request-surface]) :is(.gap-2\.5\!){gap: calc(var(--spacing) * 2.5) !important;}
+:where([data-codex-request-surface]) :is(.gap-3){gap: calc(var(--spacing) * 3);}
+:where([data-codex-request-surface]) :is(.gap-3\!){gap: calc(var(--spacing) * 3) !important;}
+:where([data-codex-request-surface]) :is(.gap-3\.5){gap: calc(var(--spacing) * 3.5);}
+:where([data-codex-request-surface]) :is(.gap-x-2){column-gap: calc(var(--spacing) * 2);}
+:where([data-codex-request-surface]) :is(.gap-x-2\.5){column-gap: calc(var(--spacing) * 2.5);}
+:where([data-codex-request-surface]) :is(.gap-y-0\.5){row-gap: calc(var(--spacing) * .5);}
+:where([data-codex-request-surface]) :is(.self-start){align-self: flex-start;}
+:where([data-codex-request-surface]) :is(.truncate){text-overflow: ellipsis; white-space: nowrap; overflow: hidden;}
+:where([data-codex-request-surface]) :is(.overflow-auto){overflow: auto;}
+:where([data-codex-request-surface]) :is(.overflow-clip){overflow: clip;}
+:where([data-codex-request-surface]) :is(.overflow-hidden){overflow: hidden;}
+:where([data-codex-request-surface]) :is(.overflow-hidden\!){overflow: hidden !important;}
+:where([data-codex-request-surface]) :is(.overflow-y-auto){overflow-y: auto;}
+:where([data-codex-request-surface]) :is(.overscroll-contain){overscroll-behavior: contain;}
+:where([data-codex-request-surface]) :is(.sidebar-item){border-radius: var(--radius-lg);}
+:where([data-codex-request-surface]) :is(.rounded-3xl){border-radius: var(--radius-3xl);}
+:where([data-codex-request-surface]) :is(.rounded-\[var\(--radius-token-row\)\]){border-radius: var(--radius-token-row);}
+:where([data-codex-request-surface]) :is(.rounded-full){border-radius: var(--radius-full);}
+:where([data-codex-request-surface]) :is(.rounded-full\!){border-radius: var(--radius-full) !important;}
+:where([data-codex-request-surface]) :is(.rounded-lg){border-radius: var(--radius-lg);}
+:where([data-codex-request-surface]) :is(.rounded-lg\!){border-radius: var(--radius-lg) !important;}
+:where([data-codex-request-surface]) :is(.rounded-md){border-radius: var(--radius-md);}
+:where([data-codex-request-surface]) :is(.rounded-md\!){border-radius: var(--radius-md) !important;}
+:where([data-codex-request-surface]) :is(.rounded-xl){border-radius: var(--radius-xl);}
+:where([data-codex-request-surface]) :is(.rounded-xl\!){border-radius: var(--radius-xl) !important;}
+:where([data-codex-request-surface]) :is(.rounded-xs){border-radius: var(--radius-xs);}
+:where([data-codex-request-surface]) :is(.rounded-s-none){border-start-start-radius: 0px; border-end-start-radius: 0px;}
+:where([data-codex-request-surface]) :is(.rounded-e-none){border-start-end-radius: 0px; border-end-end-radius: 0px;}
+:where([data-codex-request-surface]) :is(.border){border-style: var(--tw-border-style); border-width: 1px;}
+:where([data-codex-request-surface]) :is(.border\!){border-style: var(--tw-border-style) !important; border-width: 1px !important;}
+:where([data-codex-request-surface]) :is(.border-0){border-style: var(--tw-border-style); border-width: 0px;}
+:where([data-codex-request-surface]) :is(.border-0\!){border-style: var(--tw-border-style) !important; border-width: 0px !important;}
+:where([data-codex-request-surface]) :is(.border-s-0){border-inline-start-style: var(--tw-border-style); border-inline-start-width: 0px;}
+:where([data-codex-request-surface]) :is(.border-e-0){border-inline-end-style: var(--tw-border-style); border-inline-end-width: 0px;}
+:where([data-codex-request-surface]) :is(.border-default){border-color: var(--color-border);}
+:where([data-codex-request-surface]) :is(.border-default\!){border-color: var(--color-border) !important;}
+:where([data-codex-request-surface]) :is(.border-text){border-color: var(--color-text);}
+:where([data-codex-request-surface]) :is(.border-text\/20){border-color: var(--color-text);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.border-text\/20){border-color: color-mix(in oklab, var(--color-text) 20%, transparent);}}
+:where([data-codex-request-surface]) :is(.border-text\/40){border-color: var(--color-text);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.border-text\/40){border-color: color-mix(in oklab, var(--color-text) 40%, transparent);}}
+:where([data-codex-request-surface]) :is(.border-transparent){border-color: rgba(0, 0, 0, 0);}
+:where([data-codex-request-surface]) :is(.border-transparent\!){border-color: rgba(0, 0, 0, 0) !important;}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.\!bg-surface-elevated-secondary\/50){background-color: color-mix(in oklab, var(--color-surface-elevated-secondary) 50%, transparent) !important;}}
+:where([data-codex-request-surface]) :is(.bg-primary-ghost-hover){background-color: var(--color-background-primary-ghost-hover);}
+:where([data-codex-request-surface]) :is(.bg-primary-soft-alpha){background-color: var(--color-background-primary-soft-alpha);}
+:where([data-codex-request-surface]) :is(.bg-primary-solid){background-color: var(--color-background-primary-solid);}
+:where([data-codex-request-surface]) :is(.bg-surface){background-color: var(--color-surface);}
+:where([data-codex-request-surface]) :is(.bg-surface-elevated-secondary, .bg-surface-elevated-secondary\/50){background-color: var(--color-surface-elevated-secondary);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.bg-surface-elevated-secondary\/50){background-color: color-mix(in oklab, var(--color-surface-elevated-secondary) 50%, transparent);}}
+:where([data-codex-request-surface]) :is(.bg-surface-elevated-secondary\/70){background-color: var(--color-surface-elevated-secondary);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.bg-surface-elevated-secondary\/70){background-color: color-mix(in oklab, var(--color-surface-elevated-secondary) 70%, transparent);}}
+:where([data-codex-request-surface]) :is(.bg-surface-elevated-secondary\/90){background-color: var(--color-surface-elevated-secondary);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.bg-surface-elevated-secondary\/90){background-color: color-mix(in oklab, var(--color-surface-elevated-secondary) 90%, transparent);}}
+:where([data-codex-request-surface]) :is(.bg-surface-elevated-secondary\/95){background-color: var(--color-surface-elevated-secondary);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.bg-surface-elevated-secondary\/95){background-color: color-mix(in oklab, var(--color-surface-elevated-secondary) 95%, transparent);}}
+:where([data-codex-request-surface]) :is(.bg-surface\/20){background-color: var(--color-surface);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.bg-surface\/20){background-color: color-mix(in oklab, var(--color-surface) 20%, transparent);}}
+:where([data-codex-request-surface]) :is(.bg-surface\/40){background-color: var(--color-surface);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.bg-surface\/40){background-color: color-mix(in oklab, var(--color-surface) 40%, transparent);}}
+:where([data-codex-request-surface]) :is(.bg-surface\/50){background-color: var(--color-surface);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.bg-surface\/50){background-color: color-mix(in oklab, var(--color-surface) 50%, transparent);}}
+:where([data-codex-request-surface]) :is(.bg-surface\/60){background-color: var(--color-surface);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.bg-surface\/60){background-color: color-mix(in oklab, var(--color-surface) 60%, transparent);}}
+:where([data-codex-request-surface]) :is(.bg-surface\/70){background-color: var(--color-surface);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.bg-surface\/70){background-color: color-mix(in oklab, var(--color-surface) 70%, transparent);}}
+:where([data-codex-request-surface]) :is(.bg-surface\/80){background-color: var(--color-surface);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.bg-surface\/80){background-color: color-mix(in oklab, var(--color-surface) 80%, transparent);}}
+:where([data-codex-request-surface]) :is(.bg-surface\/95){background-color: var(--color-surface);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.bg-surface\/95){background-color: color-mix(in oklab, var(--color-surface) 95%, transparent);}}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.bg-text-info\/10){background-color: color-mix(in oklab, var(--color-text-info) 10%, transparent);}}
+:where([data-codex-request-surface]) :is(.bg-text\/5){background-color: var(--color-text);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.bg-text\/5){background-color: color-mix(in oklab, var(--color-text) 5%, transparent);}}
+:where([data-codex-request-surface]) :is(.bg-text\/5\!){background-color: var(--color-text) !important;}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.bg-text\/5\!){background-color: color-mix(in oklab, var(--color-text) 5%, transparent) !important;}}
+:where([data-codex-request-surface]) :is(.bg-transparent){background-color: rgba(0, 0, 0, 0);}
+:where([data-codex-request-surface]) :is(.bg-transparent\!){background-color: rgba(0, 0, 0, 0) !important;}
+:where([data-codex-request-surface]) :is(.bg-gradient-to-t){--tw-gradient-position: to top in oklab; background-image: linear-gradient(var(--tw-gradient-stops));}
+:where([data-codex-request-surface]) :is(.from-background-primary-soft){--tw-gradient-from: var(--color-background-primary-soft); --tw-gradient-stops: var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));}
+:where([data-codex-request-surface]) :is(.to-transparent){--tw-gradient-to: transparent; --tw-gradient-stops: var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));}
+:where([data-codex-request-surface]) :is(.\[mask-image\:linear-gradient\(to_bottom\,black_calc\(100\%_-_64px\)\,transparent\)\]){mask-image: linear-gradient(rgb(0, 0, 0) calc(100% - 64px), rgba(0, 0, 0, 0));}
+:where([data-codex-request-surface]) :is(.p-0\.5){padding: calc(var(--spacing) * .5);}
+:where([data-codex-request-surface]) :is(.p-1){padding: var(--spacing);}
+:where([data-codex-request-surface]) :is(.p-1\!){padding: var(--spacing) !important;}
+:where([data-codex-request-surface]) :is(.p-1\.5){padding: calc(var(--spacing) * 1.5);}
+:where([data-codex-request-surface]) :is(.\!px-0){padding-inline: 0px !important;}
+:where([data-codex-request-surface]) :is(.px-\(--padding-button-composer-inline\,calc\(var\(--spacing\)\*2\)\)){padding-inline: var(--padding-button-composer-inline,calc(var(--spacing) * 2));}
+:where([data-codex-request-surface]) :is(.px-2){padding-inline: calc(var(--spacing) * 2);}
+:where([data-codex-request-surface]) :is(.px-2\!){padding-inline: calc(var(--spacing) * 2) !important;}
+:where([data-codex-request-surface]) :is(.px-2\.5){padding-inline: calc(var(--spacing) * 2.5);}
+:where([data-codex-request-surface]) :is(.px-2\.5\!){padding-inline: calc(var(--spacing) * 2.5) !important;}
+:where([data-codex-request-surface]) :is(.px-2\.25){padding-inline: calc(var(--spacing) * 2.25);}
+:where([data-codex-request-surface]) :is(.px-3){padding-inline: calc(var(--spacing) * 3);}
+:where([data-codex-request-surface]) :is(.px-3\.5){padding-inline: calc(var(--spacing) * 3.5);}
+:where([data-codex-request-surface]) :is(.px-3\.75){padding-inline: calc(var(--spacing) * 3.75);}
+:where([data-codex-request-surface]) :is(.px-4){padding-inline: calc(var(--spacing) * 4);}
+:where([data-codex-request-surface]) :is(.px-4\!){padding-inline: calc(var(--spacing) * 4) !important;}
+:where([data-codex-request-surface]) :is(.px-4\.5){padding-inline: calc(var(--spacing) * 4.5);}
+:where([data-codex-request-surface]) :is(.px-\[var\(--padding-row-cell-x\,var\(--padding-row-x\)\)\]){padding-inline: var(--padding-row-cell-x,var(--padding-row-x));}
+:where([data-codex-request-surface]) :is(.\!py-0){padding-block: 0px !important;}
+:where([data-codex-request-surface]) :is(.\!py-0\.5){padding-block: calc(var(--spacing) * .5) !important;}
+:where([data-codex-request-surface]) :is(.py-0){padding-block: 0px;}
+:where([data-codex-request-surface]) :is(.py-0\.5){padding-block: calc(var(--spacing) * .5);}
+:where([data-codex-request-surface]) :is(.py-0\.75){padding-block: calc(var(--spacing) * .75);}
+:where([data-codex-request-surface]) :is(.py-1){padding-block: var(--spacing);}
+:where([data-codex-request-surface]) :is(.py-1\!){padding-block: var(--spacing) !important;}
+:where([data-codex-request-surface]) :is(.py-1\.5){padding-block: calc(var(--spacing) * 1.5);}
+:where([data-codex-request-surface]) :is(.py-1\.25){padding-block: calc(var(--spacing) * 1.25);}
+:where([data-codex-request-surface]) :is(.py-1\.75){padding-block: calc(var(--spacing) * 1.75);}
+:where([data-codex-request-surface]) :is(.py-2){padding-block: calc(var(--spacing) * 2);}
+:where([data-codex-request-surface]) :is(.py-2\!){padding-block: calc(var(--spacing) * 2) !important;}
+:where([data-codex-request-surface]) :is(.py-2\.5){padding-block: calc(var(--spacing) * 2.5);}
+:where([data-codex-request-surface]) :is(.py-2\.25){padding-block: calc(var(--spacing) * 2.25);}
+:where([data-codex-request-surface]) :is(.py-row-y){padding-block: var(--padding-row-y);}
+:where([data-codex-request-surface]) :is(.ps-0\.5){padding-inline-start: calc(var(--spacing) * .5);}
+:where([data-codex-request-surface]) :is(.ps-2){padding-inline-start: calc(var(--spacing) * 2);}
+:where([data-codex-request-surface]) :is(.ps-2\.5){padding-inline-start: calc(var(--spacing) * 2.5);}
+:where([data-codex-request-surface]) :is(.ps-4){padding-inline-start: calc(var(--spacing) * 4);}
+:where([data-codex-request-surface]) :is(.ps-4\.5){padding-inline-start: calc(var(--spacing) * 4.5);}
+:where([data-codex-request-surface]) :is(.pe-1){padding-inline-end: var(--spacing);}
+:where([data-codex-request-surface]) :is(.pe-1\.5){padding-inline-end: calc(var(--spacing) * 1.5);}
+:where([data-codex-request-surface]) :is(.pe-1\.75){padding-inline-end: calc(var(--spacing) * 1.75);}
+:where([data-codex-request-surface]) :is(.pe-2){padding-inline-end: calc(var(--spacing) * 2);}
+:where([data-codex-request-surface]) :is(.pe-2\.5){padding-inline-end: calc(var(--spacing) * 2.5);}
+:where([data-codex-request-surface]) :is(.pe-3){padding-inline-end: calc(var(--spacing) * 3);}
+:where([data-codex-request-surface]) :is(.pe-3\.5){padding-inline-end: calc(var(--spacing) * 3.5);}
+:where([data-codex-request-surface]) :is(.pt-1){padding-top: var(--spacing);}
+:where([data-codex-request-surface]) :is(.pt-1\.5){padding-top: calc(var(--spacing) * 1.5);}
+:where([data-codex-request-surface]) :is(.pt-2){padding-top: calc(var(--spacing) * 2);}
+:where([data-codex-request-surface]) :is(.pt-2\.5){padding-top: calc(var(--spacing) * 2.5);}
+:where([data-codex-request-surface]) :is(.pt-4){padding-top: calc(var(--spacing) * 4);}
+:where([data-codex-request-surface]) :is(.pb-2){padding-bottom: calc(var(--spacing) * 2);}
+:where([data-codex-request-surface]) :is(.pb-2\.5){padding-bottom: calc(var(--spacing) * 2.5);}
+:where([data-codex-request-surface]) :is(.pb-3){padding-bottom: calc(var(--spacing) * 3);}
+:where([data-codex-request-surface]) :is(.pb-3\.5){padding-bottom: calc(var(--spacing) * 3.5);}
+:where([data-codex-request-surface]) :is(.pb-4){padding-bottom: calc(var(--spacing) * 4);}
+:where([data-codex-request-surface]) :is(.pb-4\.5){padding-bottom: calc(var(--spacing) * 4.5);}
+:where([data-codex-request-surface]) :is(.text-center){text-align: center;}
+:where([data-codex-request-surface]) :is(.text-start){text-align: start;}
+:where([data-codex-request-surface]) :is(.font-mono){font-family: var(--font-mono);}
+:where([data-codex-request-surface]) :is(.text-base){font-size: var(--text-base); line-height: var(--tw-leading,var(--text-base--line-height));}
+:where([data-codex-request-surface]) :is(.text-base\!){font-size: var(--text-base) !important; line-height: var(--tw-leading,var(--text-base--line-height)) !important;}
+:where([data-codex-request-surface]) :is(.text-base\/6\.5){font-size: var(--text-base); line-height: calc(var(--spacing) * 6.5);}
+:where([data-codex-request-surface]) :is(.text-sm){font-size: var(--text-sm); line-height: var(--tw-leading,var(--text-sm--line-height));}
+:where([data-codex-request-surface]) :is(.text-sm\!){font-size: var(--text-sm) !important; line-height: var(--tw-leading,var(--text-sm--line-height)) !important;}
+:where([data-codex-request-surface]) :is(.text-sm\/5){font-size: var(--text-sm); line-height: calc(var(--spacing) * 5);}
+:where([data-codex-request-surface]) :is(.text-sm\/6){font-size: var(--text-sm); line-height: calc(var(--spacing) * 6);}
+:where([data-codex-request-surface]) :is(.text-xs){font-size: var(--text-xs); line-height: var(--tw-leading,var(--text-xs--line-height));}
+:where([data-codex-request-surface]) :is(.text-xs\!){font-size: var(--text-xs) !important; line-height: var(--tw-leading,var(--text-xs--line-height)) !important;}
+:where([data-codex-request-surface]) :is(.text-xs\/4){font-size: var(--text-xs); line-height: calc(var(--spacing) * 4);}
+:where([data-codex-request-surface]) :is(.text-\(length\:--text-button-composer\,var\(--text-sm\)\)){font-size: var(--text-button-composer,var(--text-sm));}
+:where([data-codex-request-surface]) :is(.text-size-chat){font-size: var(--codex-chat-font-size);}
+:where([data-codex-request-surface]) :is(.text-size-chat-sm){font-size: calc(var(--codex-chat-font-size) - 1px);}
+:where([data-codex-request-surface]) :is(.text-size-code){font-size: var(--codex-chat-code-font-size);}
+:where([data-codex-request-surface]) :is(.leading-\(--line-height-button-composer\,18px\)){--tw-leading: var(--line-height-button-composer,18px); line-height: var(--line-height-button-composer,18px);}
+:where([data-codex-request-surface]) :is(.leading-5){--tw-leading: calc(var(--spacing) * 5); line-height: calc(var(--spacing) * 5);}
+:where([data-codex-request-surface]) :is(.leading-5\!){--tw-leading: calc(var(--spacing) * 5) !important; line-height: calc(var(--spacing) * 5) !important;}
+:where([data-codex-request-surface]) :is(.leading-5\.5){--tw-leading: calc(var(--spacing) * 5.5); line-height: calc(var(--spacing) * 5.5);}
+:where([data-codex-request-surface]) :is(.leading-5\.25){--tw-leading: calc(var(--spacing) * 5.25); line-height: calc(var(--spacing) * 5.25);}
+:where([data-codex-request-surface]) :is(.leading-\[18px\]){--tw-leading: 18px; line-height: 18px;}
+:where([data-codex-request-surface]) :is(.leading-none){--tw-leading: 1; line-height: 1;}
+:where([data-codex-request-surface]) :is(.leading-tight){--tw-leading: var(--leading-tight); line-height: var(--leading-tight);}
+:where([data-codex-request-surface]) :is(.font-medium){--tw-font-weight: var(--font-weight-medium); font-weight: var(--font-weight-medium);}
+:where([data-codex-request-surface]) :is(.font-medium\!){--tw-font-weight: var(--font-weight-medium) !important; font-weight: var(--font-weight-medium) !important;}
+:where([data-codex-request-surface]) :is(.font-normal){--tw-font-weight: var(--font-weight-normal); font-weight: var(--font-weight-normal);}
+:where([data-codex-request-surface]) :is(.font-semibold){--tw-font-weight: var(--font-weight-semibold); font-weight: var(--font-weight-semibold);}
+:where([data-codex-request-surface]) :is(.font-semibold\!){--tw-font-weight: var(--font-weight-semibold) !important; font-weight: var(--font-weight-semibold) !important;}
+:where([data-codex-request-surface]) :is(.break-words){overflow-wrap: break-word;}
+:where([data-codex-request-surface]) :is(.wrap-anywhere){overflow-wrap: anywhere;}
+:where([data-codex-request-surface]) :is(.whitespace-normal){white-space: normal;}
+:where([data-codex-request-surface]) :is(.whitespace-normal\!){white-space: normal !important;}
+:where([data-codex-request-surface]) :is(.whitespace-nowrap){white-space: nowrap;}
+:where([data-codex-request-surface]) :is(.whitespace-pre-wrap){white-space: pre-wrap;}
+:where([data-codex-request-surface]) :is(.whitespace-pre-wrap\!){white-space: pre-wrap !important;}
+:where([data-codex-request-surface]) :is(.text-default){color: var(--color-text);}
+:where([data-codex-request-surface]) :is(.text-default\!){color: var(--color-text) !important;}
+:where([data-codex-request-surface]) :is(.text-primary-solid){color: var(--color-text-primary-solid);}
+:where([data-codex-request-surface]) :is(.text-primary-solid\!){color: var(--color-text-primary-solid) !important;}
+:where([data-codex-request-surface]) :is(.text-secondary){color: var(--color-text-secondary);}
+:where([data-codex-request-surface]) :is(.text-secondary\!){color: var(--color-text-secondary) !important;}
+:where([data-codex-request-surface]) :is(.text-tertiary){color: var(--color-text-tertiary);}
+:where([data-codex-request-surface]) :is(.opacity-20){opacity: 0.2;}
+:where([data-codex-request-surface]) :is(.opacity-40){opacity: 0.4;}
+:where([data-codex-request-surface]) :is(.opacity-50){opacity: 0.5;}
+:where([data-codex-request-surface]) :is(.opacity-50\!){opacity: 0.5 !important;}
+:where([data-codex-request-surface]) :is(.opacity-60){opacity: 0.6;}
+:where([data-codex-request-surface]) :is(.ring-2){--tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}
+:where([data-codex-request-surface]) :is(.ring-text-info, .ring-text-info\/30){--tw-ring-color: var(--color-text-info);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.ring-text-info\/30){--tw-ring-color: color-mix(in oklab, var(--color-text-info) 30%, transparent);}}
+:where([data-codex-request-surface]) :is(.outline, .outline-1){outline-style: var(--tw-outline-style); outline-width: 1px;}
+:where([data-codex-request-surface]) :is(.transition-transform){transition-property: transform, translate, scale, rotate; transition-timing-function: var(--tw-ease,var(--default-transition-timing-function)); transition-duration: var(--tw-duration,var(--default-transition-duration));}
+:where([data-codex-request-surface]) :is(.sidebar-navigation){--sidebar-navigation-header-gap: 0px; --sidebar-scroll-content-top-padding: var(--spacing); --sidebar-scroll-header-spacing: 0px; --height-token-mode-switch: 32px; --height-token-nav-row: 30px; --height-token-row: var(--height-token-nav-row); --padding-row-cell-x: 8px; --padding-row-x: 8px; --radius-token-row: 10px; --sidebar-row-label-inset: calc(var(--height-token-row) + var(--spacing) / 2); --sidebar-child-icon-indent: calc((var(--height-token-row) + var(--icon-leading-size)) / 2 + var(--spacing) / 4);}
+:where([data-codex-request-surface]) :is(.sidebar-navigation:where([data-codex-window-type="browser"] .sidebar-navigation)){--sidebar-navigation-header-gap: calc(var(--spacing) * 2); --height-token-nav-row: 36px; --sidebar-row-label-inset: var(--height-token-row); --sidebar-child-icon-indent: calc((var(--height-token-row) + var(--icon-leading-size)) / 2 - var(--spacing) / 2); --padding-row-cell-x: 10px; --padding-row-x: 6px; --padding-row-y: 6px; --text-base--line-height: var(--text-sm--line-height); --text-base: var(--text-sm);}
+:where([data-codex-request-surface]) :is(.select-none){user-select: none;}
+:where([data-codex-request-surface]) :is(.no-drag){app-region: no-drag;}
+:where([data-codex-request-surface]) :is(.ring-inset){--tw-ring-inset: inset;}
+:where([data-codex-request-surface]) :is(.before\:pointer-events-auto::before){content: var(--tw-content); pointer-events: auto;}
+:where([data-codex-request-surface]) :is(.before\:pointer-events-none::before){content: var(--tw-content); pointer-events: none;}
+:where([data-codex-request-surface]) :is(.before\:absolute::before){content: var(--tw-content); position: absolute;}
+:where([data-codex-request-surface]) :is(.before\:-inset-1::before){content: var(--tw-content); inset: calc(var(--spacing) * -1);}
+:where([data-codex-request-surface]) :is(.before\:-inset-1\.5::before){content: var(--tw-content); inset: calc(var(--spacing) * -1.5);}
+:where([data-codex-request-surface]) :is(.before\:-inset-2::before){content: var(--tw-content); inset: calc(var(--spacing) * -2);}
+:where([data-codex-request-surface]) :is(.before\:inset-0::before){content: var(--tw-content); inset: 0px;}
+:where([data-codex-request-surface]) :is(.before\:-inset-x-2::before){content: var(--tw-content); inset-inline: calc(var(--spacing) * -2);}
+:where([data-codex-request-surface]) :is(.before\:-inset-x-3::before){content: var(--tw-content); inset-inline: calc(var(--spacing) * -3);}
+:where([data-codex-request-surface]) :is(.before\:inset-x-0::before){content: var(--tw-content); inset-inline: 0px;}
+:where([data-codex-request-surface]) :is(.before\:inset-x-0\.5::before){content: var(--tw-content); inset-inline: calc(var(--spacing) * .5);}
+:where([data-codex-request-surface]) :is(.before\:-inset-y-0\.5::before){content: var(--tw-content); inset-block: calc(var(--spacing) * -.5);}
+:where([data-codex-request-surface]) :is(.before\:-inset-y-1::before){content: var(--tw-content); inset-block: calc(var(--spacing) * -1);}
+:where([data-codex-request-surface]) :is(.before\:inset-y-0::before){content: var(--tw-content); inset-block: 0px;}
+:where([data-codex-request-surface]) :is(.before\:inset-y-1::before){content: var(--tw-content); inset-block: var(--spacing);}
+:where([data-codex-request-surface]) :is(.before\:inset-y-2::before){content: var(--tw-content); inset-block: calc(var(--spacing) * 2);}
+:where([data-codex-request-surface]) :is(.before\:start-0::before){content: var(--tw-content); inset-inline-start: calc(var(--spacing) * 0);}
+:where([data-codex-request-surface]) :is(.before\:start-1\/2::before){content: var(--tw-content); inset-inline-start: 50%;}
+:where([data-codex-request-surface]) :is(.before\:end-px::before){content: var(--tw-content); inset-inline-end: 1px;}
+:where([data-codex-request-surface]) :is(.before\:-top-1::before){content: var(--tw-content); top: calc(var(--spacing) * -1);}
+:where([data-codex-request-surface]) :is(.before\:-top-2::before){content: var(--tw-content); top: calc(var(--spacing) * -2);}
+:where([data-codex-request-surface]) :is(.before\:-top-px::before){content: var(--tw-content); top: -1px;}
+:where([data-codex-request-surface]) :is(.before\:top-0::before){content: var(--tw-content); top: 0px;}
+:where([data-codex-request-surface]) :is(.before\:top-2::before){content: var(--tw-content); top: calc(var(--spacing) * 2);}
+:where([data-codex-request-surface]) :is(.before\:top-\[-1px\]::before){content: var(--tw-content); top: -1px;}
+:where([data-codex-request-surface]) :is(.before\:right-0::before){content: var(--tw-content); right: 0px;}
+:where([data-codex-request-surface]) :is(.before\:right-2::before){content: var(--tw-content); right: calc(var(--spacing) * 2);}
+:where([data-codex-request-surface]) :is(.before\:bottom-2::before){content: var(--tw-content); bottom: calc(var(--spacing) * 2);}
+:where([data-codex-request-surface]) :is(.before\:bottom-full::before){content: var(--tw-content); bottom: 100%;}
+:where([data-codex-request-surface]) :is(.before\:-left-4::before){content: var(--tw-content); left: calc(var(--spacing) * -4);}
+:where([data-codex-request-surface]) :is(.before\:-left-8::before){content: var(--tw-content); left: calc(var(--spacing) * -8);}
+:where([data-codex-request-surface]) :is(.before\:-left-px::before){content: var(--tw-content); left: -1px;}
+:where([data-codex-request-surface]) :is(.before\:left-1\/2::before){content: var(--tw-content); left: 50%;}
+:where([data-codex-request-surface]) :is(.before\:left-2::before){content: var(--tw-content); left: calc(var(--spacing) * 2);}
+:where([data-codex-request-surface]) :is(.before\:left-8::before){content: var(--tw-content); left: calc(var(--spacing) * 8);}
+:where([data-codex-request-surface]) :is(.before\:-z-10::before){content: var(--tw-content); z-index: calc(-10);}
+:where([data-codex-request-surface]) :is(.before\:mx-4::before){content: var(--tw-content); margin-inline: calc(var(--spacing) * 4);}
+:where([data-codex-request-surface]) :is(.before\:my-1::before){content: var(--tw-content); margin-block: var(--spacing);}
+:where([data-codex-request-surface]) :is(.before\:block::before){content: var(--tw-content); display: block;}
+:where([data-codex-request-surface]) :is(.before\:hidden::before){content: var(--tw-content); display: none;}
+:where([data-codex-request-surface]) :is(.before\:h-0\.5::before){content: var(--tw-content); height: calc(var(--spacing) * .5);}
+:where([data-codex-request-surface]) :is(.before\:h-1::before){content: var(--tw-content); height: var(--spacing);}
+:where([data-codex-request-surface]) :is(.before\:h-2::before){content: var(--tw-content); height: calc(var(--spacing) * 2);}
+:where([data-codex-request-surface]) :is(.before\:h-\[43px\]::before){content: var(--tw-content); height: 43px;}
+:where([data-codex-request-surface]) :is(.before\:h-px::before){content: var(--tw-content); height: 1px;}
+:where([data-codex-request-surface]) :is(.before\:w-0\.5::before){content: var(--tw-content); width: calc(var(--spacing) * .5);}
+:where([data-codex-request-surface]) :is(.before\:w-1::before){content: var(--tw-content); width: var(--spacing);}
+:where([data-codex-request-surface]) :is(.before\:w-4::before){content: var(--tw-content); width: calc(var(--spacing) * 4);}
+:where([data-codex-request-surface]) :is(.before\:w-5::before){content: var(--tw-content); width: calc(var(--spacing) * 5);}
+:where([data-codex-request-surface]) :is(.before\:w-11::before){content: var(--tw-content); width: calc(var(--spacing) * 11);}
+:where([data-codex-request-surface]) :is(.before\:w-px::before){content: var(--tw-content); width: 1px;}
+:where([data-codex-request-surface]) :is(.before\:-translate-x-1\/2::before){content: var(--tw-content); --tw-translate-x: calc(calc(1 / 2 * 100%) * -1); translate: var(--tw-translate-x) var(--tw-translate-y);}
+:where([data-codex-request-surface]) :is(.before\:rounded-3xl::before){content: var(--tw-content); border-radius: var(--radius-3xl);}
+:where([data-codex-request-surface]) :is(.before\:rounded-\[20px\]::before){content: var(--tw-content); border-radius: 20px;}
+:where([data-codex-request-surface]) :is(.before\:rounded-\[inherit\]::before){content: var(--tw-content); border-radius: inherit;}
+:where([data-codex-request-surface]) :is(.before\:rounded-full::before){content: var(--tw-content); border-radius: var(--radius-full);}
+:where([data-codex-request-surface]) :is(.before\:rounded-lg::before){content: var(--tw-content); border-radius: var(--radius-lg);}
+:where([data-codex-request-surface]) :is(.before\:rounded-md::before){content: var(--tw-content); border-radius: var(--radius-md);}
+:where([data-codex-request-surface]) :is(.before\:rounded-sm::before){content: var(--tw-content); border-radius: var(--radius-sm);}
+:where([data-codex-request-surface]) :is(.before\:border::before){content: var(--tw-content); border-style: var(--tw-border-style); border-width: 1px;}
+:where([data-codex-request-surface]) :is(.before\:border-t::before){content: var(--tw-content); border-top-style: var(--tw-border-style); border-top-width: 1px;}
+:where([data-codex-request-surface]) :is(.before\:border-default::before){content: var(--tw-content); border-color: var(--color-border);}
+:where([data-codex-request-surface]) :is(.before\:bg-\[var\(--app-shell-panel-background\,var\(--color-surface\)\)\]::before){content: var(--tw-content); background-color: var(--app-shell-panel-background,var(--color-surface));}
+:where([data-codex-request-surface]) :is(.before\:bg-border::before){content: var(--tw-content); background-color: var(--color-border);}
+:where([data-codex-request-surface]) :is(.before\:bg-current\/25::before){content: var(--tw-content); background-color: currentcolor;}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.before\:bg-current\/25::before){background-color: color-mix(in oklab, currentcolor 25%, transparent);}}
+:where([data-codex-request-surface]) :is(.before\:bg-primary-ghost-hover::before){content: var(--tw-content); background-color: var(--color-background-primary-ghost-hover);}
+:where([data-codex-request-surface]) :is(.before\:bg-primary-solid::before){content: var(--tw-content); background-color: var(--color-background-primary-solid);}
+:where([data-codex-request-surface]) :is(.before\:bg-surface::before){content: var(--tw-content); background-color: var(--color-surface);}
+:where([data-codex-request-surface]) :is(.before\:bg-surface-elevated-secondary::before){content: var(--tw-content); background-color: var(--color-surface-elevated-secondary);}
+:where([data-codex-request-surface]) :is(.before\:bg-text-info::before, .before\:bg-text-info\/10::before){content: var(--tw-content); background-color: var(--color-text-info);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.before\:bg-text-info\/10::before){background-color: color-mix(in oklab, var(--color-text-info) 10%, transparent);}}
+:where([data-codex-request-surface]) :is(.before\:bg-text-warning\/60::before){content: var(--tw-content); background-color: var(--color-text-warning);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.before\:bg-text-warning\/60::before){background-color: color-mix(in oklab, var(--color-text-warning) 60%, transparent);}}
+:where([data-codex-request-surface]) :is(.before\:bg-text\/5::before){content: var(--tw-content); background-color: var(--color-text);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.before\:bg-text\/5::before){background-color: color-mix(in oklab, var(--color-text) 5%, transparent);}}
+:where([data-codex-request-surface]) :is(.before\:bg-token-border-light::before){content: var(--tw-content); background-color: var(--color-token-border-light);}
+:where([data-codex-request-surface]) :is(.before\:bg-white\/50::before){content: var(--tw-content); background-color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.before\:bg-white\/50::before){background-color: color-mix(in oklab, var(--color-white) 50%, transparent);}}
+:where([data-codex-request-surface]) :is(.before\:bg-linear-to-r::before){content: var(--tw-content); --tw-gradient-position: to right;}
+@supports (background-image:linear-gradient(in lab, red, red)){:where([data-codex-request-surface]) :is(.before\:bg-linear-to-r::before){--tw-gradient-position: to right in oklab;}}
+:where([data-codex-request-surface]) :is(.before\:bg-linear-to-r::before){background-image: linear-gradient(var(--tw-gradient-stops));}
+:where([data-codex-request-surface]) :is(.before\:bg-linear-to-t::before){content: var(--tw-content); --tw-gradient-position: to top;}
+@supports (background-image:linear-gradient(in lab, red, red)){:where([data-codex-request-surface]) :is(.before\:bg-linear-to-t::before){--tw-gradient-position: to top in oklab;}}
+:where([data-codex-request-surface]) :is(.before\:bg-linear-to-t::before){background-image: linear-gradient(var(--tw-gradient-stops));}
+:where([data-codex-request-surface]) :is(.before\:from-surface::before){content: var(--tw-content); --tw-gradient-from: var(--color-surface); --tw-gradient-stops: var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));}
+:where([data-codex-request-surface]) :is(.before\:from-transparent::before){content: var(--tw-content); --tw-gradient-from: transparent; --tw-gradient-stops: var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));}
+:where([data-codex-request-surface]) :is(.before\:via-surface-elevated-secondary::before){content: var(--tw-content); --tw-gradient-via: var(--color-surface-elevated-secondary); --tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-via-stops);}
+:where([data-codex-request-surface]) :is(.before\:to-surface-elevated-secondary::before){content: var(--tw-content); --tw-gradient-to: var(--color-surface-elevated-secondary); --tw-gradient-stops: var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));}
+:where([data-codex-request-surface]) :is(.before\:to-transparent::before){content: var(--tw-content); --tw-gradient-to: transparent; --tw-gradient-stops: var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));}
+:where([data-codex-request-surface]) :is(.before\:mask-content-safe-area::before){content: var(--tw-content); mask-image: radial-gradient(currentcolor 42%, rgba(0, 0, 0, 0) 76%); mask-size: 100% 100%; mask-repeat: no-repeat;}
+:where([data-codex-request-surface]) :is(.before\:opacity-0::before){content: var(--tw-content); opacity: 0;}
+:where([data-codex-request-surface]) :is(.before\:mix-blend-overlay::before){content: var(--tw-content); mix-blend-mode: overlay;}
+:where([data-codex-request-surface]) :is(.before\:transition-\[background-color\]::before){content: var(--tw-content); transition-property: background-color; transition-timing-function: var(--tw-ease,var(--default-transition-timing-function)); transition-duration: var(--tw-duration,var(--default-transition-duration));}
+:where([data-codex-request-surface]) :is(.before\:content-\[\'\'\]::before){--tw-content: ""; content: var(--tw-content);}
+:where([data-codex-request-surface]) :is(.before\:content-\[\'\\200b\'\]::before){--tw-content: "​"; content: var(--tw-content);}
+:where([data-codex-request-surface]) :is(.before\:content-\[\'·\'\]::before){--tw-content: "·"; content: var(--tw-content);}
+:where([data-codex-request-surface]) :is(.before\:content-\[\'—\'\]::before){--tw-content: "—"; content: var(--tw-content);}
+@media (hover: hover){:where([data-codex-request-surface]) :is(.hover\:bg-primary-ghost-hover:hover){background-color: var(--color-background-primary-ghost-hover);}}
+@media (hover: hover){:where([data-codex-request-surface]) :is(.hover\:bg-transparent:hover){background-color: rgba(0, 0, 0, 0);}}
+@media (hover: hover){:where([data-codex-request-surface]) :is(.not-disabled\:not-aria-disabled\:hover\:bg-primary-ghost-hover:not(:disabled):not([aria-disabled="true"]):hover){background-color: var(--color-background-primary-ghost-hover);}}
+@media (hover: hover){:where([data-codex-request-surface]) :is(.not-disabled\:not-aria-disabled\:hover\:bg-text\/80:not(:disabled):not([aria-disabled="true"]):hover){background-color: var(--color-text);}}
+@media (hover: hover){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.not-disabled\:not-aria-disabled\:hover\:bg-text\/80:not(:disabled):not([aria-disabled="true"]):hover){background-color: color-mix(in oklab, var(--color-text) 80%, transparent);}}}
+:where([data-codex-request-surface]) :is(.focus\:outline-hidden:focus){--tw-outline-style: none; outline-style: none;}
+@media (forced-colors: active){:where([data-codex-request-surface]) :is(.focus\:outline-hidden:focus){outline-offset: 2px; outline: rgba(0, 0, 0, 0) solid 2px;}}
+:where([data-codex-request-surface]) :is(.focus\:outline-none:focus){--tw-outline-style: none; outline-style: none;}
+:where([data-codex-request-surface]) :is(.focus\:outline-none\!:focus){--tw-outline-style: none !important; outline-style: none !important;}
+:where([data-codex-request-surface]) :is(.focus-visible\:bg-primary-ghost-hover:focus-visible){background-color: var(--color-background-primary-ghost-hover);}
+:where([data-codex-request-surface]) :is(.focus-visible\:ring-2:focus-visible){--tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}
+:where([data-codex-request-surface]) :is(.focus-visible\:ring-ring:focus-visible){--tw-ring-color: var(--color-ring);}
+:where([data-codex-request-surface]) :is(.focus-visible\:ring-offset-0:focus-visible){--tw-ring-offset-width: 0px; --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);}
+:where([data-codex-request-surface]) :is(.focus-visible\:outline:focus-visible, .focus-visible\:outline-1:focus-visible){outline-style: var(--tw-outline-style); outline-width: 1px;}
+:where([data-codex-request-surface]) :is(.focus-visible\:outline-2:focus-visible){outline-style: var(--tw-outline-style); outline-width: 2px;}
+:where([data-codex-request-surface]) :is(.focus-visible\:outline-offset-\[-2px\]:focus-visible){outline-offset: -2px;}
+:where([data-codex-request-surface]) :is(.focus-visible\:outline-ring:focus-visible){outline-color: var(--color-ring);}
+:where([data-codex-request-surface]) :is(.focus-visible\:outline-none:focus-visible){--tw-outline-style: none; outline-style: none;}
+:where([data-codex-request-surface]) :is(.focus-visible\:ring-inset:focus-visible){--tw-ring-inset: inset;}
+:where([data-codex-request-surface]) :is(.disabled\:cursor-default:disabled){cursor: default;}
+:where([data-codex-request-surface]) :is(.disabled\:opacity-40:disabled){opacity: 0.4;}
+:where([data-codex-request-surface]) :is(.disabled\:opacity-50:disabled){opacity: 0.5;}
+:where([data-codex-request-surface]) :is(.disabled\:opacity-100:disabled){opacity: 1;}
+:where([data-codex-request-surface]) :is(.disabled\:opacity-100\!:disabled){opacity: 1 !important;}
+:where([data-codex-request-surface]) :is(.aria-disabled\:pointer-events-none[aria-disabled="true"]){pointer-events: none;}
+:where([data-codex-request-surface]) :is(.aria-disabled\:cursor-default[aria-disabled="true"]){cursor: default;}
+:where([data-codex-request-surface]) :is(.aria-disabled\:cursor-not-allowed[aria-disabled="true"]){cursor: not-allowed;}
+:where([data-codex-request-surface]) :is(.aria-disabled\:text-disabled[aria-disabled="true"]){color: var(--color-text-disabled);}
+:where([data-codex-request-surface]) :is(.aria-disabled\:\!opacity-100[aria-disabled="true"]){opacity: 1 !important;}
+:where([data-codex-request-surface]) :is(.aria-disabled\:opacity-40[aria-disabled="true"]){opacity: 0.4;}
+:where([data-codex-request-surface]) :is(.aria-disabled\:opacity-50[aria-disabled="true"]){opacity: 0.5;}
+:where([data-codex-request-surface]) :is(.aria-disabled\:opacity-60[aria-disabled="true"]){opacity: 0.6;}
+:where([data-codex-request-surface]) :is(.aria-disabled\:opacity-100[aria-disabled="true"]){opacity: 1;}
+:where([data-codex-request-surface]) :is(.aria-disabled\:opacity-100\![aria-disabled="true"]){opacity: 1 !important;}
+:where([data-codex-request-surface]) :is(.aria-hidden\:pointer-events-none[aria-hidden="true"]){pointer-events: none;}
+:where([data-codex-request-surface]) :is(.aria-hidden\:opacity-0[aria-hidden="true"]){opacity: 0;}
+@container approval-card not (width >= 448px){:where([data-codex-request-surface]) :is(.\@max-md\/approval-card\:ms-0){margin-inline-start: 0px;}}
+@container approval-card not (width >= 448px){:where([data-codex-request-surface]) :is(.\@max-md\/approval-card\:hidden){display: none;}}
+@container approval-card not (width >= 448px){:where([data-codex-request-surface]) :is(.\@max-md\/approval-card\:w-full){width: 100%;}}
+@container approval-card not (width >= 448px){:where([data-codex-request-surface]) :is(.\@max-md\/approval-card\:flex-1){flex: 1 1 0%;}}
+@container approval-card not (width >= 448px){:where([data-codex-request-surface]) :is(.\@max-md\/approval-card\:flex-col){flex-direction: column;}}
+@container approval-card not (width >= 448px){:where([data-codex-request-surface]) :is(.\@max-md\/approval-card\:items-stretch){align-items: stretch;}}
+@container approval-card not (width >= 448px){:where([data-codex-request-surface]) :is(.\@max-md\/approval-card\:justify-center){justify-content: center;}}
+@container approval-card not (width >= 448px){:where([data-codex-request-surface]) :is(.\@max-md\/approval-card\:ps-6){padding-inline-start: calc(var(--spacing) * 6);}}
+:where([data-codex-request-surface]) :is(.dark\:top-\[68px\]:where([data-theme="dark"])){top: 68px;}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:top-\[68px\]:where(:not([data-theme]))){top: 68px;}}
+:where([data-codex-request-surface]) :is(.dark\:block:where([data-theme="dark"])){display: block;}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:block:where(:not([data-theme]))){display: block;}}
+:where([data-codex-request-surface]) :is(.dark\:hidden:where([data-theme="dark"])){display: none;}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:hidden:where(:not([data-theme]))){display: none;}}
+:where([data-codex-request-surface]) :is(.dark\:inline:where([data-theme="dark"])){display: inline;}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:inline:where(:not([data-theme]))){display: inline;}}
+:where([data-codex-request-surface]) :is(.dark\:translate-y-7:where([data-theme="dark"])){--tw-translate-y: calc(var(--spacing) * 7); translate: var(--tw-translate-x) var(--tw-translate-y);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:translate-y-7:where(:not([data-theme]))){--tw-translate-y: calc(var(--spacing) * 7); translate: var(--tw-translate-x) var(--tw-translate-y);}}
+:where([data-codex-request-surface]) :is(.dark\:scale-\[1\.4485\]:where([data-theme="dark"])){scale: 1.4485;}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:scale-\[1\.4485\]:where(:not([data-theme]))){scale: 1.4485;}}
+:where([data-codex-request-surface]) :is(.dark\:border:where([data-theme="dark"])){border-style: var(--tw-border-style); border-width: 1px;}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:border:where(:not([data-theme]))){border-style: var(--tw-border-style); border-width: 1px;}}
+:where([data-codex-request-surface]) :is(.dark\:border-hairline:where([data-theme="dark"])){border-style: var(--tw-border-style); border-width: var(--border-width-hairline);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:border-hairline:where(:not([data-theme]))){border-style: var(--tw-border-style); border-width: var(--border-width-hairline);}}
+:where([data-codex-request-surface]) :is(.dark\:border-e:where([data-theme="dark"])){border-inline-end-style: var(--tw-border-style); border-inline-end-width: 1px;}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:border-e:where(:not([data-theme]))){border-inline-end-style: var(--tw-border-style); border-inline-end-width: 1px;}}
+:where([data-codex-request-surface]) :is(.dark\:border-\[\#303030\]:where([data-theme="dark"])){border-color: rgb(48, 48, 48);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:border-\[\#303030\]:where(:not([data-theme]))){border-color: rgb(48, 48, 48);}}
+:where([data-codex-request-surface]) :is(.dark\:border-\[\#b5adf0\]\/20:where([data-theme="dark"])){border-color: oklab(0.778394 0.0316149 -0.0894219 / 0.2);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:border-\[\#b5adf0\]\/20:where(:not([data-theme]))){border-color: oklab(0.778394 0.0316149 -0.0894219 / 0.2);}}
+:where([data-codex-request-surface]) :is(.dark\:border-chart-blue\/80:where([data-theme="dark"])){border-color: var(--color-chart-blue);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:border-chart-blue\/80:where([data-theme="dark"])){border-color: color-mix(in oklab, var(--color-chart-blue) 80%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:border-chart-blue\/80:where(:not([data-theme]))){border-color: var(--color-chart-blue);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:border-chart-blue\/80:where(:not([data-theme]))){border-color: color-mix(in oklab, var(--color-chart-blue) 80%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:border-default:where([data-theme="dark"])){border-color: var(--color-border);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:border-default:where(:not([data-theme]))){border-color: var(--color-border);}}
+:where([data-codex-request-surface]) :is(.dark\:border-gray-700:where([data-theme="dark"])){border-color: var(--color-gray-700);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:border-gray-700:where(:not([data-theme]))){border-color: var(--color-gray-700);}}
+:where([data-codex-request-surface]) :is(.dark\:border-token-border-default:where([data-theme="dark"])){border-color: var(--color-token-border-default);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:border-token-border-default:where(:not([data-theme]))){border-color: var(--color-token-border-default);}}
+:where([data-codex-request-surface]) :is(.dark\:border-transparent:where([data-theme="dark"])){border-color: rgba(0, 0, 0, 0);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:border-transparent:where(:not([data-theme]))){border-color: rgba(0, 0, 0, 0);}}
+:where([data-codex-request-surface]) :is(.dark\:border-white\/8:where([data-theme="dark"])){border-color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:border-white\/8:where([data-theme="dark"])){border-color: color-mix(in oklab, var(--color-white) 8%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:border-white\/8:where(:not([data-theme]))){border-color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:border-white\/8:where(:not([data-theme]))){border-color: color-mix(in oklab, var(--color-white) 8%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:border-white\/10:where([data-theme="dark"])){border-color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:border-white\/10:where([data-theme="dark"])){border-color: color-mix(in oklab, var(--color-white) 10%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:border-white\/10:where(:not([data-theme]))){border-color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:border-white\/10:where(:not([data-theme]))){border-color: color-mix(in oklab, var(--color-white) 10%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:border-white\/12:where([data-theme="dark"])){border-color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:border-white\/12:where([data-theme="dark"])){border-color: color-mix(in oklab, var(--color-white) 12%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:border-white\/12:where(:not([data-theme]))){border-color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:border-white\/12:where(:not([data-theme]))){border-color: color-mix(in oklab, var(--color-white) 12%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:border-white\/15:where([data-theme="dark"])){border-color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:border-white\/15:where([data-theme="dark"])){border-color: color-mix(in oklab, var(--color-white) 15%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:border-white\/15:where(:not([data-theme]))){border-color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:border-white\/15:where(:not([data-theme]))){border-color: color-mix(in oklab, var(--color-white) 15%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:border-white\/25:where([data-theme="dark"])){border-color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:border-white\/25:where([data-theme="dark"])){border-color: color-mix(in oklab, var(--color-white) 25%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:border-white\/25:where(:not([data-theme]))){border-color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:border-white\/25:where(:not([data-theme]))){border-color: color-mix(in oklab, var(--color-white) 25%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:border-white\/\[\.15\]:where([data-theme="dark"])){border-color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:border-white\/\[\.15\]:where([data-theme="dark"])){border-color: color-mix(in oklab, var(--color-white) 15%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:border-white\/\[\.15\]:where(:not([data-theme]))){border-color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:border-white\/\[\.15\]:where(:not([data-theme]))){border-color: color-mix(in oklab, var(--color-white) 15%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:border-white\/\[0\.1\]:where([data-theme="dark"])){border-color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:border-white\/\[0\.1\]:where([data-theme="dark"])){border-color: color-mix(in oklab, var(--color-white) 10%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:border-white\/\[0\.1\]:where(:not([data-theme]))){border-color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:border-white\/\[0\.1\]:where(:not([data-theme]))){border-color: color-mix(in oklab, var(--color-white) 10%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:border-white\/\[0\.12\]:where([data-theme="dark"])){border-color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:border-white\/\[0\.12\]:where([data-theme="dark"])){border-color: color-mix(in oklab, var(--color-white) 12%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:border-white\/\[0\.12\]:where(:not([data-theme]))){border-color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:border-white\/\[0\.12\]:where(:not([data-theme]))){border-color: color-mix(in oklab, var(--color-white) 12%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:border-white\/\[0\.14\]:where([data-theme="dark"])){border-color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:border-white\/\[0\.14\]:where([data-theme="dark"])){border-color: color-mix(in oklab, var(--color-white) 14.0%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:border-white\/\[0\.14\]:where(:not([data-theme]))){border-color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:border-white\/\[0\.14\]:where(:not([data-theme]))){border-color: color-mix(in oklab, var(--color-white) 14.0%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\(--bg-primary\):where([data-theme="dark"])){background-color: var(--bg-primary);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\(--bg-primary\):where(:not([data-theme]))){background-color: var(--bg-primary);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\(--color-background-composer-surface\):where([data-theme="dark"])){background-color: var(--color-background-composer-surface);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\(--color-background-composer-surface\):where(:not([data-theme]))){background-color: var(--color-background-composer-surface);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\(--color-background-secondary-soft\)\/30:where([data-theme="dark"])){background-color: var(--color-background-secondary-soft);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-\(--color-background-secondary-soft\)\/30:where([data-theme="dark"])){background-color: color-mix(in oklab, var(--color-background-secondary-soft) 30%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\(--color-background-secondary-soft\)\/30:where(:not([data-theme]))){background-color: var(--color-background-secondary-soft);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-\(--color-background-secondary-soft\)\/30:where(:not([data-theme]))){background-color: color-mix(in oklab, var(--color-background-secondary-soft) 30%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\(--gray-200\):where([data-theme="dark"])){background-color: var(--gray-200);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\(--gray-200\):where(:not([data-theme]))){background-color: var(--gray-200);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[\#40c977\]:where([data-theme="dark"])){background-color: rgb(64, 201, 119);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[\#40c977\]:where(:not([data-theme]))){background-color: rgb(64, 201, 119);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[\#282b34\]:where([data-theme="dark"])){background-color: rgb(40, 43, 52);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[\#282b34\]:where(:not([data-theme]))){background-color: rgb(40, 43, 52);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[\#339cff\]:where([data-theme="dark"])){background-color: rgb(51, 156, 255);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[\#339cff\]:where(:not([data-theme]))){background-color: rgb(51, 156, 255);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[\#8177c8\]\/90:where([data-theme="dark"])){background-color: oklab(0.612928 0.037193 -0.114772 / 0.9);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[\#8177c8\]\/90:where(:not([data-theme]))){background-color: oklab(0.612928 0.037193 -0.114772 / 0.9);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[\#18191e\]:where([data-theme="dark"])){background-color: rgb(24, 25, 30);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[\#18191e\]:where(:not([data-theme]))){background-color: rgb(24, 25, 30);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[\#23252c\]:where([data-theme="dark"])){background-color: rgb(35, 37, 44);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[\#23252c\]:where(:not([data-theme]))){background-color: rgb(35, 37, 44);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[\#131313\]:where([data-theme="dark"])){background-color: rgb(19, 19, 19);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[\#131313\]:where(:not([data-theme]))){background-color: rgb(19, 19, 19);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[\#202127\]:where([data-theme="dark"])){background-color: rgb(32, 33, 39);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[\#202127\]:where(:not([data-theme]))){background-color: rgb(32, 33, 39);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[\#212121\]\!:where([data-theme="dark"])){background-color: rgb(33, 33, 33) !important;}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[\#212121\]\!:where(:not([data-theme]))){background-color: rgb(33, 33, 33) !important;}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[\#262831\]:where([data-theme="dark"])){background-color: rgb(38, 40, 49);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[\#262831\]:where(:not([data-theme]))){background-color: rgb(38, 40, 49);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[\#303030\]:where([data-theme="dark"])){background-color: rgb(48, 48, 48);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[\#303030\]:where(:not([data-theme]))){background-color: rgb(48, 48, 48);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[\#303030\]\!:where([data-theme="dark"])){background-color: rgb(48, 48, 48) !important;}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[\#303030\]\!:where(:not([data-theme]))){background-color: rgb(48, 48, 48) !important;}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[\#353535\]:where([data-theme="dark"])){background-color: rgb(53, 53, 53);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[\#353535\]:where(:not([data-theme]))){background-color: rgb(53, 53, 53);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[\#363636\]:where([data-theme="dark"])){background-color: rgb(54, 54, 54);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[\#363636\]:where(:not([data-theme]))){background-color: rgb(54, 54, 54);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[\#F3F3F3\]:where([data-theme="dark"])){background-color: rgb(243, 243, 243);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[\#F3F3F3\]:where(:not([data-theme]))){background-color: rgb(243, 243, 243);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[\#ad7bf9\]:where([data-theme="dark"])){background-color: rgb(173, 123, 249);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[\#ad7bf9\]:where(:not([data-theme]))){background-color: rgb(173, 123, 249);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[\#afafaf\]\/40:where([data-theme="dark"])){background-color: oklab(0.754017 2.98023e-8 0 / 0.4);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[\#afafaf\]\/40:where(:not([data-theme]))){background-color: oklab(0.754017 2.98023e-8 0 / 0.4);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[\#ff8cc1\]:where([data-theme="dark"])){background-color: rgb(255, 140, 193);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[\#ff8cc1\]:where(:not([data-theme]))){background-color: rgb(255, 140, 193);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[\#ff6764\]:where([data-theme="dark"])){background-color: rgb(255, 103, 100);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[\#ff6764\]:where(:not([data-theme]))){background-color: rgb(255, 103, 100);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[\#ff8549\]:where([data-theme="dark"])){background-color: rgb(255, 133, 73);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[\#ff8549\]:where(:not([data-theme]))){background-color: rgb(255, 133, 73);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[\#ffd240\]:where([data-theme="dark"])){background-color: rgb(255, 210, 64);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[\#ffd240\]:where(:not([data-theme]))){background-color: rgb(255, 210, 64);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[color\:var\(--accent-blue\)\]\/20:where([data-theme="dark"])){background-color: var(--accent-blue);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-\[color\:var\(--accent-blue\)\]\/20:where([data-theme="dark"])){background-color: color-mix(in oklab, var(--accent-blue) 20%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[color\:var\(--accent-blue\)\]\/20:where(:not([data-theme]))){background-color: var(--accent-blue);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-\[color\:var\(--accent-blue\)\]\/20:where(:not([data-theme]))){background-color: color-mix(in oklab, var(--accent-blue) 20%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[rgba\(255\,255\,255\,0\.04\)\]:where([data-theme="dark"])){background-color: rgba(255, 255, 255, 0.04);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[rgba\(255\,255\,255\,0\.04\)\]:where(:not([data-theme]))){background-color: rgba(255, 255, 255, 0.04);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[rgba\(255\,255\,255\,0\.06\)\]:where([data-theme="dark"])){background-color: rgba(255, 255, 255, 0.06);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[rgba\(255\,255\,255\,0\.06\)\]:where(:not([data-theme]))){background-color: rgba(255, 255, 255, 0.06);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[var\(--checkout-bg-secondary\,var\(--bg-secondary\)\)\]:where([data-theme="dark"])){background-color: var(--checkout-bg-secondary,var(--bg-secondary));}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[var\(--checkout-bg-secondary\,var\(--bg-secondary\)\)\]:where(:not([data-theme]))){background-color: var(--checkout-bg-secondary,var(--bg-secondary));}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[var\(--green-800\)\]:where([data-theme="dark"])){background-color: var(--green-800);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[var\(--green-800\)\]:where(:not([data-theme]))){background-color: var(--green-800);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-blue-100\/20:where([data-theme="dark"])){background-color: var(--color-blue-100);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-blue-100\/20:where([data-theme="dark"])){background-color: color-mix(in oklab, var(--color-blue-100) 20%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-blue-100\/20:where(:not([data-theme]))){background-color: var(--color-blue-100);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-blue-100\/20:where(:not([data-theme]))){background-color: color-mix(in oklab, var(--color-blue-100) 20%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:bg-chart-blue\/20:where([data-theme="dark"])){background-color: var(--color-chart-blue);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-chart-blue\/20:where([data-theme="dark"])){background-color: color-mix(in oklab, var(--color-chart-blue) 20%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-chart-blue\/20:where(:not([data-theme]))){background-color: var(--color-chart-blue);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-chart-blue\/20:where(:not([data-theme]))){background-color: color-mix(in oklab, var(--color-chart-blue) 20%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:bg-gray-100:where([data-theme="dark"])){background-color: var(--color-gray-100);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-gray-100:where(:not([data-theme]))){background-color: var(--color-gray-100);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-green-700:where([data-theme="dark"])){background-color: var(--color-green-700);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-green-700:where(:not([data-theme]))){background-color: var(--color-green-700);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-media-foreground:where([data-theme="dark"])){background-color: var(--color-media-foreground);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-media-foreground:where(:not([data-theme]))){background-color: var(--color-media-foreground);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-primary-ghost-hover:where(:not([data-theme]))){background-color: var(--color-background-primary-ghost-hover);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-primary-ghost-hover:where([data-theme="dark"])){background-color: var(--color-background-primary-ghost-hover);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-primary-ghost-hover:where(:not([data-theme]))){background-color: var(--color-background-primary-ghost-hover);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-primary-soft:where(:not([data-theme]))){background-color: var(--color-background-primary-soft);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-primary-soft:where([data-theme="dark"])){background-color: var(--color-background-primary-soft);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-primary-soft:where(:not([data-theme]))){background-color: var(--color-background-primary-soft);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-primary-soft-alpha:where(:not([data-theme]))){background-color: var(--color-background-primary-soft-alpha);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-primary-soft-alpha:where([data-theme="dark"])){background-color: var(--color-background-primary-soft-alpha);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-primary-soft-alpha:where(:not([data-theme]))){background-color: var(--color-background-primary-soft-alpha);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-primary-solid:where(:not([data-theme]))){background-color: var(--color-background-primary-solid);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-primary-solid:where([data-theme="dark"])){background-color: var(--color-background-primary-solid);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-primary-solid:where(:not([data-theme]))){background-color: var(--color-background-primary-solid);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-surface:where(:not([data-theme]))){background-color: var(--color-surface);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-surface:where([data-theme="dark"])){background-color: var(--color-surface);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-surface:where(:not([data-theme]))){background-color: var(--color-surface);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-surface-elevated:where(:not([data-theme]))){background-color: var(--color-surface-elevated);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-surface-elevated:where([data-theme="dark"])){background-color: var(--color-surface-elevated);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-surface-elevated:where(:not([data-theme]))){background-color: var(--color-surface-elevated);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-surface-elevated-secondary:where(:not([data-theme]))){background-color: var(--color-surface-elevated-secondary);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-surface-elevated-secondary:where([data-theme="dark"])){background-color: var(--color-surface-elevated-secondary);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-surface-elevated-secondary:where(:not([data-theme]))){background-color: var(--color-surface-elevated-secondary);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-surface-secondary:where(:not([data-theme]))){background-color: var(--color-surface-secondary);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-surface-secondary:where([data-theme="dark"])){background-color: var(--color-surface-secondary);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-surface-secondary:where(:not([data-theme]))){background-color: var(--color-surface-secondary);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-surface-secondary\/92:where([data-theme="dark"])){background-color: var(--color-surface-secondary);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-surface-secondary\/92:where([data-theme="dark"])){background-color: color-mix(in oklab, var(--color-surface-secondary) 92%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-surface-secondary\/92:where(:not([data-theme]))){background-color: var(--color-surface-secondary);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-surface-secondary\/92:where(:not([data-theme]))){background-color: color-mix(in oklab, var(--color-surface-secondary) 92%, transparent);}}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-surface-tertiary:where(:not([data-theme]))){background-color: var(--color-surface-tertiary);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-surface-tertiary:where([data-theme="dark"])){background-color: var(--color-surface-tertiary);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-surface-tertiary:where(:not([data-theme]))){background-color: var(--color-surface-tertiary);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-surface-tertiary\/70:where([data-theme="dark"])){background-color: var(--color-surface-tertiary);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-surface-tertiary\/70:where([data-theme="dark"])){background-color: color-mix(in oklab, var(--color-surface-tertiary) 70%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-surface-tertiary\/70:where(:not([data-theme]))){background-color: var(--color-surface-tertiary);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-surface-tertiary\/70:where(:not([data-theme]))){background-color: color-mix(in oklab, var(--color-surface-tertiary) 70%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:bg-text-info-soft\/15:where([data-theme="dark"])){background-color: var(--color-text-info-soft);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-text-info-soft\/15:where([data-theme="dark"])){background-color: color-mix(in oklab, var(--color-text-info-soft) 15%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-text-info-soft\/15:where(:not([data-theme]))){background-color: var(--color-text-info-soft);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-text-info-soft\/15:where(:not([data-theme]))){background-color: color-mix(in oklab, var(--color-text-info-soft) 15%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:bg-text\/5:where([data-theme="dark"])){background-color: var(--color-text);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-text\/5:where([data-theme="dark"])){background-color: color-mix(in oklab, var(--color-text) 5%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-text\/5:where(:not([data-theme]))){background-color: var(--color-text);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-text\/5:where(:not([data-theme]))){background-color: color-mix(in oklab, var(--color-text) 5%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:bg-text\/10:where([data-theme="dark"])){background-color: var(--color-text);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-text\/10:where([data-theme="dark"])){background-color: color-mix(in oklab, var(--color-text) 10%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-text\/10:where(:not([data-theme]))){background-color: var(--color-text);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-text\/10:where(:not([data-theme]))){background-color: color-mix(in oklab, var(--color-text) 10%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:bg-token-bg-primary:where([data-theme="dark"])){background-color: var(--color-token-bg-primary);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-token-bg-primary:where(:not([data-theme]))){background-color: var(--color-token-bg-primary);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-transparent:where([data-theme="dark"])){background-color: rgba(0, 0, 0, 0);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-transparent:where(:not([data-theme]))){background-color: rgba(0, 0, 0, 0);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-white:where([data-theme="dark"])){background-color: var(--color-white);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-white:where(:not([data-theme]))){background-color: var(--color-white);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-white\/6:where([data-theme="dark"])){background-color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-white\/6:where([data-theme="dark"])){background-color: color-mix(in oklab, var(--color-white) 6%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-white\/6:where(:not([data-theme]))){background-color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-white\/6:where(:not([data-theme]))){background-color: color-mix(in oklab, var(--color-white) 6%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:bg-white\/8:where([data-theme="dark"])){background-color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-white\/8:where([data-theme="dark"])){background-color: color-mix(in oklab, var(--color-white) 8%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-white\/8:where(:not([data-theme]))){background-color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-white\/8:where(:not([data-theme]))){background-color: color-mix(in oklab, var(--color-white) 8%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:bg-white\/10:where([data-theme="dark"])){background-color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-white\/10:where([data-theme="dark"])){background-color: color-mix(in oklab, var(--color-white) 10%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-white\/10:where(:not([data-theme]))){background-color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-white\/10:where(:not([data-theme]))){background-color: color-mix(in oklab, var(--color-white) 10%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:bg-white\/18:where([data-theme="dark"])){background-color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-white\/18:where([data-theme="dark"])){background-color: color-mix(in oklab, var(--color-white) 18%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-white\/18:where(:not([data-theme]))){background-color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-white\/18:where(:not([data-theme]))){background-color: color-mix(in oklab, var(--color-white) 18%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:bg-white\/20:where([data-theme="dark"])){background-color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-white\/20:where([data-theme="dark"])){background-color: color-mix(in oklab, var(--color-white) 20%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-white\/20:where(:not([data-theme]))){background-color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-white\/20:where(:not([data-theme]))){background-color: color-mix(in oklab, var(--color-white) 20%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:bg-white\/\[0\.08\]:where([data-theme="dark"])){background-color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-white\/\[0\.08\]:where([data-theme="dark"])){background-color: color-mix(in oklab, var(--color-white) 8%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-white\/\[0\.08\]:where(:not([data-theme]))){background-color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-white\/\[0\.08\]:where(:not([data-theme]))){background-color: color-mix(in oklab, var(--color-white) 8%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:bg-white\/\[0\.12\]:where([data-theme="dark"])){background-color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-white\/\[0\.12\]:where([data-theme="dark"])){background-color: color-mix(in oklab, var(--color-white) 12%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-white\/\[0\.12\]:where(:not([data-theme]))){background-color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:bg-white\/\[0\.12\]:where(:not([data-theme]))){background-color: color-mix(in oklab, var(--color-white) 12%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[linear-gradient\(180deg\,_\#212121_0\%\,_\#274B72_100\%\)\]:where([data-theme="dark"])){background-image: linear-gradient(rgb(33, 33, 33) 0%, rgb(39, 75, 114) 100%);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[linear-gradient\(180deg\,_\#212121_0\%\,_\#274B72_100\%\)\]:where(:not([data-theme]))){background-image: linear-gradient(rgb(33, 33, 33) 0%, rgb(39, 75, 114) 100%);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[linear-gradient\(206\.72deg\,_\#274B72_2\.34\%\,_\#212121_92\.37\%\)\]:where([data-theme="dark"])){background-image: linear-gradient(206.72deg, rgb(39, 75, 114) 2.34%, rgb(33, 33, 33) 92.37%);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[linear-gradient\(206\.72deg\,_\#274B72_2\.34\%\,_\#212121_92\.37\%\)\]:where(:not([data-theme]))){background-image: linear-gradient(206.72deg, rgb(39, 75, 114) 2.34%, rgb(33, 33, 33) 92.37%);}}
+:where([data-codex-request-surface]) :is(.dark\:bg-\[linear-gradient\(206\.72deg\,_\#30305F_2\.34\%\,_\#212121_92\.37\%\)\]:where([data-theme="dark"])){background-image: linear-gradient(206.72deg, rgb(48, 48, 95) 2.34%, rgb(33, 33, 33) 92.37%);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-\[linear-gradient\(206\.72deg\,_\#30305F_2\.34\%\,_\#212121_92\.37\%\)\]:where(:not([data-theme]))){background-image: linear-gradient(206.72deg, rgb(48, 48, 95) 2.34%, rgb(33, 33, 33) 92.37%);}}
+:where([data-codex-request-surface]) :is(.dark\:from-chart-yellow\/20:where([data-theme="dark"])){--tw-gradient-from: var(--color-chart-yellow);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:from-chart-yellow\/20:where([data-theme="dark"])){--tw-gradient-from: color-mix(in oklab, var(--color-chart-yellow) 20%, transparent);}}
+:where([data-codex-request-surface]) :is(.dark\:from-chart-yellow\/20:where([data-theme="dark"])){--tw-gradient-stops: var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:from-chart-yellow\/20:where(:not([data-theme]))){--tw-gradient-from: var(--color-chart-yellow);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:from-chart-yellow\/20:where(:not([data-theme]))){--tw-gradient-from: color-mix(in oklab, var(--color-chart-yellow) 20%, transparent);}}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:from-chart-yellow\/20:where(:not([data-theme]))){--tw-gradient-stops: var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));}}
+:where([data-codex-request-surface]) :is(.dark\:from-surface-tertiary:where([data-theme="dark"])){--tw-gradient-from: var(--color-surface-tertiary); --tw-gradient-stops: var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:from-surface-tertiary:where(:not([data-theme]))){--tw-gradient-from: var(--color-surface-tertiary); --tw-gradient-stops: var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));}}
+:where([data-codex-request-surface]) :is(.dark\:from-white\/\[0\.16\]:where([data-theme="dark"])){--tw-gradient-from: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:from-white\/\[0\.16\]:where([data-theme="dark"])){--tw-gradient-from: color-mix(in oklab, var(--color-white) 16%, transparent);}}
+:where([data-codex-request-surface]) :is(.dark\:from-white\/\[0\.16\]:where([data-theme="dark"])){--tw-gradient-stops: var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:from-white\/\[0\.16\]:where(:not([data-theme]))){--tw-gradient-from: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:from-white\/\[0\.16\]:where(:not([data-theme]))){--tw-gradient-from: color-mix(in oklab, var(--color-white) 16%, transparent);}}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:from-white\/\[0\.16\]:where(:not([data-theme]))){--tw-gradient-stops: var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));}}
+:where([data-codex-request-surface]) :is(.dark\:via-chart-blue\/20:where([data-theme="dark"])){--tw-gradient-via: var(--color-chart-blue);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:via-chart-blue\/20:where([data-theme="dark"])){--tw-gradient-via: color-mix(in oklab, var(--color-chart-blue) 20%, transparent);}}
+:where([data-codex-request-surface]) :is(.dark\:via-chart-blue\/20:where([data-theme="dark"])){--tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-via-stops);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:via-chart-blue\/20:where(:not([data-theme]))){--tw-gradient-via: var(--color-chart-blue);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:via-chart-blue\/20:where(:not([data-theme]))){--tw-gradient-via: color-mix(in oklab, var(--color-chart-blue) 20%, transparent);}}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:via-chart-blue\/20:where(:not([data-theme]))){--tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-via-stops);}}
+:where([data-codex-request-surface]) :is(.dark\:via-white\/\[0\.04\]:where([data-theme="dark"])){--tw-gradient-via: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:via-white\/\[0\.04\]:where([data-theme="dark"])){--tw-gradient-via: color-mix(in oklab, var(--color-white) 4%, transparent);}}
+:where([data-codex-request-surface]) :is(.dark\:via-white\/\[0\.04\]:where([data-theme="dark"])){--tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-via-stops);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:via-white\/\[0\.04\]:where(:not([data-theme]))){--tw-gradient-via: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:via-white\/\[0\.04\]:where(:not([data-theme]))){--tw-gradient-via: color-mix(in oklab, var(--color-white) 4%, transparent);}}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:via-white\/\[0\.04\]:where(:not([data-theme]))){--tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-via-stops);}}
+:where([data-codex-request-surface]) :is(.dark\:to-chart-purple\/20:where([data-theme="dark"])){--tw-gradient-to: var(--color-chart-purple);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:to-chart-purple\/20:where([data-theme="dark"])){--tw-gradient-to: color-mix(in oklab, var(--color-chart-purple) 20%, transparent);}}
+:where([data-codex-request-surface]) :is(.dark\:to-chart-purple\/20:where([data-theme="dark"])){--tw-gradient-stops: var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:to-chart-purple\/20:where(:not([data-theme]))){--tw-gradient-to: var(--color-chart-purple);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:to-chart-purple\/20:where(:not([data-theme]))){--tw-gradient-to: color-mix(in oklab, var(--color-chart-purple) 20%, transparent);}}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:to-chart-purple\/20:where(:not([data-theme]))){--tw-gradient-stops: var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));}}
+:where([data-codex-request-surface]) :is(.dark\:bg-clip-padding:where([data-theme="dark"])){background-clip: padding-box;}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:bg-clip-padding:where(:not([data-theme]))){background-clip: padding-box;}}
+:where([data-codex-request-surface]) :is(.dark\:stroke-black:where([data-theme="dark"])){stroke: var(--color-black);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:stroke-black:where(:not([data-theme]))){stroke: var(--color-black);}}
+:where([data-codex-request-surface]) :is(.dark\:\!text-black:where([data-theme="dark"])){color: var(--color-black) !important;}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:\!text-black:where(:not([data-theme]))){color: var(--color-black) !important;}}
+:where([data-codex-request-surface]) :is(.dark\:text-\[\#0A84FF\]:where([data-theme="dark"])){color: rgb(10, 132, 255);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-\[\#0A84FF\]:where(:not([data-theme]))){color: rgb(10, 132, 255);}}
+:where([data-codex-request-surface]) :is(.dark\:text-\[\#7CC4FF\]:where([data-theme="dark"])){color: rgb(124, 196, 255);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-\[\#7CC4FF\]:where(:not([data-theme]))){color: rgb(124, 196, 255);}}
+:where([data-codex-request-surface]) :is(.dark\:text-\[\#40c977\]:where([data-theme="dark"])){color: rgb(64, 201, 119);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-\[\#40c977\]:where(:not([data-theme]))){color: rgb(64, 201, 119);}}
+:where([data-codex-request-surface]) :is(.dark\:text-\[\#339cff\]:where([data-theme="dark"])){color: rgb(51, 156, 255);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-\[\#339cff\]:where(:not([data-theme]))){color: rgb(51, 156, 255);}}
+:where([data-codex-request-surface]) :is(.dark\:text-\[\#111111\]:where([data-theme="dark"])){color: rgb(17, 17, 17);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-\[\#111111\]:where(:not([data-theme]))){color: rgb(17, 17, 17);}}
+:where([data-codex-request-surface]) :is(.dark\:text-\[\#A5A5A5\]:where([data-theme="dark"])){color: rgb(165, 165, 165);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-\[\#A5A5A5\]:where(:not([data-theme]))){color: rgb(165, 165, 165);}}
+:where([data-codex-request-surface]) :is(.dark\:text-\[\#FF8B8B\]:where([data-theme="dark"])){color: rgb(255, 139, 139);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-\[\#FF8B8B\]:where(:not([data-theme]))){color: rgb(255, 139, 139);}}
+:where([data-codex-request-surface]) :is(.dark\:text-\[\#a4cdfb\]:where([data-theme="dark"])){color: rgb(164, 205, 251);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-\[\#a4cdfb\]:where(:not([data-theme]))){color: rgb(164, 205, 251);}}
+:where([data-codex-request-surface]) :is(.dark\:text-\[\#ad7bf9\]:where([data-theme="dark"])){color: rgb(173, 123, 249);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-\[\#ad7bf9\]:where(:not([data-theme]))){color: rgb(173, 123, 249);}}
+:where([data-codex-request-surface]) :is(.dark\:text-\[\#afafaf\]:where([data-theme="dark"])){color: rgb(175, 175, 175);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-\[\#afafaf\]:where(:not([data-theme]))){color: rgb(175, 175, 175);}}
+:where([data-codex-request-surface]) :is(.dark\:text-\[\#ff8cc1\]:where([data-theme="dark"])){color: rgb(255, 140, 193);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-\[\#ff8cc1\]:where(:not([data-theme]))){color: rgb(255, 140, 193);}}
+:where([data-codex-request-surface]) :is(.dark\:text-\[\#ff6764\]:where([data-theme="dark"])){color: rgb(255, 103, 100);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-\[\#ff6764\]:where(:not([data-theme]))){color: rgb(255, 103, 100);}}
+:where([data-codex-request-surface]) :is(.dark\:text-\[\#ff8549\]:where([data-theme="dark"])){color: rgb(255, 133, 73);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-\[\#ff8549\]:where(:not([data-theme]))){color: rgb(255, 133, 73);}}
+:where([data-codex-request-surface]) :is(.dark\:text-\[\#ffd240\]:where([data-theme="dark"])){color: rgb(255, 210, 64);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-\[\#ffd240\]:where(:not([data-theme]))){color: rgb(255, 210, 64);}}
+:where([data-codex-request-surface]) :is(.dark\:text-\[color-mix\(in_srgb\,var\(--color-codex-description\)_45\%\,transparent\)\]:where([data-theme="dark"])){color: var(--color-codex-description);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:text-\[color-mix\(in_srgb\,var\(--color-codex-description\)_45\%\,transparent\)\]:where([data-theme="dark"])){color: color-mix(in srgb,var(--color-codex-description) 45%,transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-\[color-mix\(in_srgb\,var\(--color-codex-description\)_45\%\,transparent\)\]:where(:not([data-theme]))){color: var(--color-codex-description);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:text-\[color-mix\(in_srgb\,var\(--color-codex-description\)_45\%\,transparent\)\]:where(:not([data-theme]))){color: color-mix(in srgb,var(--color-codex-description) 45%,transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:text-\[var\(--green-50\)\]:where([data-theme="dark"])){color: var(--green-50);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-\[var\(--green-50\)\]:where(:not([data-theme]))){color: var(--green-50);}}
+:where([data-codex-request-surface]) :is(.dark\:text-\[var\(--theme-blue-text-on-background\)\]:where([data-theme="dark"])){color: var(--theme-blue-text-on-background);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-\[var\(--theme-blue-text-on-background\)\]:where(:not([data-theme]))){color: var(--theme-blue-text-on-background);}}
+:where([data-codex-request-surface]) :is(.dark\:text-blue-100:where([data-theme="dark"])){color: var(--color-blue-100);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-blue-100:where(:not([data-theme]))){color: var(--color-blue-100);}}
+:where([data-codex-request-surface]) :is(.dark\:text-default:where([data-theme="dark"])){color: var(--color-text);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-default:where(:not([data-theme]))){color: var(--color-text);}}
+:where([data-codex-request-surface]) :is(.dark\:text-green-400:where([data-theme="dark"])){color: var(--color-green-400);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-green-400:where(:not([data-theme]))){color: var(--color-green-400);}}
+:where([data-codex-request-surface]) :is(.dark\:text-green-700:where([data-theme="dark"])){color: var(--color-green-700);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-green-700:where(:not([data-theme]))){color: var(--color-green-700);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-info:where(:not([data-theme]))){color: var(--color-text-info);}}
+:where([data-codex-request-surface]) :is(.dark\:text-info:where([data-theme="dark"])){color: var(--color-text-info);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-info:where(:not([data-theme]))){color: var(--color-text-info);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-info-ghost:where(:not([data-theme]))){color: var(--color-text-info-ghost);}}
+:where([data-codex-request-surface]) :is(.dark\:text-info-ghost:where([data-theme="dark"])){color: var(--color-text-info-ghost);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-info-ghost:where(:not([data-theme]))){color: var(--color-text-info-ghost);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-info-soft:where(:not([data-theme]))){color: var(--color-text-info-soft);}}
+:where([data-codex-request-surface]) :is(.dark\:text-info-soft:where([data-theme="dark"])){color: var(--color-text-info-soft);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-info-soft:where(:not([data-theme]))){color: var(--color-text-info-soft);}}
+:where([data-codex-request-surface]) :is(.dark\:text-media-background:where([data-theme="dark"])){color: var(--color-media-background);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-media-background:where(:not([data-theme]))){color: var(--color-media-background);}}
+:where([data-codex-request-surface]) :is(.dark\:text-orange-400:where([data-theme="dark"])){color: var(--color-orange-400);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-orange-400:where(:not([data-theme]))){color: var(--color-orange-400);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-primary-solid:where(:not([data-theme]))){color: var(--color-text-primary-solid);}}
+:where([data-codex-request-surface]) :is(.dark\:text-primary-solid:where([data-theme="dark"])){color: var(--color-text-primary-solid);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-primary-solid:where(:not([data-theme]))){color: var(--color-text-primary-solid);}}
+:where([data-codex-request-surface]) :is(.dark\:text-red-400:where([data-theme="dark"])){color: var(--color-red-400);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-red-400:where(:not([data-theme]))){color: var(--color-red-400);}}
+:where([data-codex-request-surface]) :is(.dark\:text-white:where([data-theme="dark"])){color: var(--color-white);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-white:where(:not([data-theme]))){color: var(--color-white);}}
+:where([data-codex-request-surface]) :is(.dark\:text-white\!:where([data-theme="dark"])){color: var(--color-white) !important;}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-white\!:where(:not([data-theme]))){color: var(--color-white) !important;}}
+:where([data-codex-request-surface]) :is(.dark\:text-white\/30:where([data-theme="dark"])){color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:text-white\/30:where([data-theme="dark"])){color: color-mix(in oklab, var(--color-white) 30%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-white\/30:where(:not([data-theme]))){color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:text-white\/30:where(:not([data-theme]))){color: color-mix(in oklab, var(--color-white) 30%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:text-white\/45:where([data-theme="dark"])){color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:text-white\/45:where([data-theme="dark"])){color: color-mix(in oklab, var(--color-white) 45%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-white\/45:where(:not([data-theme]))){color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:text-white\/45:where(:not([data-theme]))){color: color-mix(in oklab, var(--color-white) 45%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:text-white\/50:where([data-theme="dark"])){color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:text-white\/50:where([data-theme="dark"])){color: color-mix(in oklab, var(--color-white) 50%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-white\/50:where(:not([data-theme]))){color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:text-white\/50:where(:not([data-theme]))){color: color-mix(in oklab, var(--color-white) 50%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:text-white\/55:where([data-theme="dark"])){color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:text-white\/55:where([data-theme="dark"])){color: color-mix(in oklab, var(--color-white) 55%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-white\/55:where(:not([data-theme]))){color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:text-white\/55:where(:not([data-theme]))){color: color-mix(in oklab, var(--color-white) 55%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:text-white\/60:where([data-theme="dark"])){color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:text-white\/60:where([data-theme="dark"])){color: color-mix(in oklab, var(--color-white) 60%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-white\/60:where(:not([data-theme]))){color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:text-white\/60:where(:not([data-theme]))){color: color-mix(in oklab, var(--color-white) 60%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:text-white\/70:where([data-theme="dark"])){color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:text-white\/70:where([data-theme="dark"])){color: color-mix(in oklab, var(--color-white) 70%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-white\/70:where(:not([data-theme]))){color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:text-white\/70:where(:not([data-theme]))){color: color-mix(in oklab, var(--color-white) 70%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:text-white\/74:where([data-theme="dark"])){color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:text-white\/74:where([data-theme="dark"])){color: color-mix(in oklab, var(--color-white) 74%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-white\/74:where(:not([data-theme]))){color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:text-white\/74:where(:not([data-theme]))){color: color-mix(in oklab, var(--color-white) 74%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:text-white\/88:where([data-theme="dark"])){color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:text-white\/88:where([data-theme="dark"])){color: color-mix(in oklab, var(--color-white) 88%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-white\/88:where(:not([data-theme]))){color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:text-white\/88:where(:not([data-theme]))){color: color-mix(in oklab, var(--color-white) 88%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:text-white\/92:where([data-theme="dark"])){color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:text-white\/92:where([data-theme="dark"])){color: color-mix(in oklab, var(--color-white) 92%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:text-white\/92:where(:not([data-theme]))){color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:text-white\/92:where(:not([data-theme]))){color: color-mix(in oklab, var(--color-white) 92%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:opacity-10:where([data-theme="dark"])){opacity: 0.1;}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:opacity-10:where(:not([data-theme]))){opacity: 0.1;}}
+:where([data-codex-request-surface]) :is(.dark\:opacity-30:where([data-theme="dark"])){opacity: 0.3;}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:opacity-30:where(:not([data-theme]))){opacity: 0.3;}}
+:where([data-codex-request-surface]) :is(.dark\:opacity-40:where([data-theme="dark"])){opacity: 0.4;}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:opacity-40:where(:not([data-theme]))){opacity: 0.4;}}
+:where([data-codex-request-surface]) :is(.dark\:opacity-50:where([data-theme="dark"])){opacity: 0.5;}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:opacity-50:where(:not([data-theme]))){opacity: 0.5;}}
+:where([data-codex-request-surface]) :is(.dark\:opacity-60:where([data-theme="dark"])){opacity: 0.6;}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:opacity-60:where(:not([data-theme]))){opacity: 0.6;}}
+:where([data-codex-request-surface]) :is(.dark\:opacity-75:where([data-theme="dark"])){opacity: 0.75;}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:opacity-75:where(:not([data-theme]))){opacity: 0.75;}}
+:where([data-codex-request-surface]) :is(.dark\:opacity-100:where([data-theme="dark"])){opacity: 1;}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:opacity-100:where(:not([data-theme]))){opacity: 1;}}
+:where([data-codex-request-surface]) :is(.dark\:mix-blend-lighten:where([data-theme="dark"])){mix-blend-mode: lighten;}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:mix-blend-lighten:where(:not([data-theme]))){mix-blend-mode: lighten;}}
+:where([data-codex-request-surface]) :is(.dark\:shadow-\(--elevation-composer-dark\):where([data-theme="dark"])){--tw-shadow: var(--elevation-composer-dark); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:shadow-\(--elevation-composer-dark\):where(:not([data-theme]))){--tw-shadow: var(--elevation-composer-dark); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}
+:where([data-codex-request-surface]) :is(.dark\:shadow-\[0_0_6px_rgba\(118\,104\,197\,0\.5\)\]:where([data-theme="dark"])){--tw-shadow: 0 0 6px var(--tw-shadow-color,#7668c580); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:shadow-\[0_0_6px_rgba\(118\,104\,197\,0\.5\)\]:where(:not([data-theme]))){--tw-shadow: 0 0 6px var(--tw-shadow-color,#7668c580); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}
+:where([data-codex-request-surface]) :is(.dark\:shadow-\[0_1px_2px_rgba\(0\,0\,0\,0\.36\)\]:where([data-theme="dark"])){--tw-shadow: 0 1px 2px var(--tw-shadow-color,#0000005c); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:shadow-\[0_1px_2px_rgba\(0\,0\,0\,0\.36\)\]:where(:not([data-theme]))){--tw-shadow: 0 1px 2px var(--tw-shadow-color,#0000005c); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}
+:where([data-codex-request-surface]) :is(.dark\:shadow-\[0_4px_25px_-5px_rgb\(8_12_35_\/_0\.6\)\]:where([data-theme="dark"])){--tw-shadow: 0 4px 25px -5px var(--tw-shadow-color,#080c2399); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:shadow-\[0_4px_25px_-5px_rgb\(8_12_35_\/_0\.6\)\]:where(:not([data-theme]))){--tw-shadow: 0 4px 25px -5px var(--tw-shadow-color,#080c2399); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}
+:where([data-codex-request-surface]) :is(.dark\:shadow-\[0_8px_16px_0_rgba\(0\,0\,0\,0\.40\)\,inset_0_0_1px_0_rgba\(255\,255\,255\,0\.25\)\,0_0_1px_0_rgba\(0\,0\,0\,0\.60\)\]:where([data-theme="dark"])){--tw-shadow: 0 8px 16px 0 var(--tw-shadow-color,#0006), inset 0 0 1px 0 var(--tw-shadow-color,#ffffff40), 0 0 1px 0 var(--tw-shadow-color,#0009); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:shadow-\[0_8px_16px_0_rgba\(0\,0\,0\,0\.40\)\,inset_0_0_1px_0_rgba\(255\,255\,255\,0\.25\)\,0_0_1px_0_rgba\(0\,0\,0\,0\.60\)\]:where(:not([data-theme]))){--tw-shadow: 0 8px 16px 0 var(--tw-shadow-color,#0006), inset 0 0 1px 0 var(--tw-shadow-color,#ffffff40), 0 0 1px 0 var(--tw-shadow-color,#0009); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}
+:where([data-codex-request-surface]) :is(.dark\:shadow-\[0_12px_32px_rgba\(0\,0\,0\,0\.22\)\]\!:where([data-theme="dark"])){--tw-shadow: 0 12px 32px var(--tw-shadow-color,#00000038) !important; box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow) !important;}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:shadow-\[0_12px_32px_rgba\(0\,0\,0\,0\.22\)\]\!:where(:not([data-theme]))){--tw-shadow: 0 12px 32px var(--tw-shadow-color,#00000038) !important; box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow) !important;}}
+:where([data-codex-request-surface]) :is(.dark\:shadow-\[inset_0_-1px_2px_rgba\(255\,255\,255\,0\.08\)\,0_1px_2px_rgba\(0\,0\,0\,0\.34\)\]:where([data-theme="dark"])){--tw-shadow: inset 0 -1px 2px var(--tw-shadow-color,#ffffff14), 0 1px 2px var(--tw-shadow-color,#00000057); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:shadow-\[inset_0_-1px_2px_rgba\(255\,255\,255\,0\.08\)\,0_1px_2px_rgba\(0\,0\,0\,0\.34\)\]:where(:not([data-theme]))){--tw-shadow: inset 0 -1px 2px var(--tw-shadow-color,#ffffff14), 0 1px 2px var(--tw-shadow-color,#00000057); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}
+:where([data-codex-request-surface]) :is(.dark\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.06\)\,0_1px_2px_rgba\(0\,0\,0\,0\.32\)\]:where([data-theme="dark"])){--tw-shadow: inset 0 0 0 1px var(--tw-shadow-color,#ffffff0f), 0 1px 2px var(--tw-shadow-color,#00000052); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.06\)\,0_1px_2px_rgba\(0\,0\,0\,0\.32\)\]:where(:not([data-theme]))){--tw-shadow: inset 0 0 0 1px var(--tw-shadow-color,#ffffff0f), 0 1px 2px var(--tw-shadow-color,#00000052); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}
+:where([data-codex-request-surface]) :is(.dark\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.08\)\,0_1px_0_rgba\(0\,0\,0\,0\.28\)\]:where([data-theme="dark"])){--tw-shadow: inset 0 0 0 1px var(--tw-shadow-color,#ffffff14), 0 1px 0 var(--tw-shadow-color,#00000047); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.08\)\,0_1px_0_rgba\(0\,0\,0\,0\.28\)\]:where(:not([data-theme]))){--tw-shadow: inset 0 0 0 1px var(--tw-shadow-color,#ffffff14), 0 1px 0 var(--tw-shadow-color,#00000047); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}
+:where([data-codex-request-surface]) :is(.dark\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.08\)\,0_1px_2px_rgba\(0\,0\,0\,0\.32\)\]:where([data-theme="dark"])){--tw-shadow: inset 0 0 0 1px var(--tw-shadow-color,#ffffff14), 0 1px 2px var(--tw-shadow-color,#00000052); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.08\)\,0_1px_2px_rgba\(0\,0\,0\,0\.32\)\]:where(:not([data-theme]))){--tw-shadow: inset 0 0 0 1px var(--tw-shadow-color,#ffffff14), 0 1px 2px var(--tw-shadow-color,#00000052); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}
+:where([data-codex-request-surface]) :is(.dark\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.08\)\,0_1px_2px_rgba\(0\,0\,0\,0\.34\)\]:where([data-theme="dark"])){--tw-shadow: inset 0 0 0 1px var(--tw-shadow-color,#ffffff14), 0 1px 2px var(--tw-shadow-color,#00000057); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.08\)\,0_1px_2px_rgba\(0\,0\,0\,0\.34\)\]:where(:not([data-theme]))){--tw-shadow: inset 0 0 0 1px var(--tw-shadow-color,#ffffff14), 0 1px 2px var(--tw-shadow-color,#00000057); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}
+:where([data-codex-request-surface]) :is(.dark\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.08\)\,0_14px_34px_rgba\(0\,0\,0\,0\.36\)\]:where([data-theme="dark"])){--tw-shadow: inset 0 0 0 1px var(--tw-shadow-color,#ffffff14), 0 14px 34px var(--tw-shadow-color,#0000005c); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.08\)\,0_14px_34px_rgba\(0\,0\,0\,0\.36\)\]:where(:not([data-theme]))){--tw-shadow: inset 0 0 0 1px var(--tw-shadow-color,#ffffff14), 0 14px 34px var(--tw-shadow-color,#0000005c); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}
+:where([data-codex-request-surface]) :is(.dark\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.09\)\,inset_0_1px_2px_rgba\(255\,255\,255\,0\.08\)\,0_1px_2px_rgba\(0\,0\,0\,0\.3\)\]:where([data-theme="dark"])){--tw-shadow: inset 0 0 0 1px var(--tw-shadow-color,#ffffff17), inset 0 1px 2px var(--tw-shadow-color,#ffffff14), 0 1px 2px var(--tw-shadow-color,#0000004d); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.09\)\,inset_0_1px_2px_rgba\(255\,255\,255\,0\.08\)\,0_1px_2px_rgba\(0\,0\,0\,0\.3\)\]:where(:not([data-theme]))){--tw-shadow: inset 0 0 0 1px var(--tw-shadow-color,#ffffff17), inset 0 1px 2px var(--tw-shadow-color,#ffffff14), 0 1px 2px var(--tw-shadow-color,#0000004d); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}
+:where([data-codex-request-surface]) :is(.dark\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.14\)\,0_0_14px_rgba\(141\,181\,255\,0\.28\)\]:where([data-theme="dark"])){--tw-shadow: inset 0 0 0 1px var(--tw-shadow-color,#ffffff24), 0 0 14px var(--tw-shadow-color,#8db5ff47); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.14\)\,0_0_14px_rgba\(141\,181\,255\,0\.28\)\]:where(:not([data-theme]))){--tw-shadow: inset 0 0 0 1px var(--tw-shadow-color,#ffffff24), 0 0 14px var(--tw-shadow-color,#8db5ff47); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}
+:where([data-codex-request-surface]) :is(.dark\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.25\)\]:where([data-theme="dark"])){--tw-shadow: inset 0 0 0 1px var(--tw-shadow-color,#ffffff40); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.25\)\]:where(:not([data-theme]))){--tw-shadow: inset 0 0 0 1px var(--tw-shadow-color,#ffffff40); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}
+:where([data-codex-request-surface]) :is(.dark\:shadow-lg-stronger:where([data-theme="dark"])){--tw-shadow: 0px 4px 8px -2px var(--tw-shadow-color,#00000029); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:shadow-lg-stronger:where(:not([data-theme]))){--tw-shadow: 0px 4px 8px -2px var(--tw-shadow-color,#00000029); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}
+:where([data-codex-request-surface]) :is(.dark\:shadow-none:where([data-theme="dark"])){--tw-shadow: 0 0 #0000; box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:shadow-none:where(:not([data-theme]))){--tw-shadow: 0 0 #0000; box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}
+:where([data-codex-request-surface]) :is(.dark\:inset-shadow-2xs:where([data-theme="dark"])){--tw-inset-shadow: inset 0 1px var(--tw-inset-shadow-color,#0000000d); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:inset-shadow-2xs:where(:not([data-theme]))){--tw-inset-shadow: inset 0 1px var(--tw-inset-shadow-color,#0000000d); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}
+:where([data-codex-request-surface]) :is(.dark\:inset-shadow-sm:where([data-theme="dark"])){--tw-inset-shadow: inset 0 2px 4px var(--tw-inset-shadow-color,#0000000d); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:inset-shadow-sm:where(:not([data-theme]))){--tw-inset-shadow: inset 0 2px 4px var(--tw-inset-shadow-color,#0000000d); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}
+:where([data-codex-request-surface]) :is(.dark\:inset-ring-0:where([data-theme="dark"])){--tw-inset-ring-shadow: inset 0 0 0 0px var(--tw-inset-ring-color,currentcolor); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:inset-ring-0:where(:not([data-theme]))){--tw-inset-ring-shadow: inset 0 0 0 0px var(--tw-inset-ring-color,currentcolor); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}
+:where([data-codex-request-surface]) :is(.dark\:inset-ring-1:where([data-theme="dark"])){--tw-inset-ring-shadow: inset 0 0 0 1px var(--tw-inset-ring-color,currentcolor); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:inset-ring-1:where(:not([data-theme]))){--tw-inset-ring-shadow: inset 0 0 0 1px var(--tw-inset-ring-color,currentcolor); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}
+:where([data-codex-request-surface]) :is(.dark\:ring-chart-blue\/60:where([data-theme="dark"])){--tw-ring-color: var(--color-chart-blue);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:ring-chart-blue\/60:where([data-theme="dark"])){--tw-ring-color: color-mix(in oklab, var(--color-chart-blue) 60%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:ring-chart-blue\/60:where(:not([data-theme]))){--tw-ring-color: var(--color-chart-blue);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:ring-chart-blue\/60:where(:not([data-theme]))){--tw-ring-color: color-mix(in oklab, var(--color-chart-blue) 60%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:ring-white\/15:where([data-theme="dark"])){--tw-ring-color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:ring-white\/15:where([data-theme="dark"])){--tw-ring-color: color-mix(in oklab, var(--color-white) 15%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:ring-white\/15:where(:not([data-theme]))){--tw-ring-color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:ring-white\/15:where(:not([data-theme]))){--tw-ring-color: color-mix(in oklab, var(--color-white) 15%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:inset-shadow-border:where([data-theme="dark"])){--tw-inset-shadow-color: var(--color-border);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:inset-shadow-border:where([data-theme="dark"])){--tw-inset-shadow-color: color-mix(in oklab, var(--color-border) var(--tw-inset-shadow-alpha), transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:inset-shadow-border:where(:not([data-theme]))){--tw-inset-shadow-color: var(--color-border);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:inset-shadow-border:where(:not([data-theme]))){--tw-inset-shadow-color: color-mix(in oklab, var(--color-border) var(--tw-inset-shadow-alpha), transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:inset-ring-border-subtle:where([data-theme="dark"])){--tw-inset-ring-color: var(--color-border-subtle);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:inset-ring-border-subtle:where(:not([data-theme]))){--tw-inset-ring-color: var(--color-border-subtle);}}
+:where([data-codex-request-surface]) :is(.dark\:brightness-0:where([data-theme="dark"])){--tw-brightness: brightness(0%); filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:brightness-0:where(:not([data-theme]))){--tw-brightness: brightness(0%); filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);}}
+:where([data-codex-request-surface]) :is(.dark\:brightness-100:where([data-theme="dark"])){--tw-brightness: brightness(100%); filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:brightness-100:where(:not([data-theme]))){--tw-brightness: brightness(100%); filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);}}
+:where([data-codex-request-surface]) :is(.dark\:grayscale-0:where([data-theme="dark"])){--tw-grayscale: grayscale(0%); filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:grayscale-0:where(:not([data-theme]))){--tw-grayscale: grayscale(0%); filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);}}
+:where([data-codex-request-surface]) :is(.dark\:invert:where([data-theme="dark"])){--tw-invert: invert(100%); filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:invert:where(:not([data-theme]))){--tw-invert: invert(100%); filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);}}
+:where([data-codex-request-surface]) :is(.dark\:\[--color-background-info-solid\:var\(--blue-500\)\]:where([data-theme="dark"])){--color-background-info-solid: var(--blue-500);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:\[--color-background-info-solid\:var\(--blue-500\)\]:where(:not([data-theme]))){--color-background-info-solid: var(--blue-500);}}
+:where([data-codex-request-surface]) :is(.dark\:\[--shimmer-contrast\:rgba\(0\,0\,0\,0\.42\)\]:where([data-theme="dark"])){--shimmer-contrast: #0000006b;}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:\[--shimmer-contrast\:rgba\(0\,0\,0\,0\.42\)\]:where(:not([data-theme]))){--shimmer-contrast: #0000006b;}}
+@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:group-hover\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.12\)\,0_0_12px_rgba\(141\,181\,255\,0\.24\)\]:where([data-theme="dark"]):is(:where(.group):hover :where(.dark\:group-hover\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.12\)\,0_0_12px_rgba\(141\,181\,255\,0\.24\)\]))){--tw-shadow: inset 0 0 0 1px var(--tw-shadow-color,#ffffff1f), 0 0 12px var(--tw-shadow-color,#8db5ff3d); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}
+@container style(--theme-variant: dark){@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:group-hover\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.12\)\,0_0_12px_rgba\(141\,181\,255\,0\.24\)\]:where(:not([data-theme])):is(:where(.group):hover :where(.dark\:group-hover\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.12\)\,0_0_12px_rgba\(141\,181\,255\,0\.24\)\]))){--tw-shadow: inset 0 0 0 1px var(--tw-shadow-color,#ffffff1f), 0 0 12px var(--tw-shadow-color,#8db5ff3d); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}}
+@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:group-hover\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.14\)\,0_0_12px_rgba\(141\,181\,255\,0\.24\)\]:where([data-theme="dark"]):is(:where(.group):hover :where(.dark\:group-hover\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.14\)\,0_0_12px_rgba\(141\,181\,255\,0\.24\)\]))){--tw-shadow: inset 0 0 0 1px var(--tw-shadow-color,#ffffff24), 0 0 12px var(--tw-shadow-color,#8db5ff3d); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}
+@container style(--theme-variant: dark){@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:group-hover\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.14\)\,0_0_12px_rgba\(141\,181\,255\,0\.24\)\]:where(:not([data-theme])):is(:where(.group):hover :where(.dark\:group-hover\:shadow-\[inset_0_0_0_1px_rgba\(255\,255\,255\,0\.14\)\,0_0_12px_rgba\(141\,181\,255\,0\.24\)\]))){--tw-shadow: inset 0 0 0 1px var(--tw-shadow-color,#ffffff24), 0 0 12px var(--tw-shadow-color,#8db5ff3d); box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);}}}
+:where([data-codex-request-surface]) :is(.dark\:group-data-\[density\=form\]\/settings\:bg-transparent:where([data-theme="dark"]):is(:where(.group\/settings)[data-density="form"] :where(.dark\:group-data-\[density\=form\]\/settings\:bg-transparent))){background-color: rgba(0, 0, 0, 0);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:group-data-\[density\=form\]\/settings\:bg-transparent:where(:not([data-theme])):is(:where(.group\/settings)[data-density="form"] :where(.dark\:group-data-\[density\=form\]\/settings\:bg-transparent))){background-color: rgba(0, 0, 0, 0);}}
+:where([data-codex-request-surface]) :is(.dark\:peer-focus-visible\:ring-white\/70:where([data-theme="dark"]):is(:where(.peer):focus-visible ~ :where(.dark\:peer-focus-visible\:ring-white\/70))){--tw-ring-color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:peer-focus-visible\:ring-white\/70:where([data-theme="dark"]):is(:where(.peer):focus-visible ~ :where(.dark\:peer-focus-visible\:ring-white\/70))){--tw-ring-color: color-mix(in oklab, var(--color-white) 70%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:peer-focus-visible\:ring-white\/70:where(:not([data-theme])):is(:where(.peer):focus-visible ~ :where(.dark\:peer-focus-visible\:ring-white\/70))){--tw-ring-color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:peer-focus-visible\:ring-white\/70:where(:not([data-theme])):is(:where(.peer):focus-visible ~ :where(.dark\:peer-focus-visible\:ring-white\/70))){--tw-ring-color: color-mix(in oklab, var(--color-white) 70%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:peer-focus-visible\:outline-text\/16:where([data-theme="dark"]):is(:where(.peer):focus-visible ~ :where(.dark\:peer-focus-visible\:outline-text\/16))){outline-color: var(--color-text);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:peer-focus-visible\:outline-text\/16:where([data-theme="dark"]):is(:where(.peer):focus-visible ~ :where(.dark\:peer-focus-visible\:outline-text\/16))){outline-color: color-mix(in oklab, var(--color-text) 16%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:peer-focus-visible\:outline-text\/16:where(:not([data-theme])):is(:where(.peer):focus-visible ~ :where(.dark\:peer-focus-visible\:outline-text\/16))){outline-color: var(--color-text);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:peer-focus-visible\:outline-text\/16:where(:not([data-theme])):is(:where(.peer):focus-visible ~ :where(.dark\:peer-focus-visible\:outline-text\/16))){outline-color: color-mix(in oklab, var(--color-text) 16%, transparent);}}}
+@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:peer-enabled\:peer-hover\:ring-white\/25:where([data-theme="dark"]):is(:where(.peer):enabled ~ :where(.dark\:peer-enabled\:peer-hover\:ring-white\/25)):is(:where(.peer):hover ~ :where(.dark\:peer-enabled\:peer-hover\:ring-white\/25))){--tw-ring-color: var(--color-white);}}
+@media (hover: hover){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:peer-enabled\:peer-hover\:ring-white\/25:where([data-theme="dark"]):is(:where(.peer):enabled ~ :where(.dark\:peer-enabled\:peer-hover\:ring-white\/25)):is(:where(.peer):hover ~ :where(.dark\:peer-enabled\:peer-hover\:ring-white\/25))){--tw-ring-color: color-mix(in oklab, var(--color-white) 25%, transparent);}}}
+@container style(--theme-variant: dark){@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:peer-enabled\:peer-hover\:ring-white\/25:where(:not([data-theme])):is(:where(.peer):enabled ~ :where(.dark\:peer-enabled\:peer-hover\:ring-white\/25)):is(:where(.peer):hover ~ :where(.dark\:peer-enabled\:peer-hover\:ring-white\/25))){--tw-ring-color: var(--color-white);}}}
+@container style(--theme-variant: dark){@media (hover: hover){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:peer-enabled\:peer-hover\:ring-white\/25:where(:not([data-theme])):is(:where(.peer):enabled ~ :where(.dark\:peer-enabled\:peer-hover\:ring-white\/25)):is(:where(.peer):hover ~ :where(.dark\:peer-enabled\:peer-hover\:ring-white\/25))){--tw-ring-color: color-mix(in oklab, var(--color-white) 25%, transparent);}}}}
+:where([data-codex-request-surface]) :is(.dark\:placeholder\:text-white\/35:where([data-theme="dark"])::placeholder){color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:placeholder\:text-white\/35:where([data-theme="dark"])::placeholder){color: color-mix(in oklab, var(--color-white) 35%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:placeholder\:text-white\/35:where(:not([data-theme]))::placeholder){color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:placeholder\:text-white\/35:where(:not([data-theme]))::placeholder){color: color-mix(in oklab, var(--color-white) 35%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:before\:from-surface-elevated-secondary:where([data-theme="dark"])::before){content: var(--tw-content); --tw-gradient-from: var(--color-surface-elevated-secondary); --tw-gradient-stops: var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:before\:from-surface-elevated-secondary:where(:not([data-theme]))::before){content: var(--tw-content); --tw-gradient-from: var(--color-surface-elevated-secondary); --tw-gradient-stops: var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));}}
+:where([data-codex-request-surface]) :is(.dark\:focus-within\:bg-background-secondary-soft-alpha:where([data-theme="dark"]):focus-within){background-color: var(--color-background-secondary-soft-alpha);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:focus-within\:bg-background-secondary-soft-alpha:where(:not([data-theme])):focus-within){background-color: var(--color-background-secondary-soft-alpha);}}
+:where([data-codex-request-surface]) :is(.dark\:focus-within\:bg-white\/10:where([data-theme="dark"]):focus-within){background-color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:focus-within\:bg-white\/10:where([data-theme="dark"]):focus-within){background-color: color-mix(in oklab, var(--color-white) 10%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:focus-within\:bg-white\/10:where(:not([data-theme])):focus-within){background-color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:focus-within\:bg-white\/10:where(:not([data-theme])):focus-within){background-color: color-mix(in oklab, var(--color-white) 10%, transparent);}}}
+@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-background-secondary-soft-alpha:where([data-theme="dark"]):hover){background-color: var(--color-background-secondary-soft-alpha);}}
+@container style(--theme-variant: dark){@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-background-secondary-soft-alpha:where(:not([data-theme])):hover){background-color: var(--color-background-secondary-soft-alpha);}}}
+@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-black\/20:where([data-theme="dark"]):hover){background-color: var(--color-black);}}
+@media (hover: hover){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-black\/20:where([data-theme="dark"]):hover){background-color: color-mix(in oklab, var(--color-black) 20%, transparent);}}}
+@container style(--theme-variant: dark){@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-black\/20:where(:not([data-theme])):hover){background-color: var(--color-black);}}}
+@container style(--theme-variant: dark){@media (hover: hover){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-black\/20:where(:not([data-theme])):hover){background-color: color-mix(in oklab, var(--color-black) 20%, transparent);}}}}
+@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-transparent:where([data-theme="dark"]):hover){background-color: rgba(0, 0, 0, 0);}}
+@container style(--theme-variant: dark){@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-transparent:where(:not([data-theme])):hover){background-color: rgba(0, 0, 0, 0);}}}
+@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-white\/7:where([data-theme="dark"]):hover){background-color: var(--color-white);}}
+@media (hover: hover){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-white\/7:where([data-theme="dark"]):hover){background-color: color-mix(in oklab, var(--color-white) 7%, transparent);}}}
+@container style(--theme-variant: dark){@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-white\/7:where(:not([data-theme])):hover){background-color: var(--color-white);}}}
+@container style(--theme-variant: dark){@media (hover: hover){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-white\/7:where(:not([data-theme])):hover){background-color: color-mix(in oklab, var(--color-white) 7%, transparent);}}}}
+@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-white\/8:where([data-theme="dark"]):hover){background-color: var(--color-white);}}
+@media (hover: hover){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-white\/8:where([data-theme="dark"]):hover){background-color: color-mix(in oklab, var(--color-white) 8%, transparent);}}}
+@container style(--theme-variant: dark){@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-white\/8:where(:not([data-theme])):hover){background-color: var(--color-white);}}}
+@container style(--theme-variant: dark){@media (hover: hover){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-white\/8:where(:not([data-theme])):hover){background-color: color-mix(in oklab, var(--color-white) 8%, transparent);}}}}
+@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-white\/10:where([data-theme="dark"]):hover){background-color: var(--color-white);}}
+@media (hover: hover){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-white\/10:where([data-theme="dark"]):hover){background-color: color-mix(in oklab, var(--color-white) 10%, transparent);}}}
+@container style(--theme-variant: dark){@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-white\/10:where(:not([data-theme])):hover){background-color: var(--color-white);}}}
+@container style(--theme-variant: dark){@media (hover: hover){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-white\/10:where(:not([data-theme])):hover){background-color: color-mix(in oklab, var(--color-white) 10%, transparent);}}}}
+@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-white\/\[0\.06\]:where([data-theme="dark"]):hover){background-color: var(--color-white);}}
+@media (hover: hover){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-white\/\[0\.06\]:where([data-theme="dark"]):hover){background-color: color-mix(in oklab, var(--color-white) 6%, transparent);}}}
+@container style(--theme-variant: dark){@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-white\/\[0\.06\]:where(:not([data-theme])):hover){background-color: var(--color-white);}}}
+@container style(--theme-variant: dark){@media (hover: hover){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:hover\:bg-white\/\[0\.06\]:where(:not([data-theme])):hover){background-color: color-mix(in oklab, var(--color-white) 6%, transparent);}}}}
+@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:hover\:text-white:where([data-theme="dark"]):hover){color: var(--color-white);}}
+@container style(--theme-variant: dark){@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:hover\:text-white:where(:not([data-theme])):hover){color: var(--color-white);}}}
+@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:not-disabled\:not-aria-disabled\:hover\:bg-surface-elevated-secondary:where([data-theme="dark"]):not(:disabled):not([aria-disabled="true"]):hover){background-color: var(--color-surface-elevated-secondary);}}
+@container style(--theme-variant: dark){@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:not-disabled\:not-aria-disabled\:hover\:bg-surface-elevated-secondary:where(:not([data-theme])):not(:disabled):not([aria-disabled="true"]):hover){background-color: var(--color-surface-elevated-secondary);}}}
+@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:not-disabled\:not-aria-disabled\:hover\:bg-surface-elevated-secondary:where([data-theme="dark"]):not(:disabled):not([aria-disabled="true"]):hover){background-color: var(--color-surface-elevated-secondary);}}
+@container style(--theme-variant: dark){@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:not-disabled\:not-aria-disabled\:hover\:bg-surface-elevated-secondary:where(:not([data-theme])):not(:disabled):not([aria-disabled="true"]):hover){background-color: var(--color-surface-elevated-secondary);}}}
+:where([data-codex-request-surface]) :is(.dark\:focus\:border-white:where([data-theme="dark"]):focus){border-color: var(--color-white);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:focus\:border-white:where(:not([data-theme])):focus){border-color: var(--color-white);}}
+:where([data-codex-request-surface]) :is(.dark\:focus\:ring-white:where([data-theme="dark"]):focus){--tw-ring-color: var(--color-white);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:focus\:ring-white:where(:not([data-theme])):focus){--tw-ring-color: var(--color-white);}}
+:where([data-codex-request-surface]) :is(.dark\:focus-visible\:bg-white\/10:where([data-theme="dark"]):focus-visible){background-color: var(--color-white);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:focus-visible\:bg-white\/10:where([data-theme="dark"]):focus-visible){background-color: color-mix(in oklab, var(--color-white) 10%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:focus-visible\:bg-white\/10:where(:not([data-theme])):focus-visible){background-color: var(--color-white);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:focus-visible\:bg-white\/10:where(:not([data-theme])):focus-visible){background-color: color-mix(in oklab, var(--color-white) 10%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:active\:bg-surface\/70:where([data-theme="dark"]):active){background-color: var(--color-surface);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:active\:bg-surface\/70:where([data-theme="dark"]):active){background-color: color-mix(in oklab, var(--color-surface) 70%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:active\:bg-surface\/70:where(:not([data-theme])):active){background-color: var(--color-surface);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:active\:bg-surface\/70:where(:not([data-theme])):active){background-color: color-mix(in oklab, var(--color-surface) 70%, transparent);}}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:not-disabled\:not-aria-disabled\:active\:bg-surface-elevated-secondary:where(:not([data-theme])):not(:disabled):not([aria-disabled="true"]):active){background-color: var(--color-surface-elevated-secondary);}}
+:where([data-codex-request-surface]) :is(.dark\:not-disabled\:not-aria-disabled\:active\:bg-surface-elevated-secondary:where([data-theme="dark"]):not(:disabled):not([aria-disabled="true"]):active){background-color: var(--color-surface-elevated-secondary);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:not-disabled\:not-aria-disabled\:active\:bg-surface-elevated-secondary:where(:not([data-theme])):not(:disabled):not([aria-disabled="true"]):active){background-color: var(--color-surface-elevated-secondary);}}
+@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:enabled\:hover\:bg-surface-tertiary:where([data-theme="dark"]):enabled:hover){background-color: var(--color-surface-tertiary);}}
+@container style(--theme-variant: dark){@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:enabled\:hover\:bg-surface-tertiary:where(:not([data-theme])):enabled:hover){background-color: var(--color-surface-tertiary);}}}
+@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:enabled\:hover\:bg-surface-tertiary:where([data-theme="dark"]):enabled:hover){background-color: var(--color-surface-tertiary);}}
+@container style(--theme-variant: dark){@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:enabled\:hover\:bg-surface-tertiary:where(:not([data-theme])):enabled:hover){background-color: var(--color-surface-tertiary);}}}
+@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:enabled\:hover\:ring-white\/25:where([data-theme="dark"]):enabled:hover){--tw-ring-color: var(--color-white);}}
+@media (hover: hover){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:enabled\:hover\:ring-white\/25:where([data-theme="dark"]):enabled:hover){--tw-ring-color: color-mix(in oklab, var(--color-white) 25%, transparent);}}}
+@container style(--theme-variant: dark){@media (hover: hover){:where([data-codex-request-surface]) :is(.dark\:enabled\:hover\:ring-white\/25:where(:not([data-theme])):enabled:hover){--tw-ring-color: var(--color-white);}}}
+@container style(--theme-variant: dark){@media (hover: hover){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:enabled\:hover\:ring-white\/25:where(:not([data-theme])):enabled:hover){--tw-ring-color: color-mix(in oklab, var(--color-white) 25%, transparent);}}}}
+:where([data-codex-request-surface]) :is(.dark\:enabled\:active\:bg-text\/15:where([data-theme="dark"]):enabled:active){background-color: var(--color-text);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:enabled\:active\:bg-text\/15:where([data-theme="dark"]):enabled:active){background-color: color-mix(in oklab, var(--color-text) 15%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:enabled\:active\:bg-text\/15:where(:not([data-theme])):enabled:active){background-color: var(--color-text);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:enabled\:active\:bg-text\/15:where(:not([data-theme])):enabled:active){background-color: color-mix(in oklab, var(--color-text) 15%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:enabled\:active\:before\:bg-text\/15:where([data-theme="dark"]):enabled:active::before){content: var(--tw-content); background-color: var(--color-text);}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:enabled\:active\:before\:bg-text\/15:where([data-theme="dark"]):enabled:active::before){background-color: color-mix(in oklab, var(--color-text) 15%, transparent);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:enabled\:active\:before\:bg-text\/15:where(:not([data-theme])):enabled:active::before){content: var(--tw-content); background-color: var(--color-text);}}
+@container style(--theme-variant: dark){@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.dark\:enabled\:active\:before\:bg-text\/15:where(:not([data-theme])):enabled:active::before){background-color: color-mix(in oklab, var(--color-text) 15%, transparent);}}}
+:where([data-codex-request-surface]) :is(.dark\:data-\[state\=checked\]\:border-token-border-heavy:where([data-theme="dark"])[data-state="checked"]){border-color: var(--color-token-border-heavy);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:data-\[state\=checked\]\:border-token-border-heavy:where(:not([data-theme]))[data-state="checked"]){border-color: var(--color-token-border-heavy);}}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:data-\[state\=open\]\:bg-surface-elevated-secondary:where(:not([data-theme]))[data-state="open"]){background-color: var(--color-surface-elevated-secondary);}}
+:where([data-codex-request-surface]) :is(.dark\:data-\[state\=open\]\:bg-surface-elevated-secondary:where([data-theme="dark"])[data-state="open"]){background-color: var(--color-surface-elevated-secondary);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:data-\[state\=open\]\:bg-surface-elevated-secondary:where(:not([data-theme]))[data-state="open"]){background-color: var(--color-surface-elevated-secondary);}}
+:where([data-codex-request-surface]) :is(.dark\:data-\[state\=unchecked\]\:bg-gray-600:where([data-theme="dark"])[data-state="unchecked"]){background-color: var(--color-gray-600);}
+@container style(--theme-variant: dark){:where([data-codex-request-surface]) :is(.dark\:data-\[state\=unchecked\]\:bg-gray-600:where(:not([data-theme]))[data-state="unchecked"]){background-color: var(--color-gray-600);}}
+@media not all and (width >= 640px){:where([data-codex-request-surface]) :is(.dark\:max-sm\:top-\[27px\]:where([data-theme="dark"])){top: 27px;}}
+@container style(--theme-variant: dark){@media not all and (width >= 640px){:where([data-codex-request-surface]) :is(.dark\:max-sm\:top-\[27px\]:where(:not([data-theme]))){top: 27px;}}}
+@media (forced-colors: active){:where([data-codex-request-surface]) :is(.forced-colors\:focus-visible\:bg-\[Highlight\]:focus-visible){background-color: highlight;}}
+@media (forced-colors: active){:where([data-codex-request-surface]) :is(.forced-colors\:focus-visible\:text-\[HighlightText\]:focus-visible){color: highlighttext;}}
+@media (forced-colors: active){:where([data-codex-request-surface]) :is(.forced-colors\:focus-visible\:forced-color-adjust-none:focus-visible){forced-color-adjust: none;}}
+@media not all and (width >= 768px){:where([data-codex-request-surface]) :is(.browser\:max-md\:aspect-square:where([data-codex-window-type="browser"] .browser\:max-md\:aspect-square)){aspect-ratio: 1 / 1;}}
+@media not all and (width >= 768px){:where([data-codex-request-surface]) :is(.browser\:max-md\:shrink-0:where([data-codex-window-type="browser"] .browser\:max-md\:shrink-0)){flex-shrink: 0;}}
+@media not all and (width >= 768px){:where([data-codex-request-surface]) :is(.browser\:max-md\:justify-center:where([data-codex-window-type="browser"] .browser\:max-md\:justify-center)){justify-content: center;}}
+@media not all and (width >= 768px){:where([data-codex-request-surface]) :is(.browser\:max-md\:\!px-0:where([data-codex-window-type="browser"] .browser\:max-md\:\!px-0)){padding-inline: 0px !important;}}
+:where([data-codex-request-surface]) :is(.electron\:rounded-md:where(:is([data-codex-window-type="browser"], [data-codex-window-type="chrome-extension"], [data-codex-window-type="electron"]) .electron\:rounded-md)){border-radius: var(--radius-md);}
+:where([data-codex-request-surface]) :is(.electron\:p-1:where(:is([data-codex-window-type="browser"], [data-codex-window-type="chrome-extension"], [data-codex-window-type="electron"]) .electron\:p-1)){padding: var(--spacing);}
+:where([data-codex-request-surface]) :is(.extension\:\!bg-background-primary-soft\/50:where([data-codex-window-type="extension"] .extension\:\!bg-background-primary-soft\/50)){background-color: var(--color-background-primary-soft) !important;}
+@supports (color:color-mix(in lab, red, red)){:where([data-codex-request-surface]) :is(.extension\:\!bg-background-primary-soft\/50:where([data-codex-window-type="extension"] .extension\:\!bg-background-primary-soft\/50)){background-color: color-mix(in oklab, var(--color-background-primary-soft) 50%, transparent) !important;}}
+:where([data-codex-request-surface]) :is(.\[\&_\[data-state\]\]\:pointer-events-auto [data-state]){pointer-events: auto;}
+:where([data-codex-request-surface]) :is(.\[\&_a\]\:pointer-events-auto a){pointer-events: auto;}
+:where([data-codex-request-surface]) :is(.\[\&_button\]\:pointer-events-auto button){pointer-events: auto;}
+:where([data-codex-request-surface]) :is(.\[\&_input\]\:pointer-events-auto input){pointer-events: auto;}
+:where([data-codex-request-surface]) :is(.disabled\:\[\&\>\*\]\:opacity-40:disabled > *){opacity: 0.4;}
+:where([data-codex-request-surface]) :is(.h-token-button-composer, .h-token-button-composer-sm){gap: var(--h-token-button-composer-gap);}
+:where([data-codex-request-surface]) :is(.overflow-auto, .overflow-scroll, .overflow-x-auto, .overflow-y-auto, .overflow-x-scroll, .overflow-y-scroll, :where(.messaging-root) .messages-scroll){scrollbar-color: var(--color-border) transparent;}
+@property --tw-border-spacing-x { syntax: "<length>"; inherits: false; initial-value: 0; }
+@property --tw-border-spacing-y { syntax: "<length>"; inherits: false; initial-value: 0; }
+@property --tw-scale-x { syntax: "*"; inherits: false; initial-value: 1; }
+@property --tw-scale-y { syntax: "*"; inherits: false; initial-value: 1; }
+@property --tw-scale-z { syntax: "*"; inherits: false; initial-value: 1; }
+@property --tw-rotate-x { syntax: "*"; inherits: false; }
+@property --tw-rotate-y { syntax: "*"; inherits: false; }
+@property --tw-rotate-z { syntax: "*"; inherits: false; }
+@property --tw-skew-x { syntax: "*"; inherits: false; }
+@property --tw-skew-y { syntax: "*"; inherits: false; }
+@property --tw-pan-x { syntax: "*"; inherits: false; }
+@property --tw-pan-y { syntax: "*"; inherits: false; }
+@property --tw-pinch-zoom { syntax: "*"; inherits: false; }
+@property --tw-scroll-snap-strictness { syntax: "*"; inherits: false; initial-value: proximity; }
+@property --tw-space-y-reverse { syntax: "*"; inherits: false; initial-value: 0; }
+@property --tw-space-x-reverse { syntax: "*"; inherits: false; initial-value: 0; }
+@property --tw-divide-x-reverse { syntax: "*"; inherits: false; initial-value: 0; }
+@property --tw-divide-y-reverse { syntax: "*"; inherits: false; initial-value: 0; }
+@property --tw-gradient-position { syntax: "*"; inherits: false; }
+@property --tw-gradient-from { syntax: "<color>"; inherits: false; initial-value: #0000; }
+@property --tw-gradient-via { syntax: "<color>"; inherits: false; initial-value: #0000; }
+@property --tw-gradient-to { syntax: "<color>"; inherits: false; initial-value: #0000; }
+@property --tw-gradient-stops { syntax: "*"; inherits: false; }
+@property --tw-gradient-via-stops { syntax: "*"; inherits: false; }
+@property --tw-gradient-from-position { syntax: "<length-percentage>"; inherits: false; initial-value: 0%; }
+@property --tw-gradient-via-position { syntax: "<length-percentage>"; inherits: false; initial-value: 50%; }
+@property --tw-gradient-to-position { syntax: "<length-percentage>"; inherits: false; initial-value: 100%; }
+@property --tw-mask-linear { syntax: "*"; inherits: false; initial-value: linear-gradient(#fff, #fff); }
+@property --tw-mask-radial { syntax: "*"; inherits: false; initial-value: linear-gradient(#fff, #fff); }
+@property --tw-mask-conic { syntax: "*"; inherits: false; initial-value: linear-gradient(#fff, #fff); }
+@property --tw-mask-left { syntax: "*"; inherits: false; initial-value: linear-gradient(#fff, #fff); }
+@property --tw-mask-right { syntax: "*"; inherits: false; initial-value: linear-gradient(#fff, #fff); }
+@property --tw-mask-bottom { syntax: "*"; inherits: false; initial-value: linear-gradient(#fff, #fff); }
+@property --tw-mask-top { syntax: "*"; inherits: false; initial-value: linear-gradient(#fff, #fff); }
+@property --tw-mask-bottom-from-position { syntax: "*"; inherits: false; initial-value: 0%; }
+@property --tw-mask-bottom-to-position { syntax: "*"; inherits: false; initial-value: 100%; }
+@property --tw-mask-bottom-from-color { syntax: "*"; inherits: false; initial-value: black; }
+@property --tw-mask-bottom-to-color { syntax: "*"; inherits: false; initial-value: transparent; }
+@property --tw-ordinal { syntax: "*"; inherits: false; }
+@property --tw-slashed-zero { syntax: "*"; inherits: false; }
+@property --tw-numeric-figure { syntax: "*"; inherits: false; }
+@property --tw-numeric-spacing { syntax: "*"; inherits: false; }
+@property --tw-numeric-fraction { syntax: "*"; inherits: false; }
+@property --tw-outline-style { syntax: "*"; inherits: false; initial-value: solid; }
+@property --tw-blur { syntax: "*"; inherits: false; }
+@property --tw-brightness { syntax: "*"; inherits: false; }
+@property --tw-contrast { syntax: "*"; inherits: false; }
+@property --tw-grayscale { syntax: "*"; inherits: false; }
+@property --tw-hue-rotate { syntax: "*"; inherits: false; }
+@property --tw-invert { syntax: "*"; inherits: false; }
+@property --tw-opacity { syntax: "*"; inherits: false; }
+@property --tw-saturate { syntax: "*"; inherits: false; }
+@property --tw-sepia { syntax: "*"; inherits: false; }
+@property --tw-drop-shadow { syntax: "*"; inherits: false; }
+@property --tw-drop-shadow-color { syntax: "*"; inherits: false; }
+@property --tw-drop-shadow-alpha { syntax: "<percentage>"; inherits: false; initial-value: 100%; }
+@property --tw-drop-shadow-size { syntax: "*"; inherits: false; }
+@property --tw-contain-size { syntax: "*"; inherits: false; }
+@property --tw-contain-layout { syntax: "*"; inherits: false; }
+@property --tw-contain-paint { syntax: "*"; inherits: false; }
+@property --tw-contain-style { syntax: "*"; inherits: false; }
+:where([data-codex-request-surface]) :is(.group:hover [data-marquee-animatable] + ._inlineTitleSuffix_1nhkz_26){visibility: hidden;}
+@property --tw-border-style { syntax: "*"; inherits: false; initial-value: solid; }
+@property --tw-shadow { syntax: "*"; inherits: false; initial-value: 0 0 #0000; }
+@property --tw-shadow-color { syntax: "*"; inherits: false; }
+@property --tw-shadow-alpha { syntax: "<percentage>"; inherits: false; initial-value: 100%; }
+@property --tw-inset-shadow { syntax: "*"; inherits: false; initial-value: 0 0 #0000; }
+@property --tw-inset-shadow-color { syntax: "*"; inherits: false; }
+@property --tw-inset-shadow-alpha { syntax: "<percentage>"; inherits: false; initial-value: 100%; }
+@property --tw-ring-color { syntax: "*"; inherits: false; }
+@property --tw-ring-shadow { syntax: "*"; inherits: false; initial-value: 0 0 #0000; }
+@property --tw-inset-ring-color { syntax: "*"; inherits: false; }
+@property --tw-inset-ring-shadow { syntax: "*"; inherits: false; initial-value: 0 0 #0000; }
+@property --tw-ring-inset { syntax: "*"; inherits: false; }
+@property --tw-ring-offset-width { syntax: "<length>"; inherits: false; initial-value: 0; }
+@property --tw-ring-offset-color { syntax: "*"; inherits: false; initial-value: #fff; }
+@property --tw-ring-offset-shadow { syntax: "*"; inherits: false; initial-value: 0 0 #0000; }
+@property --tw-duration { syntax: "*"; inherits: false; }
+@property --tw-outline-style { syntax: "*"; inherits: false; initial-value: solid; }
+@property --tw-backdrop-blur { syntax: "*"; inherits: false; }
+@property --tw-backdrop-brightness { syntax: "*"; inherits: false; }
+@property --tw-backdrop-contrast { syntax: "*"; inherits: false; }
+@property --tw-backdrop-grayscale { syntax: "*"; inherits: false; }
+@property --tw-backdrop-hue-rotate { syntax: "*"; inherits: false; }
+@property --tw-backdrop-invert { syntax: "*"; inherits: false; }
+@property --tw-backdrop-opacity { syntax: "*"; inherits: false; }
+@property --tw-backdrop-saturate { syntax: "*"; inherits: false; }
+@property --tw-backdrop-sepia { syntax: "*"; inherits: false; }
+:where([data-codex-request-surface]) :is(.dark ._creditPage_16suj_104, ._root_16suj_13[data-checkout-theme="dark"] ._creditPage_16suj_104, ._root_16suj_13._modal_16suj_105[data-checkout-presentation="inline"][data-checkout-theme="dark"]){--lightningcss-light: ; --lightningcss-dark: initial; color-scheme: dark; --bg-tertiary: #414141; --theme-purple-background: #3b2366; --theme-purple-text: #a67df2; --theme-blue-background: #133463; --theme-blue-text-on-background: #e8f3fe; --bg-status-success: #1f4e25; --text-status-success: #effaf3;}
+@property --tw-border-style { syntax: "*"; inherits: false; initial-value: solid; }
+@property --tw-font-weight { syntax: "*"; inherits: false; }

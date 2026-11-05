@@ -1,0 +1,8 @@
+/* CLI popup anchor. Row geometry is from codex-navigation.source.css. */
+.codex-conversation-popup {position:absolute;left:0;top:38px;display:flex;flex-direction:column;box-sizing:border-box;width:min(280px,calc(100vw - 20px));max-height:min(640px,calc(100dvh - 64px));padding:6px;overflow:hidden;z-index:60;border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);color:var(--color-text);box-shadow:0 8px 28px #0006;text-align:left;font-family:var(--font-sans);}
+.codex-conversation-actions {flex:none;margin-bottom:6px;}
+.codex-conversation-scroll {flex:1 1 auto;min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:transparent transparent;}
+.codex-conversation-scroll:hover {scrollbar-color:var(--color-border) transparent;}
+.codex-conversation-scroll section+section {margin-top:6px;}
+.codex-conversation-query {box-sizing:border-box;width:100%;border:1px solid var(--color-border);border-radius:var(--radius-md);background:transparent;color:inherit;padding:6px 8px;font:inherit;}
+.codex-conversation-note {margin:6px 8px;font-size:12px;line-height:18px;color:var(--color-text-tertiary);}

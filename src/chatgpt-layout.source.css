@@ -1,0 +1,10 @@
+/* Native Electron layout tokens from app-shared-398c891a59df.css.
+ * Rem values resolved against the native 16px root, independent of host typography. */
+[data-sidebar-surface="chat"] {
+  --thread-content-max-width: 768px;
+  --padding-toolbar: calc(4px * 4);
+  --padding-panel: calc(4px * 5);
+  --composer-inline-overhang: calc(4px * 6);
+  --composer-adjacent-max-width: calc(768px + calc(4px * 6) + calc(4px * 6) - calc(4px * 3.25) - calc(4px * 3.25));
+  --home-composer-inline-inset: calc(4px * 3.25);
+}

@@ -1,0 +1,10 @@
+/* Host anchoring only. Native dframe CSS owns rows, headings and density. */
+[data-claude-native] .claude-conversation-popup.dframe-root {position:absolute;inset:38px auto auto 0;width:min(288px,calc(100vw - 20px));height:auto;max-height:min(640px,calc(100dvh - 64px));z-index:60;border-radius:var(--df-radius-card);background:var(--cds-surface-popover);box-shadow:var(--df-shadow-pop);text-align:left;overflow:hidden;}
+.claude-conversation-popup .dframe-sidebar {position:relative;inset:auto;display:flex;width:100%;height:auto;max-height:min(640px,calc(100dvh - 64px));border:0;border-radius:inherit;transform:none;opacity:1;visibility:visible;}
+.claude-conversation-popup .dframe-sidebar-body {overflow:hidden;}
+.claude-conversation-actions {flex:none;}
+.claude-conversation-scroll {flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:transparent transparent;}
+.claude-conversation-scroll:hover {scrollbar-color:var(--cds-border-strong) transparent;}
+.claude-conversation-query {width:100%;box-sizing:border-box;background:var(--cds-surface-1);color:var(--cds-text-primary);border:1px solid var(--cds-border);border-radius:var(--cds-radius);padding:var(--cds-pad-sm);font:inherit;}
+.claude-conversation-note {margin:var(--cds-pad-md);color:var(--cds-text-muted);font-size:var(--cds-font-size-caption);}
+

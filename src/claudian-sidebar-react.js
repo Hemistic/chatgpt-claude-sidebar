@@ -9,7 +9,7 @@
 
 	const UI_TEXT = {
 		en: {
-			'composer.placeholder': 'How can i help you today?',
+			'composer.placeholder': 'Ask anything, or describe a task',
 			'composer.instructionPlaceholder': '# Save in custom system prompt',
 			'composer.bangBashPlaceholder': '> Run a bash command...',
 			'composer.instructionMode': 'Instruction mode',
@@ -492,6 +492,7 @@
 		};
 		const bridge = {
 			getState: () => invoke('getState'),
+            codexAction: payload => invoke('codexAction', payload),
 			getDiagnostics: () => invoke('getDiagnostics'),
 			environment: (payload) => invoke('environment', payload),
 			updateSettings: (payload) => invoke('updateSettings', payload),
@@ -744,6 +745,7 @@
 		if (!isTabScopedRuntimeEvent(event)) return false;
 		if (!tab) return true;
 		if (event.type === 'approval_resolved') return false;
+		if (event.type === 'turn-started' && event.nativeQueued === true) return false;
 		if (!STREAMING_RUNTIME_EVENT_TYPES.has(event.type)) return false;
 		if (tab.isStreaming === true) return false;
 		return String(options.runtimeTabId || '').trim() !== tab.id;
@@ -773,6 +775,7 @@
 		{ name: 'resume', desc: 'Resume a previous conversation', originalBuiltIn: true, displayPrefix: '/', insertPrefix: '/' },
 		{ name: 'fork', desc: 'Fork entire conversation to new session', originalBuiltIn: true, displayPrefix: '/', insertPrefix: '/' },
 		{ name: 'compact', desc: 'Compact conversation history', providerCommand: true, providerIds: ['codex'], topLevelOnly: true, displayPrefix: '/', insertPrefix: '/' },
+		{ name: 'review', desc: '原生代码审查；可选 --base 分支 / --commit 提交 / 自定义说明', providerCommand: true, providerIds: ['codex'], topLevelOnly: true, displayPrefix: '/', insertPrefix: '/' },
 		{ name: '/model', desc: 'Open model and runtime settings', standaloneOnly: true },
 		{ name: '/help', desc: 'Show a standalone feature guide', standaloneOnly: true },
 	];
@@ -4564,6 +4567,8 @@
 			model,
 			messages: [],
 			isStreaming: false,
+            isQueued: false,
+            conversationSettings: { effort: settings.effort, permissionMode: settings.permissionMode, claudeSafeMode: settings.claudeSafeMode, sandbox: settings.sandbox, serviceTier: settings.serviceTier },
 			needsAttention: false,
 			queuedText: '',
 			queuedDisplayText: '',
@@ -5030,7 +5035,7 @@
 
 	function planImplementationPrompt(plan) {
 		const content = String(plan || '').trim();
-		return content ? `Implement this plan:\n\n${content}` : 'Implement the approved plan.';
+		return content ? `PLEASE IMPLEMENT THIS PLAN:\n${content}` : 'Implement the approved plan.';
 	}
 
 	function normalizePlanDecisionForRuntime(block, decision) {
@@ -5042,7 +5047,7 @@
 			};
 		}
 		if (rawType === 'approve' || rawType === 'implement') {
-			return { type: 'approve' };
+			return { type: 'approve', ...(['default', 'acceptEdits', 'auto', 'bypassPermissions'].includes(decision?.targetMode) ? { targetMode: decision.targetMode } : {}) };
 		}
 		if (rawType === 'feedback' || rawType === 'revise') {
 			return {
@@ -5075,7 +5080,7 @@
 			if (block.type === 'text' || block.type === 'thinking') {
 				return String(block.content || '').trim().length > 0;
 			}
-			return ['tool_use', 'subagent', 'context_compacted', 'ask_user', 'permission', 'plan_approval'].includes(block.type);
+			return ['tool_use', 'subagent', 'context_compacted', 'ask_user', 'permission', 'plan_approval', 'plan_proposal', 'review_result', 'turn_diff', 'task_plan'].includes(block.type);
 		});
 	}
 
@@ -5194,6 +5199,7 @@
 	}
 
 	function canMergeRuntimeChunks(left, right) {
+		if (left?.id && left.id === right?.id && left.type === right.type && ['plan_proposal', 'task_plan', 'turn_diff'].includes(left.type)) return true;
 		const kind = runtimeChunkMergeKind(left);
 		if (!kind || kind !== runtimeChunkMergeKind(right)) return false;
 		const leftKeys = runtimeChunkMetaKeys(left);
@@ -5207,6 +5213,7 @@
 	}
 
 	function mergeRuntimeChunks(left, right) {
+		if (['plan_proposal', 'task_plan', 'turn_diff'].includes(right.type)) return right;
 		return {
 			...left,
 			...right,
@@ -5660,7 +5667,7 @@
 		if (lower.includes('outside the vault')) return true;
 		if (lower.includes('access denied')) return true;
 		if (lower.includes('user denied')) return true;
-		if (lower.includes('approval')) return true;
+		if (/\b(?:waiting for|requires?|pending|needs?) (?:user )?approval\b|\bapproval (?:required|pending|denied)\b/.test(lower)) return true;
 		if (isError && lower.includes('deny')) return true;
 		return false;
 	}
@@ -5889,6 +5896,15 @@
 
 	function applyRuntimeChunk(tab, chunk, settings = {}) {
 		if (!chunk || typeof chunk !== 'object') return tab;
+		if (chunk.type === 'user_message_start' && tab.awaitingNativeQueuedUser) {
+			const messages = [...tab.messages];
+			const index = messages.length - 1;
+			if (!messages.some(message => message.runtimeUserMessageId === chunk.itemId)) {
+				const user = { ...userMessage(chunk.content || '排队消息'), runtimeUserMessageId: chunk.itemId, runtimeTurnId: tab.runtimeTurnId };
+				messages.splice(Math.max(0, index), 0, user);
+			}
+			return { ...tab, messages, awaitingNativeQueuedUser: false };
+		}
 		let targetTab = runtimeChunkReplacesWaiting(chunk) ? removeRuntimeWaitingBlocksFromLastAssistant(tab) : tab;
 		if (runtimeChunkFinalizesThinking(chunk)) {
 			targetTab = finalizeStreamingThinkingInLastAssistant(targetTab);
@@ -5899,16 +5915,49 @@
 		if (chunk.type === 'thinking') {
 			return appendThinkingDeltaToLastAssistant(targetTab, chunk.content || '');
 		}
+		if (chunk.type === 'task_plan' || chunk.type === 'turn_diff' || chunk.type === 'plan_proposal') {
+			return updateLastAssistant(targetTab, message => {
+				const blocks = [...(message.contentBlocks || [])];
+				const index = blocks.findIndex(block => block.id === chunk.id);
+				const block = chunk.type === 'task_plan'
+					? { type: chunk.type, id: chunk.id, steps: chunk.steps || [], explanation: chunk.explanation || '' }
+					: chunk.type === 'plan_proposal' ? { type: chunk.type, id: chunk.id, plan: chunk.plan || '' }
+						: { type: chunk.type, id: chunk.id, diff: capRuntimeText(chunk.diff || '', MAX_RUNTIME_TOOL_RESULT_LENGTH) };
+				if (index < 0) blocks.push(block); else blocks[index] = block;
+				return { ...message, contentBlocks: blocks };
+			});
+		}
+		if (chunk.type === 'review_result') {
+			return updateLastAssistant(targetTab, message => {
+				const blocks = (message.contentBlocks || []).filter(block => {
+					if (block.id === chunk.id) return false;
+					if (block.type !== 'text') return true;
+					try { return !Array.isArray(JSON.parse(block.content).findings); } catch { return true; }
+				});
+				blocks.push({ type: 'review_result', id: chunk.id, review: chunk.review });
+				return { ...message, content: blocks.filter(block => block.type === 'text').map(block => block.content).join('\n\n') + '\n' + chunk.review.overall_explanation, contentBlocks: blocks };
+			});
+		}
 		if (chunk.type === 'plan' || chunk.type === 'plan_update') {
 			const content = chunk.explanation || chunk.content || (chunk.plan ? chunk.plan.map((item) => `${item.status || '-'} ${item.step || ''}`).join('\n') : '');
 			return appendBlockToLastAssistant(targetTab, { type: 'thinking', id: makeId('runtime-plan'), label: 'Plan', content, durationSeconds: 0 });
 		}
 		if (chunk.type === 'plan_completed') {
+			const proposals = targetTab.messages.at(-1)?.contentBlocks?.filter(block => block.type === 'plan_proposal') || [];
+			const plan = String(chunk.plan || proposals.at(-1)?.plan || '').trim();
+			if (!plan) return targetTab;
+			targetTab = updateLastAssistant(targetTab, message => {
+				const blocks = [...(message.contentBlocks || [])];
+				const last = blocks.findLastIndex(block => block.type === 'plan_proposal');
+				const proposal = {type:'plan_proposal',id:last<0?makeId('runtime-proposal'):blocks[last].id,plan};
+				if(last<0)blocks.push(proposal);else blocks[last]=proposal;
+				return {...message,contentBlocks:blocks};
+			});
 			return appendBlockToLastAssistant(targetTab, {
 				type: 'plan_approval',
-				id: makeId('runtime-plan-approval'),
+				id: chunk.id || makeId('runtime-plan-approval'),
 				variant: 'post-plan',
-				plan: chunk.plan || 'Plan complete.',
+				plan,
 				permissions: [],
 			});
 		}
@@ -5944,7 +5993,7 @@
 				const isBlocked = !chunk.isError && isBlockedRuntimeToolResult(rawResult, chunk.isError, name);
 				return applyRuntimeToolDecorations({
 					...block,
-					status: chunk.isError ? 'error' : isBlocked ? 'blocked' : 'completed',
+					status: chunk.nativeStatus === 'declined' ? 'declined' : chunk.isError ? 'error' : isBlocked ? 'blocked' : 'completed',
 					name,
 					icon: toolIconForName(name),
 					summary: summarizeToolInput(name, input),
@@ -6016,6 +6065,8 @@
 			runtimeRequestId: approval?.runtimeRequestId || '',
 			runtimeThreadId: approval?.runtimeThreadId || '',
 			approvalKind: approval?.kind || '',
+            command: capRuntimeText(approval?.input?.command || '', MAX_APPROVAL_TEXT_LENGTH),
+            requestReason: capRuntimeText(approval?.input?.reason || '', MAX_APPROVAL_TEXT_LENGTH),
 			title: truncateEndText(approval?.title || 'Permission required', MAX_APPROVAL_TITLE_LENGTH),
 			tool: truncateEndText(approval?.tool || (approval?.kind === 'command' ? 'Bash' : approval?.kind === 'file_change' ? 'Edit' : 'Permission'), 80),
 			icon: approval?.icon || (approval?.kind === 'file_change' ? 'file' : 'terminal'),
@@ -6182,10 +6233,15 @@
 			download: [h('path', { key: 'p1', d: 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4' }), h('path', { key: 'p2', d: 'M7 10l5 5 5-5' }), h('path', { key: 'p3', d: 'M12 15V3' })],
 			'help-circle': [h('circle', { key: 'c1', cx: 12, cy: 12, r: 10 }), h('path', { key: 'p1', d: 'M9.1 9a3 3 0 1 1 5.8 1c-.5 1-1.4 1.5-2.1 2.1-.6.5-.8 1-.8 1.9' }), h('path', { key: 'p2', d: 'M12 17h.01' })],
 			map: [h('path', { key: 'p1', d: 'M9 18 3 21V6l6-3 6 3 6-3v15l-6 3-6-3Z' }), h('path', { key: 'p2', d: 'M9 3v15' }), h('path', { key: 'p3', d: 'M15 6v15' })],
+			shield: [h('path', { key: 'p1', d: 'M12 3 5 6v6c0 5 7 9 7 9s7-4 7-9V6Z' }), h('path', { key: 'p2', d: 'M12 7v6m0 3v.1' })],
 			'shield-off': [h('path', { key: 'p1', d: 'M19.7 14A8.2 8.2 0 0 1 12 22s-8-4-8-10V5l4-1.5' }), h('path', { key: 'p2', d: 'M10.4 2.4 12 2l8 3v7a8.7 8.7 0 0 1-.4 2.7' }), h('path', { key: 'p3', d: 'M2 2l20 20' })],
 			search: [h('circle', { key: 'c', cx: 11, cy: 11, r: 8 }), h('path', { key: 'p1', d: 'm21 21-4.3-4.3' })],
 			'search-check': [h('circle', { key: 'c', cx: 11, cy: 11, r: 8 }), h('path', { key: 'p1', d: 'm21 21-4.3-4.3' }), h('path', { key: 'p2', d: 'm8.5 11 1.7 1.7 3.8-4.2' })],
 			pencil: [h('path', { key: 'p1', d: 'M18.4 2.6a2.1 2.1 0 0 1 3 3L8 19l-4 1 1-4Z' })],
+            monitor: [h('rect', { key: 'r', x: 3, y: 4, width: 18, height: 13, rx: 2 }), h('path', { key: 'p', d: 'M8 21h8m-4-4v4' })],
+            keyboard: [h('rect', { key: 'r', x: 2, y: 5, width: 20, height: 14, rx: 2 }), h('path', { key: 'p', d: 'M6 9h.1M10 9h.1M14 9h.1M18 9h.1M6 12h.1M10 12h.1M14 12h.1M18 12h.1M7 16h10' })],
+            activity: [h('path', { key: 'p', d: 'M2 12h5l3-8 4 16 3-8h5' })],
+
 			'trash-2': [h('path', { key: 'p1', d: 'M3 6h18' }), h('path', { key: 'p2', d: 'M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2' }), h('path', { key: 'p3', d: 'M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6' }), h('path', { key: 'p4', d: 'M10 11v6' }), h('path', { key: 'p5', d: 'M14 11v6' })],
 			plus: [h('path', { key: 'p1', d: 'M5 12h14' }), h('path', { key: 'p2', d: 'M12 5v14' })],
 			globe: [h('circle', { key: 'c1', cx: 12, cy: 12, r: 10 }), h('path', { key: 'p1', d: 'M2 12h20' }), h('path', { key: 'p2', d: 'M12 2a15.3 15.3 0 0 1 0 20' }), h('path', { key: 'p3', d: 'M12 2a15.3 15.3 0 0 0 0 20' })],
@@ -6199,6 +6255,7 @@
 			'chevrons-up': [h('path', { key: 'p1', d: 'm17 11-5-5-5 5' }), h('path', { key: 'p2', d: 'm17 18-5-5-5 5' })],
 			'chevron-up': [h('path', { key: 'p1', d: 'm18 15-6-6-6 6' })],
 			'chevron-right': [h('path', { key: 'p1', d: 'm9 18 6-6-6-6' })],
+			'chevron-left': [h('path', { key: 'p1', d: 'm15 18-6-6 6-6' })],
 			'list-tree': [h('path', { key: 'p1', d: 'M21 12H9' }), h('path', { key: 'p2', d: 'M21 6H9' }), h('path', { key: 'p3', d: 'M21 18H9' }), h('path', { key: 'p4', d: 'M3 6h.01' }), h('path', { key: 'p5', d: 'M3 12h.01' }), h('path', { key: 'p6', d: 'M3 18h.01' })],
 			'chevron-down': [h('path', { key: 'p1', d: 'm6 9 6 6 6-6' })],
 			'chevrons-down': [h('path', { key: 'p1', d: 'm7 6 5 5 5-5' }), h('path', { key: 'p2', d: 'm7 13 5 5 5-5' })],
@@ -6324,7 +6381,8 @@
 			|| isHeadingLine(line)
 			|| /^ {0,3}>\s?/.test(line)
 			|| !!getListMatch(line)
-			|| isTableStart(lines, index);
+			|| isTableStart(lines, index)
+			|| !!readDisplayMathBlock(lines, index);
 	}
 
 	function isEscapedAt(text, index) {
@@ -7120,7 +7178,7 @@
 			? streamElapsedSeconds
 			: finiteNonNegativeNumber(block.durationSeconds);
 		const durationLabel = durationSeconds !== null ? formatDuration(Math.max(0, Math.round(durationSeconds))) : '';
-		const label = block.runtimeStreaming
+		const label = chatOnly ? (block.runtimeStreaming ? '正在思考' : durationSeconds > 0 ? `已思考 ${Math.round(durationSeconds)}秒` : '思考') : block.runtimeStreaming
 			? `${block.label || 'Thinking'} for ${durationLabel || '0s'}`
 			: block.label && block.label !== 'Thinking'
 				? (durationLabel ? `${block.label} for ${durationLabel}` : block.label)
@@ -7412,7 +7470,7 @@
 	}
 
 	function WriteEditBlock({ block }) {
-		const [expanded, setExpanded] = useState(block.expanded !== false);
+		const [expanded, setExpanded] = useState(chatOnly ? block.expanded === true : block.expanded !== false);
 		const status = block.status || 'running';
 		const isError = status === 'error' || status === 'blocked';
 		const diffLines = block.diffLines || block.diffData?.diffLines || [];
@@ -7425,9 +7483,11 @@
 				tabIndex: 0,
 				role: 'button',
 				onClick: () => setExpanded((value) => !value),
+                'aria-expanded': expanded,
+                onKeyDown: event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setExpanded(value => !value); } },
 			},
-				h('div', { className: 'claudian-write-edit-icon' }, h(Icon, { name: 'file' })),
-				h('div', { className: 'claudian-write-edit-name' }, name),
+				h('div', { className: 'claudian-write-edit-icon' }, h(Icon, { name: chatOnly ? 'pencil' : 'file' })),
+				h('div', { className: 'claudian-write-edit-name' }, chatOnly ? (isError ? '编辑失败' : status === 'running' ? '正在编辑' : name === 'Write' ? '已创建' : '已编辑') : name),
 				h('div', { className: 'claudian-write-edit-summary' }, fileNameOnly(filePath)),
 				h('div', { className: 'claudian-write-edit-stats' }, h(DiffStats, { stats })),
 				h('div', { className: `claudian-write-edit-status status-${status}` }, isError ? h(Icon, { name: 'x', size: 14 }) : status === 'running' ? h(Icon, { name: 'terminal', size: 14 }) : null),
@@ -7831,15 +7891,23 @@
 		const toolLines = Array.isArray(block.lines) ? block.lines : [];
 		const patchStats = isApplyPatch ? (block.patchStats || getApplyPatchStats(block)) : null;
 		const generatedFiles = Array.isArray(block.generatedFiles) ? block.generatedFiles.filter(Boolean) : [];
+        const input = block.input || {};
+        const detail = [block.command, input.command, input.cmd, input.code, input.input, input.query, input.url]
+            .find(value => typeof value === 'string' && value.trim());
+        const summary = chatOnly ? (detail || block.summary || '') : (block.summary || '');
+
 		return h('div', { className: `claudian-tool-call ${block.name === 'Bash' ? 'claudian-tool-call-bash' : ''} ${expanded ? 'expanded' : ''}` },
 			h('div', {
 				className: 'claudian-tool-header',
+                role: 'button',
 				tabIndex: 0,
 				onClick: () => setExpanded((value) => !value),
+                'aria-expanded': expanded,
+                onKeyDown: event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setExpanded(value => !value); } },
 			},
 				h('span', { className: 'claudian-tool-icon' }, h(Icon, { name: block.icon || 'terminal' })),
-				h('span', { className: 'claudian-tool-name' }, block.name || 'Tool'),
-				h('span', { className: 'claudian-tool-summary' }, block.summary || ''),
+				h('span', { className: 'claudian-tool-name' }, chatOnly ? (status === 'error' ? '执行失败' : status === 'blocked' ? '执行受阻' : status === 'running' ? '正在执行' : isWebSearch || isWebFetch ? '已搜索网页：' : isApplyPatch ? '已编辑' : isRead ? '已读取' : isFileSearch ? '已搜索' : '已运行') : block.name || 'Tool'),
+				h('span', { className: 'claudian-tool-summary', title: summary }, summary),
 				isTodo ? h('span', { className: `claudian-tool-current ${expanded ? 'claudian-hidden' : ''}` }, (block.input?.todos || []).find((todo) => todo.status === 'in_progress')?.activeForm || '') : null,
 				isApplyPatch && patchStats ? h('span', { className: 'claudian-write-edit-stats' }, h(DiffStats, { stats: patchStats })) : null,
 				h('span', { className: `claudian-tool-status status-${status}` }, h(Icon, { name: statusIcon, size: 14 })),
@@ -8113,7 +8181,7 @@
 							h('textarea', {
 								ref: responseRef,
 								className: 'claudian-instruction-response-textarea',
-								rows: 3,
+								rows: chatOnly ? 2 : 3,
 								placeholder: 'Provide more details...',
 								value: response,
 								onChange: (event) => setResponse(event.target.value),
@@ -8503,7 +8571,8 @@
 						onClick: (event) => setInputCursorIndex(typeof event.currentTarget.selectionStart === 'number' ? event.currentTarget.selectionStart : input.length),
 						onKeyUp: (event) => setInputCursorIndex(typeof event.currentTarget.selectionStart === 'number' ? event.currentTarget.selectionStart : input.length),
 						onKeyDown: (event) => {
-							const liveValue = event.currentTarget.value;
+							if (event.defaultPrevented) return;
+            const liveValue = event.currentTarget.value;
 							const liveCursor = typeof event.currentTarget.selectionStart === 'number' ? event.currentTarget.selectionStart : liveValue.length;
 							const liveMentionTrigger = getMentionTrigger(liveValue, liveCursor);
 							const liveMentionQuery = liveMentionTrigger?.query || '';
@@ -8938,6 +9007,7 @@
 	}
 
 	function AskQuestionBlock({ block, onAnswer }) {
+		if (chatOnly && window.CodexQuestionUI) return h(window.CodexQuestionUI.Question, { block, onAnswer });
 		const questions = block.questions || [];
 		const rootRef = useRef(null);
 		const [active, setActive] = useState(0);
@@ -9236,6 +9306,7 @@
 	}
 
 	function PermissionBlock({ block, onDecision }) {
+        if (chatOnly && window.CodexApprovalUI) return h(window.CodexApprovalUI.Approval, { block, onDecision, options: normalizePermissionDecisionOptions(block) });
 		const rootRef = useRef(null);
 		const [focusIndex, setFocusIndex] = useState(0);
 		const options = normalizePermissionDecisionOptions(block);
@@ -9331,7 +9402,10 @@
 		);
 	}
 
-	function PlanApprovalBlock({ block, onDecision }) {
+	function PlanApprovalBlock({ block, onDecision, settings }) {
+		if (chatOnly && block.variant === 'post-plan' && window.CodexPlanUI) {
+			return h(window.CodexPlanUI.Implementation, { block, onDecision });
+		}
 		const rootRef = useRef(null);
 		const inputRef = useRef(null);
 		const [feedback, setFeedback] = useState('');
@@ -9512,9 +9586,10 @@
 		);
 	}
 
-	function InlineInteractionSurface({ pending, onAskAnswer, onPermission, onPlan }) {
+	function InlineInteractionSurface({ pending, providerId, onAskAnswer, onPermission, onPlan }) {
 		const block = pending?.block;
 		if (!block) return null;
+		if (providerId === 'claude' && chatOnly) return h(window.ClaudeSidebarUI.Interaction, { block, onAskAnswer, onPermission, onPlan });
 		return h('div', {
 			className: 'claudian-inline-interaction-slot',
 			'data-inline-interaction-type': block.type,
@@ -9691,11 +9766,74 @@
 		);
 	}
 
+    function SharedConversationTurn(props) {
+        const { message, providerId, settings, hiddenInlineInteractionBlockId } = props;
+        const blocks = filterInlineInteractionBlocks(message.contentBlocks, hiddenInlineInteractionBlockId)
+            .filter(block => block.type !== 'tool_use' || !isHiddenCodexLifecycleTool(providerId, block));
+        const adapters = {
+            workspace: settings.workspace,
+            parse: parseMarkdownBlocks,
+            inline: (text, key) => renderInlineWithBreaks(text, key, settings),
+            math: latex => h(MathSpan, { latex, display: true }),
+            imageSrc,
+            openPath: filePath => props.sampleId ? undefined : api?.openPath?.({ path: filePath }),
+            isInteractiveTool: block => ['Task', 'Agent'].includes(block.name) || !!block.subagent || shouldRenderCodexLifecycleAsSubagent(providerId, block),
+            fileDiffs: block => {
+                const wrappedPatch = String(block.input?.input || '').match(/tools\.apply_patch\s*\(\s*("(?:\\.|[^"\\])*")/);
+                if (wrappedPatch) { try { return parseApplyPatchDiffs(JSON.parse(wrappedPatch[1])); } catch {} }
+                return block.name === 'apply_patch' ? getApplyPatchFileDiffs(block)
+                : ['Write', 'Edit', 'MultiEdit'].includes(block.name) ? [{ filePath: block.filePath || block.input?.file_path || block.summary,
+                    operation: block.name === 'Write' ? 'add' : 'update', diffLines: block.diffLines || block.diffData?.diffLines || [],
+                    stats: block.diffStats || block.diffData?.stats || computeDiffStats(block.diffLines || []) }] : [];
+            },
+        };
+        const renderInteraction = block => {
+            if (block.type === 'ask_user') return h(AskQuestionBlock, { key: block.id, block, onAnswer: props.onAskAnswer });
+            if (block.type === 'permission') return h(PermissionBlock, { key: block.id, block, onDecision: props.onPermission });
+            if (block.type === 'plan_approval') return h(PlanApprovalBlock, { key: block.id, block, settings, onDecision: props.onPlan });
+            if (block.type === 'context_compacted') return h('div', { key: block.id, className: 'cx-compacted' }, '上下文已压缩');
+            if (block.type === 'tool_use' && shouldRenderCodexLifecycleAsSubagent(providerId, block)) {
+                return h(SubagentBlock, { key: block.id, block: buildCodexLifecycleSubagentBlock(block, blocks.filter(item => item.type === 'tool_use')) });
+            }
+            if (block.type === 'subagent' || block.subagent) return h(SubagentBlock, { key: block.id, block: block.subagent || block });
+            return h(ToolBlock, { key: block.id, block, settings });
+        };
+        return h(providerId === 'claude' ? window.ClaudeSidebarUI.ConversationTurn : window.CodexSidebarView.ConversationTurn, { ...props, blocks, adapters, renderInteraction });
+    }
+
 		function Message({ message, providerId, settings, canRewind, canFork, onRewind, onFork, onAskAnswer, onPermission, onPlan, onAddToNote, hiddenInlineInteractionBlockId }) {
 			const [userCopied, setUserCopied] = useState(false);
 			const [rewindMenuOpen, setRewindMenuOpen] = useState(false);
 			const visibleBlocks = filterInlineInteractionBlocks(message.contentBlocks, hiddenInlineInteractionBlockId);
 			const hasCompactBoundary = visibleBlocks.some((block) => block.type === 'context_compacted');
+        const [showActivity, setShowActivity] = useState(true);
+        const renderBlock = (block) => {
+					if (block.type === 'text') return h(TextBlock, {
+						key: block.id,
+						content: block.content,
+						copyable: message.role === 'assistant',
+						settings,
+						onAddToNote: message.role === 'assistant' ? onAddToNote : null,
+					});
+					if (block.type === 'thinking') return h(ThinkingBlock, { key: block.id, block });
+					if (block.type === 'tool_use') {
+						if (isHiddenCodexLifecycleTool(providerId, block)) return null;
+						if (shouldRenderCodexLifecycleAsSubagent(providerId, block)) {
+							const siblingToolBlocks = visibleBlocks.filter((candidate) => candidate.type === 'tool_use');
+							return h(SubagentBlock, { key: block.id, block: buildCodexLifecycleSubagentBlock(block, siblingToolBlocks) });
+						}
+						return h(ToolBlock, { key: block.id, block, settings });
+					}
+					if (block.type === 'subagent') return h(SubagentBlock, { key: block.id, block });
+					if (block.type === 'context_compacted') return h(CompactBoundary, { key: block.id });
+					if (block.type === 'ask_user') return h(AskQuestionBlock, { key: block.id, block, onAnswer: onAskAnswer });
+					if (block.type === 'permission') return h(PermissionBlock, { key: block.id, block, onDecision: onPermission });
+					if (block.type === 'plan_approval') return h(PlanApprovalBlock, { key: block.id, block, onDecision: onPlan });
+					return null;
+
+        };
+        const displayBlocks = visibleBlocks;
+
 			const copyUserMessage = async (event) => {
 				event.stopPropagation();
 				const ok = await writeClipboardText(message.displayContent || message.content);
@@ -9735,39 +9873,19 @@
 			'data-message-id': message.id,
 			'data-role': message.role,
 		},
+            chatOnly && message.role === 'assistant' && message.durationSeconds && !hasCompactBoundary ? h('button', {
+                type: 'button', className: 'sidebar-turn-duration', onClick: () => setShowActivity(value => !value), 'aria-expanded': showActivity,
+            }, `用时 ${Math.floor(message.durationSeconds / 60) ? Math.floor(message.durationSeconds / 60) + '分钟 ' : ''}${Math.round(message.durationSeconds % 60)}秒`, h(Icon, { name: showActivity ? 'chevron-down' : 'chevron-right', size: 12 })) : null,
 			message.role === 'user' ? h(MessageImages, { images: message.images, settings }) : null,
 			message.role === 'user' ? h(MessageContextChips, { chips: message.contextChips }) : null,
 			h('div', { className: 'claudian-message-content', dir: 'auto' },
-				visibleBlocks.map((block) => {
-					if (block.type === 'text') return h(TextBlock, {
-						key: block.id,
-						content: block.content,
-						copyable: message.role === 'assistant',
-						settings,
-						onAddToNote: message.role === 'assistant' ? onAddToNote : null,
-					});
-					if (block.type === 'thinking') return h(ThinkingBlock, { key: block.id, block });
-					if (block.type === 'tool_use') {
-						if (isHiddenCodexLifecycleTool(providerId, block)) return null;
-						if (shouldRenderCodexLifecycleAsSubagent(providerId, block)) {
-							const siblingToolBlocks = visibleBlocks.filter((candidate) => candidate.type === 'tool_use');
-							return h(SubagentBlock, { key: block.id, block: buildCodexLifecycleSubagentBlock(block, siblingToolBlocks) });
-						}
-						return h(ToolBlock, { key: block.id, block, settings });
-					}
-					if (block.type === 'subagent') return h(SubagentBlock, { key: block.id, block });
-					if (block.type === 'context_compacted') return h(CompactBoundary, { key: block.id });
-					if (block.type === 'ask_user') return h(AskQuestionBlock, { key: block.id, block, onAnswer: onAskAnswer });
-					if (block.type === 'permission') return h(PermissionBlock, { key: block.id, block, onDecision: onPermission });
-					if (block.type === 'plan_approval') return h(PlanApprovalBlock, { key: block.id, block, onDecision: onPlan });
-					return null;
-				}),
+                displayBlocks.map(renderBlock),
 				message.isInterrupt ? h('div', { className: 'claudian-text-block' },
 					h('span', { className: 'claudian-interrupted' }, 'Interrupted'),
 					' ',
 					h('span', { className: 'claudian-interrupted-hint' }, '· What should the assistant do instead?'),
 				) : null,
-				message.durationSeconds && !hasCompactBoundary ? h('div', { className: 'claudian-response-footer' },
+				!chatOnly && message.durationSeconds && !hasCompactBoundary ? h('div', { className: 'claudian-response-footer' },
 					h('span', { className: 'claudian-response-duration' },
 						h(Icon, { name: 'clock', size: 12 }),
 						h('span', null, formatDuration(message.durationSeconds)),
@@ -9978,29 +10096,6 @@
 				onClose: closeFeatureGuide,
 				onActivate: requestFeatureGuideActivation,
 			}) : null,
-		);
-	}
-
-	function isRuntimeActivityVisible(tab, runtimeStatus) {
-		return !!tab?.isStreaming;
-	}
-
-	function RuntimeCornerLoader({ tab, runtimeStatus, settings }) {
-		const active = isRuntimeActivityVisible(tab, runtimeStatus);
-		if (!active) {
-			return null;
-		}
-		const status = String(runtimeStatus?.status || (tab?.isStreaming ? 'running' : '')).toLowerCase();
-		const detail = String(runtimeStatus?.detail || '').trim() || t(settings, 'activity.waiting');
-		const label = status === 'starting' ? t(settings, 'activity.starting') : t(settings, 'activity.running');
-		return h('div', {
-			className: `claudian-runtime-corner-loader status-${status || 'running'}`,
-			role: 'status',
-			title: `${label}${detail ? ` · ${detail}` : ''}`,
-			'aria-label': `${label}${detail ? ` · ${detail}` : ''}`,
-			'aria-live': 'polite',
-		},
-			h('span', { className: 'claudian-runtime-corner-ring', 'aria-hidden': 'true' }),
 		);
 	}
 
@@ -10216,7 +10311,7 @@
 		}, items);
 	}
 
-	function HistoryMenu({ visible, histories, tabs, activeTabId, activeHistoryId, onOpen, onOpenNew, onRename, onDelete }) {
+	function HistoryMenu({ visible, histories, tabs, activeTabId, activeHistoryId, onOpen, onOpenNew, onRename, onDelete, compact = false }) {
 		const [editingId, setEditingId] = useState(null);
 		const [contextMenu, setContextMenu] = useState(null);
 		const sortedHistories = useMemo(() => [...(histories || [])]
@@ -10276,6 +10371,13 @@
 			const isCurrent = status.openState === 'current';
 			const isOpen = status.openState === 'open';
 			const isEditing = editingId === item.id;
+			if (compact && !isEditing && window.ChatGPTSidebarUI) return h(window.ChatGPTSidebarUI.Row, {
+				key:item.id,title:item.title||'新对话',indent:1,active:isCurrent,className:'sidebar-local-history-row',
+				onSelect:event=>openFromContent(event,item,status),onAuxClick:event=>openFromMiddleClick(event,item,status),
+				trailing:h('div',{className:'claudian-history-item-actions'},
+					h('button',{type:'button',className:'sidebar-session-menu-close','aria-label':'重命名对话',onClick:event=>{event.stopPropagation();startRename(item);}},h(Icon,{name:'pencil',size:12})),
+					h('button',{type:'button',className:'sidebar-session-menu-close','aria-label':'删除对话',onClick:event=>{event.stopPropagation();onDelete(item.id);}},h(Icon,{name:'trash-2',size:12}))),
+			});
 			const className = [
 				'claudian-history-item',
 				isCurrent ? 'active' : '',
@@ -10548,7 +10650,7 @@
 			onFocusCapture: () => setDropdownOpen(true),
 			onBlurCapture: closeDropdownWhenInactive,
 		},
-			h('div', { className: 'claudian-model-btn' },
+			h('div', { className: 'claudian-model-btn', tabIndex: 0, role: 'button', 'aria-label': '选择模型', onClick: () => setDropdownOpen(value => !value) },
 				h('span', { className: 'claudian-model-label' }, getModelLabel(model, settings)),
 			),
 			h('div', { className: 'claudian-model-dropdown' },
@@ -10674,7 +10776,8 @@
 				return CLAUDE_EFFORT_OPTIONS.filter((option) => explicit.includes(option.value));
 			}
 			const values = [];
-			if (supportsClaudeMaxEffort(model)) values.push('low', 'medium', 'high', 'max');
+			if (/^claude-(?:haiku|sonnet|opus)-[5-9](?:-|$)/u.test(providerRuntimeModelId('claude', model).toLowerCase())) values.push('low', 'medium', 'high');
+			if (supportsClaudeMaxEffort(model)) values.splice(0, values.length, 'low', 'medium', 'high', 'max');
 			if (supportsClaudeXHighEffort(model)) values.splice(3, 0, 'xhigh');
 			return CLAUDE_EFFORT_OPTIONS.filter((option) => values.includes(option.value));
 		}
@@ -10710,7 +10813,7 @@
 		return h('div', { className: 'claudian-thinking-selector' },
 			h('div', { className: 'claudian-thinking-effort' },
 				h('div', { className: 'claudian-thinking-gears' },
-					h('div', { className: 'claudian-thinking-current' }, current?.label || 'High'),
+					h('div', { className: 'claudian-thinking-current', tabIndex: chatOnly ? 0 : undefined }, chatOnly && normalizeLocale(settings.locale) === 'zh-CN' ? ({ low: '低', medium: '中', high: '高', xhigh: '超高', max: '最高', ultra: '极高' }[current?.value] || current?.label) : current?.label || 'High', chatOnly ? h(Icon, { name: 'chevron-down', size: 11 }) : null),
 					h('div', { className: 'claudian-thinking-options' },
 						options.slice().reverse().map((item) => h('div', {
 							key: item.value,
@@ -10843,12 +10946,44 @@
 		);
 	}
 
-	function InputToolbar({ tab, settings, usage, externalPaths, mcpServers, onModel, onAddCustomModel, onRemoveCustomModel, onEffort, onServiceTier, onPermission, onMode, onAddContext, onRemoveContext, onTogglePersistent, onToggleMcp }) {
+	function ConversationTools({ tab, settings, usage, externalPaths, mcpServers, onAddContext, onRemoveContext, onTogglePersistent, onToggleMcp, onServiceTier }) {
+        const toolbarProviderId = tab.providerId;
+        const toolbarModel = tab.model || settings.model;
+        const showServiceTier = toolbarProviderId === 'codex' && isFastTierCodexModel(toolbarModel);
+        const showMcpSelector = supportsMcpToolsForProvider(toolbarProviderId);
+        return h('div', { className: 'sidebar-add-tools' },
+                toolbarProviderId === 'codex' && window.CodexQueueUI ? h(window.CodexQueueUI.Queue, { key: `queue-${tab.runtimeThreadId || tab.id}`, api, threadId: tab.runtimeThreadId, sessionKey: tab.runtimeSessionKey || tab.id, streaming: tab.isStreaming && !tab.isQueued }) : null,
+                toolbarProviderId === 'codex' && window.CodexNativeUI?.NativeGoal ? h(window.CodexNativeUI.NativeGoal, { key: tab.runtimeThreadId || tab.id, api, threadId: tab.runtimeThreadId }) : null,
+                h(ContextMeter, { usage }),
+                h(ExternalContextSelector, { paths: externalPaths, onAdd: onAddContext, onRemove: onRemoveContext, onTogglePersistent }),
+                showMcpSelector ? h(McpSelector, { servers: mcpServers, onToggle: onToggleMcp }) : null,
+                showServiceTier ? h('button', { type: 'button', onClick: onServiceTier, 'aria-pressed': settings.serviceTier === 'fast' }, settings.serviceTier === 'fast' ? 'Fast ✓' : 'Fast') : null);
+    }
+
+    function InputToolbar({ slot, tab, settings, usage, externalPaths, mcpServers, onModel, onAddCustomModel, onRemoveCustomModel, onEffort, onServiceTier, onPermission, onPermissionMode, onMode, onLoadModels, onAddContext, onRemoveContext, onTogglePersistent, onToggleMcp }) {
 		const toolbarModel = tab.model || settings.model;
 		const toolbarProviderId = tab.providerId;
 		const showServiceTier = tab.providerId === 'codex' && isFastTierCodexModel(toolbarModel);
 		const showModeSelector = false;
 		const showMcpSelector = supportsMcpToolsForProvider(toolbarProviderId);
+        if (chatOnly) return h(toolbarProviderId === 'claude' ? window.ClaudeSidebarUI.ComposerControls : window.CodexSidebarView.ComposerControls, {
+            slot, onLoadModels, permissionMode: tab.conversationSettings?.permissionMode ?? settings.permissionMode, claudeSafeMode: tab.conversationSettings?.claudeSafeMode ?? settings.claudeSafeMode, onPermissionMode, onAddContext,
+            currentModel: toolbarModel, effort: tab.conversationSettings?.effort ?? settings.effort,
+            effortLabel: CLAUDE_EFFORT_OPTIONS.find(option => option.value === settings.effort)?.label,
+            defaultModel: settings.claudeDefaultModel,
+            models: getModelOptions(settings).filter(option => option.providerId === toolbarProviderId).map(option => ({
+                value: modelOptionSelectionValue(option), rawValue: option.value, label: option.label,
+                selected: modelOptionMatches(option, toolbarModel), custom: option.custom,
+                description: option.description,
+                supportsReasoningEffort: option.supportsReasoningEffort,
+                efforts: getEffortOptions(toolbarProviderId, option.value, settings),
+            })),
+            efforts: getEffortOptions(toolbarProviderId, toolbarModel, settings),
+            onModel, onEffort,
+            onAddCustomModel: value => onAddCustomModel(value, toolbarProviderId),
+            onRemoveCustomModel: value => onRemoveCustomModel(value, toolbarProviderId),
+            extra: null,
+        });
 		return h('div', { className: 'claudian-input-toolbar' },
 			h(ModelSelector, {
 				model: toolbarModel,
@@ -10926,11 +11061,13 @@
 		);
 	}
 
-	function SlashDropdown({ visible, query, selectedIndex, onHover, onPick, itemsOverride, emptyLabel = 'No matching commands', variant = 'slash' }) {
+	function SlashDropdown({ visible, query, selectedIndex, onHover, onPick, itemsOverride, emptyLabel = 'No matching commands', variant = 'slash', providerId, onDismiss }) {
 		const search = String(query || '').toLowerCase();
 		const sourceItems = itemsOverride || COMMANDS;
 		const items = sourceItems.filter((command) => dropdownItemMatches(command, search));
 		const sortedItems = sortDropdownItems(items, search);
+        if (chatOnly && providerId === 'claude' && window.ClaudeControls) return h(window.ClaudeControls.SlashDropdown, { visible, items: sortedItems, query, onPick, onDismiss, variant });
+        if (chatOnly && providerId === 'codex' && window.CodexComposerControls) return h(window.CodexComposerControls.SlashDropdown, { visible, query, items: sortedItems, selectedIndex, onHover, onPick, emptyLabel, variant });
 		const displayName = (command) => {
 			const explicit = String(command?.name || '');
 			if (/^[$/]/.test(explicit)) return explicit;
@@ -11171,6 +11308,52 @@
 		const instructionModeActiveRef = useRef(false);
 		const bangBashModeActiveRef = useRef(false);
 		const [dropVisible, setDropVisible] = useState(false);
+        const [attachmentError, setAttachmentError] = useState('');
+        const dropHandlerRef = useRef(null);
+        // File drops belong to the active conversation, including its message area.
+        useLayoutEffect(() => { dropHandlerRef.current = attachFiles; });
+        useLayoutEffect(() => {
+            setDropVisible(false);
+            setAttachmentError('');
+            const reset = () => setDropVisible(false);
+            const escape = event => { if (event.key === 'Escape') reset(); };
+            const hasFiles = event => Array.from(event.dataTransfer?.types || []).includes('Files');
+            const over = event => {
+                if (!hasFiles(event)) return;
+                event.preventDefault();
+                event.dataTransfer.dropEffect = 'copy';
+                setDropVisible(true);
+            };
+            const leave = event => {
+                if (!event.relatedTarget || event.clientX <= 0 || event.clientY <= 0 ||
+                    event.clientX >= innerWidth || event.clientY >= innerHeight) reset();
+            };
+            const drop = event => {
+                reset();
+                if (!hasFiles(event)) return;
+                event.preventDefault();
+                event.stopPropagation();
+                void dropHandlerRef.current?.(Array.from(event.dataTransfer.files || []), 'drop');
+            };
+            document.addEventListener('dragenter', over, true);
+            document.addEventListener('dragover', over, true);
+            document.addEventListener('dragleave', leave, true);
+            document.addEventListener('drop', drop, true);
+            document.addEventListener('dragend', reset, true);
+            document.addEventListener('pointermove', reset, true);
+            document.addEventListener('keydown', escape, true);
+            window.addEventListener('blur', reset);
+            return () => {
+                document.removeEventListener('dragenter', over, true);
+                document.removeEventListener('dragover', over, true);
+                document.removeEventListener('dragleave', leave, true);
+                document.removeEventListener('drop', drop, true);
+                document.removeEventListener('dragend', reset, true);
+                document.removeEventListener('pointermove', reset, true);
+                document.removeEventListener('keydown', escape, true);
+                window.removeEventListener('blur', reset);
+            };
+        }, [tab.id, tab.providerId]);
 		const [modalImage, setModalImage] = useState(null);
 		const input = draftInput;
 		const instructionMode = instructionModeActive;
@@ -11529,7 +11712,7 @@
 			const normalized = String(nextValue ?? '');
 			draftInputRef.current = normalized;
 			setDraftInput(normalized);
-			if (options.commit === 'now') {
+			if (options.commit === 'now' || chatOnly && options.commit !== 'skip') {
 				commitInputNow(normalized);
 			}
 			else if (options.commit !== 'skip') {
@@ -11619,9 +11802,9 @@
 
 		useEffect(() => {
 			const el = textareaRef.current;
-			if (!el) return;
+			if (!el || el.isContentEditable) return;
 			el.style.height = 'auto';
-			el.style.height = `${Math.min(220, Math.max(76, el.scrollHeight))}px`;
+			el.style.height = `${Math.min(220, Math.max(chatOnly ? 44 : 76, el.scrollHeight))}px`;
 		}, [input]);
 
 		useEffect(() => {
@@ -11885,11 +12068,12 @@
 				reader.onload = () => {
 					const dataUrl = String(reader.result || '');
 					const parts = dataUrl.split(',');
+                    if (!parts[1]) { reject(new Error('图片内容为空')); return; }
 					resolve({
 						id: makeId('img'),
 						name: file.name || `image-${Date.now()}.png`,
 						mediaType: attachmentMediaType(file),
-						data: parts[1] || MOCK_IMAGE_DATA,
+						data: parts[1],
 						size: file.size || 0,
 						source,
 					});
@@ -11899,29 +12083,27 @@
 			});
 		}
 
-		async function attachFiles(files, source) {
-			const imageFiles = Array.from(files || [])
-				.filter((file) => isSupportedImageFile(file) && (Number(file?.size || 0) || 0) <= MAX_IMAGE_ATTACHMENT_BYTES)
-				.slice(0, MAX_TURN_IMAGES);
-			if (imageFiles.length === 0) return;
-			const attachments = [];
-			for (const file of imageFiles) {
-				try {
-					attachments.push(await fileToAttachment(file, source));
-				}
-				catch {
-					attachments.push({
-						id: makeId('img'),
-						name: file.name || 'image.png',
-						mediaType: attachmentMediaType(file),
-						data: MOCK_IMAGE_DATA,
-						size: file.size || 0,
-						source,
-					});
-				}
-			}
-			onAttachImages(attachments);
-		}
+        async function attachFiles(files, source) {
+            const attachments = [], errors = [];
+            const remaining = Math.max(0, MAX_TURN_IMAGES - (tab.imageChips || []).length);
+            setAttachmentError('');
+            for (const file of Array.from(files || [])) {
+                try {
+                    if (isSupportedImageFile(file)) {
+                        if (attachments.length >= remaining) throw new Error('已达到图片数量上限');
+                        attachments.push(await fileToAttachment(file, source));
+                    } else {
+                        const filePath = api?.filePath?.(file);
+                        if (!filePath) throw new Error('无法获取文件路径，请从本机文件夹拖入');
+                        onAttachMentionFile({ type: 'file', path: filePath });
+                    }
+                } catch (error) {
+                    errors.push(file.name + '：' + (error.message || '无法添加附件'));
+                }
+            }
+            if (attachments.length) onAttachImages(attachments);
+            if (errors.length && tabIdRef.current === tab.id) setAttachmentError(errors.join('；'));
+        }
 
 		function handlePaste(event) {
 			const items = Array.from(event.clipboardData?.items || []);
@@ -11930,6 +12112,33 @@
 				event.preventDefault();
 				void attachFiles(files, 'paste');
 			}
+		}
+
+		function submitComposerInput(value = textareaRef.current?.value || '') {
+			// Pointer submission follows the same instruction/shell modes as Enter.
+			const modeAction = resolveComposerModeKeyAction({
+				value, key: 'Enter', shiftKey: false, isComposing: false,
+				instructionMode: instructionModeActiveRef.current || instructionModeActive,
+				bangBashEnabled: bangBashEnabled && (bangBashModeActiveRef.current || bangBashModeActive),
+				bangBashMode: bangBashEnabled && (bangBashModeActiveRef.current || bangBashModeActive),
+			});
+			if (modeAction) {
+				if (modeAction.type === 'submit-instruction') {
+					setInstructionModeActiveNow(false);
+					setInput('', { commit: 'now' });
+					pendingCursorRef.current = 0;
+					onInstructionSubmit?.(modeAction.instruction);
+				} else if (modeAction.type === 'submit-bang-bash') {
+					setBangBashModeActiveNow(false);
+					setInput('', { commit: 'now' });
+					pendingCursorRef.current = 0;
+					onBangBashCommand?.(modeAction.command);
+				}
+				return;
+			}
+			const submittedValue = selectedPdfSnippetKeys.size > 0 ? stripPdfSnippetTriggerToken(value) : value;
+			setInput('', { commit: 'now' });
+			onSend(submittedValue);
 		}
 
 		function handleKeyDown(event) {
@@ -12117,6 +12326,7 @@
 				}
 			}
 			if (liveShowSlash) {
+                if (chatOnly && tab.providerId === 'claude' && window.ClaudeControls && ['ArrowUp','ArrowDown','Enter','Tab','Escape'].includes(event.key)) return;
 				if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
 					event.preventDefault();
 					const direction = event.key === 'ArrowDown' ? 1 : -1;
@@ -12142,11 +12352,7 @@
 				|| event.ctrlKey;
 			if (event.key === 'Enter' && !event.shiftKey && !event.isComposing && sendWithEnter) {
 				event.preventDefault();
-				const submittedValue = selectedPdfSnippetKeys.size > 0
-					? stripPdfSnippetTriggerToken(event.currentTarget.value)
-					: event.currentTarget.value;
-				setInput('', { commit: 'now' });
-				onSend(submittedValue);
+				submitComposerInput(event.currentTarget.value);
 				return;
 			}
 			if (event.key === 'Escape' && tab.isStreaming) {
@@ -12160,6 +12366,34 @@
 				onFocusMessages?.();
 			}
 		}
+
+		const composerInput = h('textarea', {
+                        readOnly: !!tab.sampleId,
+						ref: textareaRef,
+						className: 'claudian-input',
+						'aria-label': normalizeLocale(settings.locale) === 'zh-CN' ? '消息输入框' : 'Message',
+						rows: chatOnly ? 1 : 3,
+						dir: 'auto',
+						defaultValue: input,
+						placeholder: tab.sampleId ? '界面样例 · 新建对话后可开始真实工作' : tab.runtimeArchived ? '会话已归档，请先从历史记录恢复' : bangBashMode ? t(settings, 'composer.bangBashPlaceholder') : instructionMode ? t(settings, 'composer.instructionPlaceholder') : chatOnly
+							? (normalizeLocale(settings.locale) === 'zh-CN' ? `和 ${providerProductLabel(tab.providerId)} 一起工作` : `Message ${providerProductLabel(tab.providerId)}`)
+							: t(settings, 'composer.placeholder'),
+						onChange: (event) => {
+							if (instructionModeActiveRef.current && event.target.value === '') {
+								setInstructionModeActiveNow(false);
+							}
+							if (resumeVisible && event.target.value) {
+								onDismissResume?.();
+							}
+							setInput(event.target.value);
+							updateCursorFromTextarea(event.target);
+						},
+						onClick: (event) => updateCursorFromTextarea(event.currentTarget),
+						onBlur: (event) => commitInputNow(event.currentTarget.value),
+						onKeyUp: (event) => updateCursorFromTextarea(event.currentTarget),
+						onPaste: handlePaste,
+						onKeyDown: handleKeyDown,
+					});
 
 		return h('div', { className: 'claudian-input-composer' },
 			h('div', { className: 'claudian-input-container' },
@@ -12204,36 +12438,19 @@
 					) : null,
 				),
 				h('div', { className: 'claudian-input-nav-row' }, navContent),
-				h('div', {
+				h(chatOnly ? tab.providerId === 'claude' ? window.ClaudeSidebarUI.ComposerRoot : window.ChatGPTSurface.ComposerRoot : 'div', {
 					className: wrapperClass,
-					onDragEnter: (event) => {
-						if (Array.from(event.dataTransfer?.types || []).includes('Files')) {
-							event.preventDefault();
-							setDropVisible(true);
-						}
-					},
-					onDragOver: (event) => {
-						event.preventDefault();
-						if (Array.from(event.dataTransfer?.types || []).includes('Files')) setDropVisible(true);
-					},
-					onDragLeave: (event) => {
-						const rect = event.currentTarget.getBoundingClientRect();
-						if (event.clientX <= rect.left || event.clientX >= rect.right || event.clientY <= rect.top || event.clientY >= rect.bottom) {
-							setDropVisible(false);
-						}
-					},
-					onDrop: (event) => {
-						event.preventDefault();
-						setDropVisible(false);
-						void attachFiles(event.dataTransfer?.files, 'drop');
-					},
-				},
-					h('div', { className: `claudian-drop-overlay ${dropVisible ? 'visible' : ''}` },
-						h('div', { className: 'claudian-drop-content' },
-							h(Icon, { name: 'upload', size: 32 }),
-							h('span', null, 'Drop image here'),
-						),
-					),
+                },
+                    dropVisible ? h('div', {
+                        'data-file-drop-overlay': '',
+                        className: tab.providerId === 'claude' ? 'dframe-drop-overlay' : 'claudian-drop-overlay visible',
+                        style: { pointerEvents: 'none' },
+                    }, tab.providerId === 'claude'
+                        ? h('div', { className: 'dframe-drop-overlay-badge', style: { inset: 0 } },
+                            h('span', { className: 'dframe-drop-overlay-label' }, '松开以添加附件'))
+                        : h('div', { className: 'claudian-drop-content' }, h(Icon, { name: 'upload', size: 32 }), h('span', null, '松开以添加附件'))
+                    ) : null,
+                    attachmentError ? h('div', { role: 'alert', 'data-attachment-error': '' }, attachmentError) : null,
 					h(MentionDropdown, {
 						visible: showMention,
 						items: mentionItems,
@@ -12263,16 +12480,19 @@
 						emptyLabel: pdfSnippetEmptyLabel,
 					}),
 					h(SlashDropdown, {
+                        providerId: tab.providerId,
 						visible: showSlash,
 						variant: 'slash',
 						query: slashQuery,
 						selectedIndex: slashIndex,
 						onHover: setSlashIndex,
+                        onDismiss: () => setSlashDismissedInput(textareaRef.current?.value || input),
 						onPick: (command) => pickSlash(command || slashItems[0]),
 						itemsOverride: slashItems,
 						emptyLabel: slashEmptyLabel,
 					}),
 					h(SlashDropdown, {
+                        providerId: tab.providerId,
 						visible: showSkill,
 						variant: 'skill',
 						query: skillQuery,
@@ -12283,7 +12503,7 @@
 						emptyLabel: skillEmptyLabel,
 					}),
 					h('div', { className: `claudian-context-row ${contextHasContent ? 'has-content' : ''}` },
-						h(ImagePreview, { images: visibleImageChips, settings, onRemove: removeVisibleImage, onOpen: setModalImage }),
+						h(chatOnly && tab.providerId === 'claude' ? window.ClaudeSidebarUI.ImageAttachments : ImagePreview, { images: visibleImageChips, imageSrc, settings, onRemove: removeVisibleImage, onOpen: setModalImage }),
 						fileChips.length || agentChips.length || mcpMentions.length || selectedPdfSnippets.length || graphContextChips.length || hasPdfSelectionChip || visibleTurnContext.currentNotePath ? h('div', { className: 'claudian-file-indicator', style: { display: 'flex' } },
 							visibleTurnContext.currentNotePath ? h('span', { key: 'linked-note', className: 'claudian-file-chip current-note', title: visibleTurnContext.currentNotePath },
 								h('span', { className: 'claudian-file-chip-icon' }, h(Icon, { name: 'file', size: 12 })),
@@ -12346,33 +12566,25 @@
 						instructionMode ? h('span', { className: 'claudian-selection-indicator' }, t(settings, 'composer.instructionMode')) : null,
 						bangBashMode ? h('span', { className: 'claudian-selection-indicator' }, t(settings, 'composer.bangBashMode')) : null,
 					),
-					h('textarea', {
-						ref: textareaRef,
-						className: 'claudian-input',
-						rows: 3,
-						dir: 'auto',
-						defaultValue: input,
-						placeholder: bangBashMode ? t(settings, 'composer.bangBashPlaceholder') : instructionMode ? t(settings, 'composer.instructionPlaceholder') : t(settings, 'composer.placeholder'),
-						onChange: (event) => {
-							if (instructionModeActiveRef.current && event.target.value === '') {
-								setInstructionModeActiveNow(false);
-							}
-							if (resumeVisible && event.target.value) {
-								onDismissResume?.();
-							}
-							setInput(event.target.value);
-							updateCursorFromTextarea(event.target);
-						},
-						onClick: (event) => updateCursorFromTextarea(event.currentTarget),
-						onBlur: (event) => commitInputNow(event.currentTarget.value),
-						onKeyUp: (event) => updateCursorFromTextarea(event.currentTarget),
-						onPaste: handlePaste,
-						onKeyDown: handleKeyDown,
-					}),
-					h(InputToolbar, toolbarProps),
+					chatOnly && tab.providerId === 'claude' ? h(window.ClaudeSidebarUI.ComposerFooter, {
+                        input: composerInput, tab, busy: tab.isStreaming,
+                        disabled: !!tab.sampleId || tab.runtimeArchived || !String(input || '').trim() && !visibleImageChips.length,
+                        leading: h(InputToolbar, { ...toolbarProps, slot: 'leading' }), trailing: h(InputToolbar, { ...toolbarProps, slot: 'trailing' }),
+                        onAddContext: toolbarProps.onAddContext, onSend: () => submitComposerInput(), onCancel,
+                    }) : chatOnly ? h(window.ChatGPTSurface.ComposerFooter, {
+                        input: composerInput,
+                        leading: h(InputToolbar, { ...toolbarProps, slot: 'leading' }),
+                        trailing: h(React.Fragment, null, h(InputToolbar, { ...toolbarProps, slot: 'trailing' }), h(window.AISidebarUI.SendButton, {
+                            busy: tab.isStreaming, queued: tab.isQueued, disabled: !!tab.sampleId || tab.runtimeArchived || !String(input || '').trim() && !visibleImageChips.length,
+                            onSend: () => submitComposerInput(), onCancel, locale: normalizeLocale(settings.locale),
+                        })),
+                    }) : h(React.Fragment, null, composerInput, h(InputToolbar, toolbarProps)),
 					h(ImageModal, { image: modalImage, onClose: () => setModalImage(null) }),
 				),
 			),
+			chatOnly ? h('div', { className: 'sidebar-composer-hint' }, normalizeLocale(settings.locale) === 'zh-CN'
+				? `${settings.requireCommandOrControlEnterToSend ? 'Ctrl / ⌘ + Enter' : 'Enter'} 发送 · Shift + Enter 换行`
+				: `${settings.requireCommandOrControlEnterToSend ? 'Ctrl / ⌘ + Enter' : 'Enter'} to send · Shift + Enter for a new line`) : null,
 		);
 	}
 
@@ -14465,7 +14677,8 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 		return sections.filter(Boolean).join('\n\n');
 	}
 
-	function SettingsDrawer({ open, settings, runtimeStatus, runtimeLogPath, runtimeLogCopyStatus, runtimeDiagnostics, runtimeDiagnosticsStatus, onCopyRuntimeLogPath, onOpenRuntimeLogFolder, onRefreshRuntimeDiagnostics, environment, onEnvironmentAction, mcpServers, onMcpServersChange, onProviderAssetsDirty, onRefreshProviderAssets, onClose, onSave, onReset }) {
+	function SettingsDrawer({ conversationTools, providerId, open, settings, runtimeStatus, runtimeLogPath, runtimeLogCopyStatus, runtimeDiagnostics, runtimeDiagnosticsStatus, onCopyRuntimeLogPath, onOpenRuntimeLogFolder, onRefreshRuntimeDiagnostics, environment, onEnvironmentAction, mcpServers, onMcpServersChange, onProviderAssetsDirty, onRefreshProviderAssets, onClose, onSave, onReset, onOpenSample }) {
+		const SettingsIcon=chatOnly&&providerId==='claude'?window.ClaudeShellUI.Icon:Icon;
 		const [draft, setDraft] = useState(settings);
 		const [pythonPathDraft, setPythonPathDraft] = useState('');
 		const draftRef = useRef(settings);
@@ -14710,6 +14923,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 		};
 		const incompleteClass = (options) => options?.incomplete ? ' claudian-setting-incomplete' : '';
 		const heading = (name, desc, options = {}) => h('div', {
+			'data-settings-heading': name,
 			className: `setting-item setting-item-heading${incompleteClass(options)}`,
 			title: options.incomplete ? 'Not fully implemented in the Electron sidebar yet' : undefined,
 		},
@@ -14743,7 +14957,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 					return refreshProviderAssetsIntoDraft(spec.keys, spec.options);
 				},
 			},
-				h(Icon, { name: 'refresh-cw', size: 14 }),
+				h(SettingsIcon, { name: 'refresh-cw', size: 14 }),
 				h('span', null, tx('settings.refreshModels')),
 			),
 			h('span', { className: 'claudian-settings-inline-meta' }, `${Number(count) || 0} ${tx('settings.runtimeModelCount')}`),
@@ -14780,9 +14994,9 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 			})),
 			field(tx('settings.model'), h('input', { value: draft.model || '', onChange: (event) => update('model', event.target.value) })),
 			field(tx('settings.permissionMode'), h('select', { value: draft.permissionMode, onChange: (event) => update('permissionMode', event.target.value) },
-				h('option', { value: 'normal' }, 'normal'),
-				h('option', { value: 'plan' }, 'plan'),
-				h('option', { value: 'yolo' }, 'yolo'),
+				h('option', { value: 'normal' }, chatOnly ? '默认权限' : 'normal'),
+				h('option', { value: 'plan' }, chatOnly ? '计划模式' : 'plan'),
+				h('option', { value: 'yolo' }, chatOnly ? '完全访问' : 'yolo'),
 			)),
 			heading(tx('settings.display'), tx('settings.displayDesc')),
 			field(tx('settings.maximumTabs'), h('div', { className: 'claudian-settings-slider-row' },
@@ -14966,6 +15180,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 
 		const isWindowsHost = /Win/i.test(navigator.platform || '');
 		const codexTab = h(React.Fragment, null,
+			window.CodexNativeUI ? h(window.CodexNativeUI.NativeStatus, { api, enabled: settings.runtimeMode === 'codex' }) : null,
 			heading(tx('settings.setup'), tx('settings.codexSetupDesc')),
 			field(tx('settings.enableCodexProvider'), h('span', { className: 'claudian-toggle-row' },
 				h('input', {
@@ -15077,10 +15292,50 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 			codex: codexTab,
 		};
 
+        if (chatOnly) {
+            const groups = { general: [], appearance: [], conversations: [], content: [], input: [], diagnostics: [] };
+            const names = { [tx('settings.setup')]: 'general', [tx('settings.display')]: 'appearance',
+                [tx('settings.conversations')]: 'conversations', [tx('settings.content')]: 'content',
+                [tx('settings.input')]: 'input', [tx('settings.hotkeys')]: 'input', [tx('settings.diagnostics')]: 'diagnostics' };
+            let group = 'general';
+            for (const child of React.Children.toArray(generalTab.props.children)) {
+                if (child.props?.['data-settings-heading']) group = names[child.props['data-settings-heading']] || group;
+                if (group === 'general' && child.props?.['data-settings-heading']) continue;
+                if (child.props?.className === 'claudian-runtime-status-line') { groups.diagnostics.push(child); continue; }
+
+                const label = React.Children.toArray(child.props?.children)[0]?.props?.children;
+                if (group === 'general' && [tx('settings.runtimeMode'), tx('settings.model')].includes(label)) continue;
+                if (label === tx('settings.maximumTabs')) groups.conversations.push(child);
+                else groups[group].push(child);
+            }
+            groups.appearance.unshift(field('正文字号', h('div', { className: 'claudian-settings-slider-row' },
+                h('input', { type: 'range', min: 13, max: 23, value: sidebarFontSize + 1,
+                    onChange: event => update('sidebarFontSize', Number(event.target.value) - 1), 'aria-label': '正文字号' }),
+                h('span', null, `${sidebarFontSize + 1}px`))));
+            groups.conversations.push(h('p', { className: 'sw-settings-notice', key: 'execution-policy' }, '可同时打开多个会话。当前 CLI 按顺序执行任务；切换会话不会打断后台任务，其他任务会自动排队。'));
+            if (conversationTools) groups.conversations.push(conversationTools);
+            const sections = [
+                { id: 'general', label: '常规', icon: 'settings', description: '语言、工作区和默认权限。', keywords: 'language workspace permissions', content: groups.general },
+                { id: 'appearance', label: '外观', icon: 'monitor', description: '调整字号、滚动和内容显示。', keywords: '字体 显示 自动滚动', content: groups.appearance },
+                { id: 'conversations', label: '会话', icon: 'message-square', description: '管理打开的会话数量和会话标题。', keywords: '多对话 标签 上限 历史 排队', content: groups.conversations },
+                { id: 'input', label: '输入', icon: 'keyboard', description: '发送快捷键与键盘导航。', keywords: '快捷键 enter', content: groups.input },
+                { id: 'codex', label: 'Codex', icon: 'terminal', description: 'Codex CLI、模型、技能和工具配置。', keywords: 'mcp skills 模型', content: codexTab },
+                { id: 'claude', label: 'Claude Code', icon: 'terminal', description: 'Claude Code CLI、模型、权限和工具配置。', keywords: 'mcp skills 模型', content: claudeTab },
+                { id: 'content', label: '上下文', icon: 'file-text', description: '共享指令、环境变量和上下文。', keywords: '提示词 系统 环境变量', content: groups.content },
+                { id: 'diagnostics', label: '诊断', icon: 'activity', description: '运行环境、连接状态和日志。', keywords: '日志 安装 python 连接', content: groups.diagnostics },
+                { id: 'debug-samples', label: '调试与样例', icon: 'list-checks', description: '预览各种工作样式，仅用于调试，不调用 CLI。', keywords: '工作样例 debug samples 审批 提问',
+                  content: h('div', { className: 'sidebar-debug-samples' }, (window.SidebarSamples?.catalog || []).map(sample =>
+                    h('button', { type: 'button', key: sample.id, 'data-sample-id': sample.id, onClick: () => {
+                      if (onOpenSample?.(sample.id) !== false) onClose();
+                    } }, h(SettingsIcon, { name: sample.icon, size: 16 }), h('span', null, sample.title), h('small', null, sample.description)))) },
+            ];
+            return h(window.SidebarWorkspace.SettingsPanel, { open, sections, onClose, onReset, Icon:SettingsIcon, busy: ['starting', 'running'].includes(runtimeStatus?.status) });
+        }
+
 		return h('aside', { className: `claudian-settings-drawer claudian-settings ${open ? 'is-open' : ''}` },
 			h('div', { className: 'claudian-settings-drawer-header' },
 				h('h2', null, tx('settings.title')),
-				h('button', { type: 'button', className: 'claudian-icon-button', onClick: onClose }, h(Icon, { name: 'x' })),
+				h('button', { type: 'button', className: 'claudian-icon-button', onClick: onClose }, h(SettingsIcon, { name: 'x' })),
 			),
 			h('div', { className: 'claudian-settings-drawer-body' },
 				h('div', { className: 'claudian-settings-tabs' },
@@ -15104,8 +15359,8 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 	}
 
 	const STORAGE_KEY = 'claudian-sidebar-mock-state-v1';
-	const MOCK_STATE_MAX_RAW_BYTES = 1024 * 1024;
-	const MOCK_STATE_MAX_TABS = 8;
+	const MOCK_STATE_MAX_RAW_BYTES = (chatOnly ? 8 : 1) * 1024 * 1024;
+	const MOCK_STATE_MAX_TABS = 10;
 	const MOCK_STATE_MAX_HISTORIES = 20;
 	const MOCK_STATE_MAX_MESSAGES = 80;
 	const MOCK_STATE_MAX_ARRAY_ITEMS = 80;
@@ -15175,10 +15430,11 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 	}
 
 	function compactPersistedTab(tab, index) {
-		const cloned = cloneForMockPersistence(tab || {});
+		const cloned = cloneForMockPersistence(chatOnly && tab?.isStreaming ? createCancelledTabState(tab) : (tab || {}));
 		const output = cloned && typeof cloned === 'object' && !Array.isArray(cloned) ? cloned : {};
 		output.index = index + 1;
 		output.isStreaming = false;
+        output.isQueued = false;
 		output.messages = compactPersistedMessages(tab?.messages);
 		output.queuedText = tab?.isStreaming ? '' : truncatePersistedText(tab?.queuedText || '', MOCK_STATE_MAX_INPUT_LENGTH);
 		output.queuedDisplayText = tab?.isStreaming ? '' : truncatePersistedText(tab?.queuedDisplayText || '', MOCK_STATE_MAX_INPUT_LENGTH);
@@ -15195,7 +15451,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 	function compactPersistedHistory(entry) {
 		const cloned = cloneForMockPersistence(entry || {});
 		const output = cloned && typeof cloned === 'object' && !Array.isArray(cloned) ? cloned : {};
-		output.messages = compactPersistedMessages(entry?.messages);
+		output.messages = String(entry?.id || '').startsWith('native-') ? [] : compactPersistedMessages(entry?.messages);
 		return output;
 	}
 
@@ -15550,8 +15806,8 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 					settings: { ...fallback.settings, ...urlSettings },
 					tabs: fallback.tabs.map((tab) => ({
 						...tab,
-						model: urlSettings.model || tab.model,
-						providerId: urlSettings.provider || tab.providerId,
+						model: chatOnly ? (tab.model || urlSettings.model) : (urlSettings.model || tab.model),
+						providerId: chatOnly ? (tab.providerId || urlSettings.provider) : (urlSettings.provider || tab.providerId),
 					})),
 				};
 			}
@@ -15560,6 +15816,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 					...tab,
 					index: index + 1,
 					isStreaming: false,
+                    isQueued: false,
 					queuedText: '',
 					queuedDisplayText: '',
 					queuedContextChips: [],
@@ -15583,8 +15840,8 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 				settings: mergedSettings,
 				tabs: tabs.map((tab) => ({
 					...tab,
-					model: urlSettings.model || tab.model,
-					providerId: urlSettings.provider || tab.providerId,
+					model: chatOnly ? (tab.model || urlSettings.model) : (urlSettings.model || tab.model),
+					providerId: chatOnly ? (tab.providerId || urlSettings.provider) : (urlSettings.provider || tab.providerId),
 				})),
 				activeTabId,
 				inputByTab: sanitizePersistedInputByTab(parsed.inputByTab),
@@ -15859,9 +16116,28 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 		const initialStateRef = useRef(null);
 		if (!initialStateRef.current) {
 			const loadedState = applyUrlInitialStateOverrides(loadPersistedMockState());
+            const previewParams = new URLSearchParams(window.location.search);
+            if (chatOnly && previewParams.get('samples') === '1') {
+                const existing = loadedState.tabs.find(tab => tab.sampleId);
+                const requested = previewParams.get('sample');
+                if ((!existing || requested) && (existing || loadedState.tabs.length < (loadedState.settings.maxTabs || 5))) {
+                    const sample = window.SidebarSamples.make(requested || 'conversation', { userMessage, assistantMessage });
+                    if (sample) {
+                        const preview = { ...createEmptyTab(loadedState.tabs.length + 1, loadedState.settings), sampleId: sample.id, title: '样例 · ' + sample.title, messages: sample.messages,
+                            ...(existing ? { id: existing.id, index: existing.index } : {}) };
+                        loadedState.tabs = existing ? loadedState.tabs.map(tab => tab.id === existing.id ? preview : tab) : [...loadedState.tabs, preview];
+                        loadedState.activeTabId = preview.id;
+                    }
+                }
+            }
+
 			initialStateRef.current = {
 				...loadedState,
-				settings: normalizeSidebarSettings(loadedState.settings),
+				settings: normalizeSidebarSettings({
+                    ...window.SidebarConversationSettings.activate(loadedState.settings,
+                        loadedState.tabs.find(tab => tab.id === loadedState.activeTabId) || loadedState.tabs[0]),
+                    theme: hostTheme || window.SidebarAppearance.readTheme(window.localStorage, loadedState.settings.theme),
+                }),
 			};
 		}
 		const [settings, setSettings] = useState(initialStateRef.current.settings);
@@ -15924,11 +16200,16 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 		const mcpSaveSeqRef = useRef(0);
 		const timersRef = useRef([]);
 		const runtimeTabIdRef = useRef(null);
+		const approvalResponsesInFlightRef = useRef(new Set());
+        const pendingRuntimeTurnsRef = useRef([]);
+        const conversationScrollRef = useRef({});
+        const conversationFollowingRef = useRef({});
+        const scrollControllerRef = useRef(null);
+        const scrollSettingRef = useRef(settings.enableAutoScroll !== false);
 		const messagesRef = useRef(null);
 		const inputRef = useRef(null);
 		const autoScrollRef = useRef(true);
-		const reEnableScrollTimerRef = useRef(null);
-		const bottomScrollFrameRef = useRef(0);
+
 		const scrollDirectionRef = useRef(null);
 		const scrollFrameRef = useRef(0);
 		const runtimeChunkQueueRef = useRef([]);
@@ -15939,10 +16220,13 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 		const providerAssetsLoadedRef = useRef(false);
 		const shellTaskIdsRef = useRef(new Set());
 		const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
+        const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 		const activeTab = tabs.find((tab) => tab.id === activeTabId) || tabs[0];
 		const actualActiveTabId = activeTab?.id;
 		const tabsRef = useRef(tabs);
 		const settingsRef = useRef(settings);
+        const toolbarSettingsQueueRef = useRef(null);
+        if (!toolbarSettingsQueueRef.current) toolbarSettingsQueueRef.current = new window.SidebarConversationSettings.SyncQueue(payload => api.updateSettings(payload));
 		const activeTabIdRef = useRef(actualActiveTabId);
 		const input = inputByTab[actualActiveTabId] || '';
 		const currentPdfSelection = pdfShellContext?.selection || null;
@@ -15960,25 +16244,32 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 			pdfWorkspacePendingKeyRef.current = '';
 		}, [pdfShellContext?.workspaceId, pdfShellContext?.workspaceRootDir, settings.workspace]);
 
-		useEffect(() => {
+		useLayoutEffect(() => {
 			tabsRef.current = tabs;
 		}, [tabs]);
 
-		useEffect(() => {
+		useLayoutEffect(() => {
 			settingsRef.current = settings;
 		}, [settings]);
 
-		useEffect(() => {
+		useLayoutEffect(() => {
 			const theme = normalizeTheme(settings?.theme);
 			const locale = normalizeLocale(settings?.locale);
 			document.body.dataset.theme = theme;
 			document.body.classList.toggle('theme-dark', theme === 'dark');
 			document.body.classList.toggle('theme-light', theme === 'light');
 			document.documentElement.dataset.theme = theme;
+            document.documentElement.dataset.mode = theme;
 			document.documentElement.lang = locale === 'zh-CN' ? 'zh-CN' : 'en';
 		}, [settings?.theme, settings?.locale]);
 
-		useEffect(() => {
+		// Follow the selected conversation, including model-picker and history changes.
+		// Coloring from global settings alone can leave a restored tab on the wrong palette.
+		React.useInsertionEffect(() => {
+			window.SidebarProviderStyles.apply(chatOnly && activeTab?.providerId === 'claude' ? 'claude' : 'codex');
+		}, [activeTab?.providerId]);
+
+		useLayoutEffect(() => {
 			activeTabIdRef.current = actualActiveTabId;
 		}, [actualActiveTabId]);
 
@@ -15986,31 +16277,11 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 			mcpServersRef.current = mcpServers;
 		}, [mcpServers]);
 
-		function setAutoScroll(value) {
-			autoScrollRef.current = value;
-			setAutoScrollEnabled(value);
-		}
-
-		function shouldStickMessagesToBottom(tab = null) {
-			if ((settingsRef.current || settings).enableAutoScroll === false) return false;
-			const currentTab = tab || (tabsRef.current || []).find((item) => item.id === activeTabIdRef.current);
-			return autoScrollRef.current || currentTab?.isStreaming === true;
-		}
-
-		function setMessagesScrollToBottom() {
-			const messagesEl = messagesRef.current;
-			if (!messagesEl || !shouldStickMessagesToBottom()) return false;
-			messagesEl.scrollTop = messagesEl.scrollHeight;
-			return true;
-		}
-
-		function scheduleMessagesScrollToBottom() {
-			if (!messagesRef.current || !shouldStickMessagesToBottom() || bottomScrollFrameRef.current) return;
-			bottomScrollFrameRef.current = window.requestAnimationFrame(() => {
-				bottomScrollFrameRef.current = 0;
-				setMessagesScrollToBottom();
-			});
-		}
+        function setAutoScroll(value) {
+            autoScrollRef.current = value;
+            setAutoScrollEnabled(value);
+            scrollControllerRef.current?.setFollowing(value);
+        }
 
 		function stopKeyboardScroll() {
 			scrollDirectionRef.current = null;
@@ -16021,6 +16292,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 		}
 
 		function startKeyboardScroll(direction) {
+            if (direction === 'up') setAutoScroll(false);
 			if (scrollDirectionRef.current === direction) return;
 			stopKeyboardScroll();
 			scrollDirectionRef.current = direction;
@@ -16186,9 +16458,6 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 			if (!activeTabId && tabs[0]) setActiveTabId(tabs[0].id);
 		}, [activeTabId, tabs]);
 
-		useEffect(() => {
-			setAutoScroll(settings.enableAutoScroll !== false);
-		}, [actualActiveTabId, settings.enableAutoScroll]);
 
 		useEffect(() => {
 			const handleKeyUp = (event) => {
@@ -16209,91 +16478,34 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 			return () => document.removeEventListener('click', closeHistory);
 		}, [historyVisible]);
 
-		useEffect(() => {
-			const messagesEl = messagesRef.current;
-			if (!messagesEl) return undefined;
-			const clearReEnableTimer = () => {
-				if (!reEnableScrollTimerRef.current) return;
-				window.clearTimeout(reEnableScrollTimerRef.current);
-				reEnableScrollTimerRef.current = null;
-			};
-			const handleScroll = () => {
-				if (settings.enableAutoScroll === false) {
-					clearReEnableTimer();
-					setAutoScroll(false);
-					return;
-				}
-				const currentTab = (tabsRef.current || []).find((tab) => tab.id === activeTabIdRef.current);
-				if (currentTab?.isStreaming) {
-					clearReEnableTimer();
-					setAutoScroll(true);
-					return;
-				}
-				const isAtBottom = messagesEl.scrollHeight - messagesEl.scrollTop - messagesEl.clientHeight <= 20;
-				if (!isAtBottom) {
-					clearReEnableTimer();
-					setAutoScroll(false);
-					return;
-				}
-				if (!autoScrollRef.current && !reEnableScrollTimerRef.current) {
-					reEnableScrollTimerRef.current = window.setTimeout(() => {
-						reEnableScrollTimerRef.current = null;
-						if (messagesEl.scrollHeight - messagesEl.scrollTop - messagesEl.clientHeight <= 20) {
-							setAutoScroll(true);
-						}
-					}, 150);
-				}
-			};
-			messagesEl.addEventListener('scroll', handleScroll, { passive: true });
-			handleScroll();
-			return () => {
-				clearReEnableTimer();
-				messagesEl.removeEventListener('scroll', handleScroll);
-			};
-		}, [actualActiveTabId, settings.enableAutoScroll]);
+        useLayoutEffect(() => {
+            const node = messagesRef.current;
+            if (!node) return undefined;
+            const enabled = settings.enableAutoScroll !== false;
+            const settingChanged = enabled !== scrollSettingRef.current;
+            scrollSettingRef.current = enabled;
+            const top = conversationScrollRef.current[actualActiveTabId];
+            const following = enabled && (settingChanged || (conversationFollowingRef.current[actualActiveTabId] ?? top === undefined));
+            const controller = new window.SidebarTranscriptScroll(node, {
+                following, top,
+                onPosition: position => { conversationScrollRef.current[actualActiveTabId] = position; },
+                onChange: state => {
+                    autoScrollRef.current = state.following;
+                    setAutoScrollEnabled(state.following);
+                    setShowScrollToBottom(state.showButton);
+                },
+            });
+            scrollControllerRef.current = controller;
+            return () => {
+                conversationFollowingRef.current[actualActiveTabId] = controller.following;
+                controller.destroy();
+                if (scrollControllerRef.current === controller) scrollControllerRef.current = null;
+            };
+        }, [actualActiveTabId, settings.enableAutoScroll]);
 
-		useLayoutEffect(() => {
-			if (!messagesRef.current || !shouldStickMessagesToBottom(activeTab)) return undefined;
-			setAutoScroll(true);
-			setMessagesScrollToBottom();
-			scheduleMessagesScrollToBottom();
-			return undefined;
-		}, [actualActiveTabId, activeTab?.messages, activeTab?.isStreaming, settings.enableAutoScroll]);
-
-		useEffect(() => {
-			const messagesEl = messagesRef.current;
-			if (!messagesEl || settings.enableAutoScroll === false) return undefined;
-			let resizeObserver = null;
-			const observeChildren = () => {
-				if (!resizeObserver) return;
-				resizeObserver.observe(messagesEl);
-				Array.from(messagesEl.children || []).forEach((child) => resizeObserver.observe(child));
-			};
-			const handleContentChange = () => {
-				observeChildren();
-				scheduleMessagesScrollToBottom();
-			};
-			if (typeof ResizeObserver === 'function') {
-				resizeObserver = new ResizeObserver(handleContentChange);
-				observeChildren();
-			}
-			const mutationObserver = typeof MutationObserver === 'function'
-				? new MutationObserver(handleContentChange)
-				: null;
-			mutationObserver?.observe(messagesEl, { childList: true, subtree: true, characterData: true });
-			handleContentChange();
-			return () => {
-				mutationObserver?.disconnect();
-				resizeObserver?.disconnect();
-			};
-		}, [actualActiveTabId, settings.enableAutoScroll]);
-
-		useEffect(() => () => {
-			if (bottomScrollFrameRef.current) {
-				window.cancelAnimationFrame(bottomScrollFrameRef.current);
-				bottomScrollFrameRef.current = 0;
-			}
-		}, []);
+        useLayoutEffect(() => {
+            scrollControllerRef.current?.flush();
+        }, [activeTab?.messages, activeTab?.isStreaming]);
 
 		useEffect(() => {
 			if (resumeVisible && input) setResumeVisible(false);
@@ -16611,8 +16823,9 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 				const runtimePatch = {
 					workspace: hasUrlWorkspaceOverride() ? current.workspace : (state.settings.workspace || current.workspace),
 					llmProviderMode: 'native-cli',
-					effort: normalizeSidebarEffort(state.settings.effort ?? current.effort),
+					effort: chatOnly ? current.effort : normalizeSidebarEffort(state.settings.effort ?? current.effort),
 					sidebarFontSize: state.settings.sidebarFontSize ?? current.sidebarFontSize,
+						enableAutoTitleGeneration: state.settings.enableAutoTitleGeneration ?? current.enableAutoTitleGeneration,
 					openaiModel: state.settings.openaiModel ?? current.openaiModel,
 					codexPath: state.settings.codexPath ?? current.codexPath,
 					claudePath: state.settings.claudePath ?? current.claudePath,
@@ -16621,7 +16834,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 					codexCustomModels: state.settings.codexCustomModels ?? current.codexCustomModels,
 					claudeHiddenCommands: state.settings.claudeHiddenCommands ?? current.claudeHiddenCommands,
 					codexHiddenCommands: state.settings.codexHiddenCommands ?? current.codexHiddenCommands,
-						...(['codex', 'claude'].includes(current.runtimeMode) ? { model: state.settings.model || current.model } : {}),
+						...(!chatOnly && ['codex', 'claude'].includes(current.runtimeMode) ? { model: state.settings.model || current.model } : {}),
 					};
 					const next = normalizeSidebarSettings({ ...current, ...runtimePatch });
 					const merged = providerAssetsHaveAny(providerAssets) && stateAssetsMatchWorkspace
@@ -16731,7 +16944,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 					setSettings((current) => {
 						const next = normalizeSidebarSettings({
 							...current,
-							effort: event.settings.effort ?? current.effort,
+							effort: chatOnly ? current.effort : (event.settings.effort ?? current.effort),
 						codexPath: event.settings.codexPath ?? current.codexPath,
 						claudePath: event.settings.claudePath ?? current.claudePath,
 						});
@@ -16752,6 +16965,14 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 							status: 'ready',
 							detail: event.detail || 'Codex sessions invalidated',
 						});
+					}
+					return;
+				}
+				if (event.type === 'native-queue-idle') {
+					const tab = tabsRef.current.find(item => item.runtimeThreadId === event.threadId);
+					if (tab) {
+						setTabs(current => updateTab(current, tab.id, item => ({ ...item, isStreaming: false, nativeQueueWaiting: false })));
+						if (runtimeTabIdRef.current === tab.id) runtimeTabIdRef.current = null;
 					}
 					return;
 				}
@@ -16860,15 +17081,18 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 					return;
 				}
 				if (event.type === 'turn-started') {
+					if (event.nativeQueued) runtimeTabIdRef.current = targetTabId;
 					setRuntimeStatus({ status: 'running', detail: event.turnId || 'Turn started' });
 					appendToTab(targetTabId, (tab) => {
-						const next = updateLastAssistant(tab, (message) => ({
+						const prepared = event.nativeQueued ? { ...tab, runtimeTurnId: event.turnId, awaitingNativeQueuedUser: true,
+							messages: [...tab.messages, assistantMessageWithRuntimeWaiting(tab.providerId)] } : tab;
+						const next = updateLastAssistant(prepared, (message) => ({
 							...message,
 							runtimeTurnId: event.turnId || message.runtimeTurnId || null,
 							runtimeThreadId: event.threadId || tab.runtimeThreadId || message.runtimeThreadId || null,
 							runtimeProviderId: tab.runtimeProviderId || tab.providerId || null,
 						}));
-						return { ...next, isStreaming: true };
+						return { ...next, isStreaming: true, nativeQueueWaiting: false };
 					});
 					return;
 				}
@@ -16935,7 +17159,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 						const withChunks = applyRuntimeChunksToTab(tab, queuedChunks);
 						const withoutWaiting = removeRuntimeWaitingBlocksFromLastAssistant(withChunks);
 						const completed = updateLastAssistant(withoutWaiting, (message) => completeRuntimeAssistantMessage(message, event));
-						const doneTab = { ...completed, isStreaming: false };
+						const doneTab = { ...completed, isStreaming: event.nativeQueuePending === true, nativeQueueWaiting: event.nativeQueuePending === true, needsAttention: targetTabId !== activeTabIdRef.current };
 						if (lastAssistantHasRenderableRuntimeContent(doneTab)) {
 							return doneTab;
 						}
@@ -16969,7 +17193,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 							});
 						});
 					}, 0);
-					runtimeTabIdRef.current = null;
+					if (!event.nativeQueuePending) runtimeTabIdRef.current = null;
 				}
 			});
 		}, [actualActiveTabId]);
@@ -17413,11 +17637,46 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 		function createTab() {
 			setTabs((current) => {
 				if (current.length >= configuredMaxTabs) return current;
-				const next = createEmptyTab(current.length + 1, settings);
+				const next = createEmptyTab(Math.max(0, ...current.map(tab => tab.index || 0)) + 1, settingsRef.current || settings);
 				setActiveTabId(next.id);
 				return [...current, next];
 			});
 		}
+
+        function openWorkSample(sampleId) {
+            const sample = window.SidebarSamples?.make(sampleId, { userMessage, assistantMessage });
+            if (!sample) return false;
+            const current = tabsRef.current;
+            const preview = current.find(tab => tab.sampleId && !tab.isStreaming);
+            if (!preview && current.length >= configuredMaxTabs) {
+                setRuntimeStatus({ detail: '请先关闭一个空闲会话，再打开工作样例。' });
+                return false;
+            }
+            const next = { ...createEmptyTab(current.length + 1, settingsRef.current || settings),
+                title: '样例 · ' + sample.title, sampleId, messages: sample.messages,
+                ...(preview ? { id: preview.id, index: preview.index } : {}),
+            };
+            setTabs(items => preview ? items.map(tab => tab.id === preview.id ? next : tab) : [...items, next]);
+            setActiveTabId(next.id); setAutoScroll(false);
+            window.requestAnimationFrame(() => { if (messagesRef.current) messagesRef.current.scrollTop = 0; });
+            return true;
+        }
+
+        function answerWorkSample(blockId, value) {
+            const choices = { 'allow-always': '允许此会话', implement: '执行方案', cancel: '暂不执行', revise: '调整方案', allow: '允许这一次', deny: '拒绝' };
+            const block = tabsRef.current.find(tab => tab.id === actualActiveTabId)?.messages.flatMap(message => message.contentBlocks).find(item => item.id === blockId);
+            const answer = value == null ? '已跳过' : typeof value === 'string' ? choices[value] || value
+                : value.type ? choices[value.type] || value.type
+                : Object.entries(value).map(([key, item]) => {
+                    const question = block?.questions?.find(question => question.id === key || question.question === key);
+                    const label = entry => question?.options?.find(option => option.value === entry)?.label || entry;
+                    return (question?.header || question?.question || key) + '：' + (Array.isArray(item) ? item.map(label).join('、') : label(item));
+                }).join('；');
+            setTabs(items => updateTab(items, actualActiveTabId, tab => !tab.sampleId ? tab : ({ ...tab,
+                messages: tab.messages.map(message => ({ ...message, contentBlocks: message.contentBlocks.map(block => block.id === blockId
+                    ? { id: block.id, type: 'text', content: '样例反馈：' + answer + '。未调用 CLI。' } : block) })),
+            })));
+        }
 
 		function countUserMessagesForForkTitle(messages) {
 			return (messages || []).filter((message) => (
@@ -17678,13 +17937,16 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 			}
 		}
 
-		function closeTab(tabId) {
+        async function closeTab(tabId) {
+            if (tabs.length <= 1) return;
+            pendingRuntimeTurnsRef.current = pendingRuntimeTurnsRef.current.filter(item => item[0] !== tabId);
 			const closingTab = tabs.find((tab) => tab.id === tabId);
-			if (closingTab?.isStreaming) {
+            if (chatOnly && closingTab?.isStreaming && !closingTab.isQueued) return;
+			if (closingTab?.isStreaming && !closingTab.isQueued) {
 				timersRef.current.forEach((timer) => window.clearTimeout(timer));
 				timersRef.current = [];
 				if (runtimeTabIdRef.current === tabId) {
-					api?.cancelTurn?.().catch(() => {});
+					await api?.cancelTurn?.().catch(() => {});
 					runtimeTabIdRef.current = null;
 				}
 			}
@@ -17736,7 +17998,16 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 			return { success: true, normalizedPath };
 		}
 
-		async function pickExternalContext() {
+		async function pickExternalContext(kind) {
+            if (kind && typeof kind === 'object' && Array.isArray(kind.files)) {
+                for (const file of kind.files) { const path = api?.filePath?.(file); if (path) attachMentionFile({ type: 'file', path }); }
+                return;
+            }
+            if (kind === 'files') {
+                const result = await api?.pickWorkspace?.({ kind: 'files' });
+                if (result?.ok) for (const path of result.paths || [result.path]) if (path) attachMentionFile({ type: 'file', path });
+                return;
+            }
 			let selectedPath = '';
 			if (typeof window.__claudianMockPickWorkspacePath === 'string') {
 				selectedPath = window.__claudianMockPickWorkspacePath;
@@ -17765,7 +18036,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 		}
 
 		function buildHistoryItem(tab) {
-			if (!tab?.messages?.length) return null;
+			if (tab?.sampleId || !tab?.messages?.length) return null;
 			const firstUser = tab.messages.find((message) => message.role === 'user');
 			const fallbackTitle = buildConversationTitle(settings, firstUser?.content || '', firstUser?.images || []);
 			const title = tab.title && tab.title !== 'New Chat' ? tab.title : fallbackTitle;
@@ -17780,6 +18051,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 				messages: tab.messages,
 				providerId: tab.providerId,
 				model: tab.model,
+				workspace: tab.workspace || previous?.workspace || settings.workspace || '',
 				runtimeSessionKey: tab.runtimeSessionKey || tab.id,
 				runtimeThreadId: tab.runtimeThreadId || null,
 				runtimeProviderId: tab.runtimeProviderId || tab.providerId || null,
@@ -17791,9 +18063,14 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 			};
 		}
 
-		function renameHistory(id, title) {
+		async function renameHistory(id, title) {
 			const nextTitle = String(title || '').trim();
 			if (!id || !nextTitle) return;
+			const entry = histories.find(item => item.id === id);
+			if (entry?.runtimeThreadId && entry.providerId === 'codex' && api?.codexAction) {
+				try { await window.CodexNativeUI.request(api, { action: 'rename', threadId: entry.runtimeThreadId, name: nextTitle }); }
+				catch (error) { setRuntimeStatus({ detail: error.message }); return; }
+			}
 			setHistories((current) => current.map((entry) => (
 				entry.id === id ? { ...entry, title: nextTitle, titleGenerationStatus: 'manual' } : entry
 			)));
@@ -17835,9 +18112,40 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 			setRuntimeStatus({ detail: 'Conversation deleted' });
 		}
 
+		async function openNativeCodexHistory(item) {
+			const existing = tabsRef.current.find(tab => tab.runtimeThreadId === item.id);
+			if (existing) { switchConversation(existing.id); setHistoryVisible(false); return; }
+			if (tabsRef.current.length >= configuredMaxTabs) throw new Error(`最多打开 ${configuredMaxTabs} 个会话，请先关闭一个空闲会话。`);
+			const page = await window.CodexNativeUI.request(api, { action: 'history', threadId: item.id, limit: 30 });
+			const next = createEmptyTab(tabsRef.current.length + 1, settings);
+			Object.assign(next, { title: item.name || item.preview?.slice(0, 64) || 'Codex 会话', providerId: 'codex',
+				model: page.thread?.model || settings.openaiModel || settings.model, workspace: page.thread?.cwd || item.cwd || settings.workspace, messages: window.CodexNativeUI.historyMessages(page),
+				historyId: `native-codex-${item.id}`, runtimeThreadId: item.id, runtimeSessionKey: `native-codex-${item.id}`,
+				runtimeProviderId: 'codex', nativeHistoryCursor: page.nextCursor || null });
+			setTabs(current => [...current, next]); setActiveTabId(next.id); setHistoryVisible(false);
+		}
+
+		async function loadOlderNativeTurns(tabId) {
+			const tab = tabsRef.current.find(item => item.id === tabId);
+			if (!tab?.nativeHistoryCursor || tab.nativeHistoryLoading) return;
+			setTabs(current => updateTab(current, tabId, item => ({ ...item, nativeHistoryLoading: true })));
+			try {
+				const page = await window.CodexNativeUI.request(api, { action: 'history', threadId: tab.runtimeThreadId, cursor: tab.nativeHistoryCursor, limit: 30 });
+				const messages = window.CodexNativeUI.historyMessages(page);
+				setAutoScroll(false);
+				setTabs(current => updateTab(current, tabId, item => ({ ...item, nativeHistoryCursor: page.nextCursor || null,
+					messages: [...messages.filter(message => !item.messages.some(old => old.id === message.id)), ...item.messages] })));
+			} catch (error) { setRuntimeStatus({ detail: error.message }); }
+			finally { setTabs(current => updateTab(current, tabId, item => ({ ...item, nativeHistoryLoading: false }))); }
+		}
+
 		function openHistory(id, inNewTab) {
 			const item = histories.find((entry) => entry.id === id);
 			if (!item) return;
+			if (item.nativeHistory && item.providerId === 'codex' && item.runtimeThreadId && !item.messages?.length) {
+				void openNativeCodexHistory({ id: item.runtimeThreadId, name: item.title }).catch(error => setRuntimeStatus({ detail: error.message }));
+				return;
+			}
 			const openTab = tabs.find((tab) => tab.historyId === id);
 			if (!inNewTab && openTab) {
 				setActiveTabId(openTab.id);
@@ -17855,6 +18163,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 					next.title = item.title;
 					next.messages = item.messages;
 					next.historyId = item.id;
+					next.workspace = item.workspace || item.cwd || '';
 					next.providerId = item.providerId || 'claude';
 					next.model = item.model || settings.model;
 					next.runtimeSessionKey = item.runtimeSessionKey || item.id;
@@ -17873,6 +18182,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 					messages: item.messages,
 					historyId: item.id,
 					providerId: item.providerId || tab.providerId,
+					workspace: item.workspace || item.cwd || '',
 					model: item.model || tab.model,
 					runtimeSessionKey: item.runtimeSessionKey || item.id,
 					runtimeThreadId: item.runtimeThreadId || null,
@@ -18439,6 +18749,30 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 		return modelToProvider(candidate, sourceSettings) === 'claude' ? providerRuntimeModelId('claude', candidate) : 'sonnet';
 		}
 
+        function switchConversation(id) {
+            setTabs(current => updateTab(current, id, tab => ({ ...tab, needsAttention: false })));
+            if (messagesRef.current) conversationScrollRef.current[actualActiveTabId] = messagesRef.current.scrollTop;
+            conversationFollowingRef.current[actualActiveTabId] = autoScrollRef.current;
+            setActiveTabId(id);
+        }
+        useLayoutEffect(() => {
+            if (actualActiveTabId) setTabs(current => updateTab(current, actualActiveTabId, tab => ({
+                ...tab, lastActivatedAt: Math.max(Date.now(), ...current.map(item => Number(item.lastActivatedAt) || 0)) + 1,
+            })));
+        }, [actualActiveTabId]);
+        useLayoutEffect(() => {
+            const next = window.SidebarConversationSettings.activate(settingsRef.current, activeTab);
+            settingsRef.current = next;
+            setSettings(next);
+            if (chatOnly) syncRuntimeSettingsFromToolbar(next, activeTab, 'conversation-activate');
+        }, [actualActiveTabId, activeTab?.providerId, activeTab?.model]);
+        useEffect(() => {
+            if (!chatOnly || runtimeTabIdRef.current || !pendingRuntimeTurnsRef.current.length) return;
+            const next = pendingRuntimeTurnsRef.current.shift();
+            if (!tabs.some(tab => tab.id === next[0])) return;
+            void startRuntimeTurn(...next);
+        }, [tabs]);
+
 		function getRuntimeSessionKey(tab) {
 			return tab?.runtimeSessionKey || tab?.historyId || tab?.id || makeId('runtime-session');
 		}
@@ -18495,6 +18829,9 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 		}
 
 		function buildRuntimeSettings(tab, sourceSettings = settings) {
+			sourceSettings = { ...sourceSettings, ...(tab?.conversationSettings || {}) };
+            if (chatOnly && tab?.workspace) sourceSettings = { ...sourceSettings, workspace: tab.workspace };
+            if (chatOnly && tab?.model) sourceSettings = { ...sourceSettings, model: tab.model, modelSelectionSource: 'user' };
 			const provider = resolveRuntimeProviderForTab(tab, sourceSettings);
 			const model = provider === 'codex' ? resolveCodexModel(tab, sourceSettings) : resolveClaudeModel(tab, sourceSettings);
 			const serviceTier = provider === 'codex' && isFastTierCodexModel(model) && sourceSettings.serviceTier === 'fast'
@@ -18534,6 +18871,13 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 		}
 
 		async function startRuntimeTurn(tabId, text, images, settingsOverride, turnContextOverride, historyOverride) {
+            if (chatOnly && runtimeTabIdRef.current && runtimeTabIdRef.current !== tabId) {
+                pendingRuntimeTurnsRef.current.push([tabId, text, images, settingsOverride || settingsRef.current, turnContextOverride, historyOverride]);
+                setTabs(current => updateTab(current, tabId, tab => ({ ...tab, isQueued: true, isStreaming: true })));
+                return;
+            }
+            setTabs(current => updateTab(current, tabId, tab => ({ ...tab, isQueued: false })));
+
 			if (!api?.startTurn) {
 				appendToTab(tabId, (tab) => ({
 					...appendBlockToLastAssistant(removeRuntimeWaitingBlocksFromLastAssistant(tab), {
@@ -18563,7 +18907,8 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 			});
 			try {
 				if (api.updateSettings) {
-					await api.updateSettings(runtimeSettings);
+					await toolbarSettingsQueueRef.current.whenIdle();
+                    await api.updateSettings(runtimeSettings);
 				}
 				const result = await api.startTurn({
 					text,
@@ -18719,11 +19064,15 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 		}
 
 		function startTurnWithText(tabId, text, imagesOverride, options = {}) {
+            if (tabId === activeTabIdRef.current) setAutoScroll((settingsRef.current || settings).enableAutoScroll !== false);
 			const effectiveSettings = options.settingsOverride || settingsRef.current || settings;
 			const trimmed = text.trim();
 			const sourceTab = (tabsRef.current || tabs).find((item) => item.id === tabId);
+			if (sourceTab?.runtimeArchived) { setRuntimeStatus({ detail: '会话已归档，请先恢复后继续' }); setHistoryVisible(true); return; }
 			const imagesForTurn = mergeTurnImages(Array.isArray(imagesOverride) ? imagesOverride : (sourceTab?.imageChips || []), []);
-			const contextChips = normalizeMessageContextChips(options.contextChips);
+			const fileContext = window.SidebarFileContext.create(trimmed, sourceTab?.fileChips);
+            const runtimeText = fileContext.text;
+            const contextChips = normalizeMessageContextChips([...(options.contextChips || []), ...fileContext.contextChips]);
 			const displayWasProvided = options.displayText !== undefined;
 			const displayTrimmed = String(displayWasProvided ? options.displayText : trimmed).trim();
 			const visibleUserText = displayTrimmed || (displayWasProvided ? (imagesForTurn.length ? '[image]' : 'PDF context') : (trimmed ? '' : '[image]'));
@@ -18738,7 +19087,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 			const isFirstMessage = !(sourceTab?.messages?.length);
 			setTabs((current) => updateTab(current, tabId, (draft) => ({
 				...draft,
-				messages: [...draft.messages, userMessage(trimmed || '[image]', imagesForTurn, { displayContent: visibleUserText, contextChips }), nextAssistant],
+				messages: [...draft.messages, userMessage(runtimeText || '[image]', imagesForTurn, { displayContent: visibleUserText, contextChips }), nextAssistant],
 				title: draft.messages.length ? draft.title : buildConversationTitle(effectiveSettings, visibleUserText || trimmed, imagesForTurn),
 				providerId: providerForTurn,
 				queuedText: '',
@@ -18747,15 +19096,16 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 				queuedImages: [],
 				queuedContext: null,
 				imageChips: [],
+                fileChips: [],
 				pdfSnippetChips: [],
 				runtimeResumeAt: null,
 				isStreaming: isProviderRuntime ? true : draft.isStreaming,
 			})));
 			if (isProviderRuntime) {
-				if (isFirstMessage && options.suppressAutoTitle !== true && effectiveSettings.enableAutoTitleGeneration !== false) {
+				if (isFirstMessage && !runtimeTabIdRef.current && options.suppressAutoTitle !== true && effectiveSettings.enableAutoTitleGeneration !== false) {
 					void runProviderTitleGeneration(tabId, visibleUserText || trimmed || '[image]', runtimeSettings);
 				}
-				void startRuntimeTurn(tabId, trimmed || '[image]', imagesForTurn, effectiveSettings, options.turnContextOverride, sourceTab?.messages || []);
+				void startRuntimeTurn(tabId, runtimeText || '[image]', imagesForTurn, effectiveSettings, options.turnContextOverride, sourceTab?.messages || []);
 				return;
 			}
 			runMockTurn(tabId, visibleUserText || trimmed, imagesForTurn, sourceTab?.providerId);
@@ -18790,6 +19140,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 		}, [tabs]);
 
 		function send(textOverride) {
+            if (tabsRef.current.find(tab => tab.id === actualActiveTabId)?.sampleId) return;
 			const text = String(textOverride ?? input).trim();
 			if (!actualActiveTabId) return;
 			const tab = tabs.find((item) => item.id === actualActiveTabId);
@@ -18851,6 +19202,12 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 
 		function cancel() {
 			const tab = tabs.find((item) => item.id === actualActiveTabId);
+            if (chatOnly && tab?.isQueued) {
+                pendingRuntimeTurnsRef.current = pendingRuntimeTurnsRef.current.filter(item => item[0] !== tab.id);
+                setTabs(current => updateTab(current, tab.id, draft => ({ ...createCancelledTabState(draft), isQueued: false })));
+                return;
+            }
+
 			const queuedTurnWasRestored = hasQueuedTurn(tab);
 			if (queuedTurnWasRestored) {
 				setInput((current) => restoreCancelledQueueInput(tab, current));
@@ -18888,7 +19245,8 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 		}
 
 		async function submitRuntimeApproval(block, payload, statusDetail = 'Submitting approval response') {
-			if (!block?.runtimeApprovalId || block.responsePending) return false;
+			if (!block?.runtimeApprovalId || block.responsePending || approvalResponsesInFlightRef.current.has(block.runtimeApprovalId)) return false;
+			approvalResponsesInFlightRef.current.add(block.runtimeApprovalId);
 			updateInlineBlock(block.id, (current) => ({
 				...current,
 				responsePending: true,
@@ -18935,6 +19293,9 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 					document.querySelector(`[data-inline-interaction-type="${block.type}"]`)?.querySelector('[tabindex="0"]')?.focus?.();
 				});
 				return false;
+			}
+			finally {
+				approvalResponsesInFlightRef.current.delete(block.runtimeApprovalId);
 			}
 		}
 
@@ -18993,17 +19354,21 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 				const accepted = await submitRuntimeApproval(block, { planDecision }, 'Submitting plan decision');
 				if (accepted && (planDecision.type === 'approve' || planDecision.type === 'approve-new-session')) {
 					const currentTab = (tabsRef.current || []).find((tab) => tab.id === actualActiveTabId) || activeTab;
-					const restoredMode = currentTab?.prePlanPermissionMode || 'normal';
-					setSettings((current) => ({ ...current, permissionMode: restoredMode }));
+					const claudeMode = currentTab?.providerId === 'claude' ? planDecision.targetMode : null;
+					const restoredMode = claudeMode ? (claudeMode === 'bypassPermissions' ? 'yolo' : 'normal') : currentTab?.prePlanPermissionMode || 'normal';
+					const modePatch = { permissionMode: restoredMode, ...(claudeMode ? { claudeSafeMode: claudeMode } : {}) };
+					settingsRef.current = { ...(settingsRef.current || settings), ...modePatch };
+					setSettings((current) => ({ ...current, ...modePatch }));
 					setTabs((current) => updateTab(current, actualActiveTabId, (tab) => ({
 						...tab,
 						prePlanPermissionMode: null,
+						conversationSettings: { ...(tab.conversationSettings || {}), ...modePatch },
 						pendingNewSessionPlan: planDecision.type === 'approve-new-session' ? planDecision.planContent : null,
 					})));
 				}
-				return;
+				return accepted;
 			}
-			if (decision?.type === 'implement' && (!block || block?.variant === 'post-plan')) {
+			if (decision?.type === 'implement' && block?.variant === 'post-plan') {
 				const currentTab = (tabsRef.current || []).find((tab) => tab.id === actualActiveTabId) || activeTab;
 				const restoredSettings = { ...(settingsRef.current || settings), permissionMode: currentTab?.prePlanPermissionMode || 'normal' };
 				settingsRef.current = restoredSettings;
@@ -19013,6 +19378,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 					setTabs((current) => updateTab(current, actualActiveTabId, (tab) => ({
 						...removeContentBlockById(tab, blockId),
 						prePlanPermissionMode: null,
+						conversationSettings: { ...(tab.conversationSettings || {}), permissionMode: restoredSettings.permissionMode },
 					})));
 					setRuntimeStatus({ status: 'running', detail: 'Plan accepted; implementation queued' });
 					schedule(() => startPostPlanImplementationWhenIdle(actualActiveTabId, restoredSettings), 50);
@@ -19021,18 +19387,18 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 				setTabs((current) => updateTab(current, actualActiveTabId, (tab) => ({
 					...removeContentBlockById(tab, blockId),
 					prePlanPermissionMode: null,
+					conversationSettings: { ...(tab.conversationSettings || {}), permissionMode: restoredSettings.permissionMode },
 				})));
-				schedule(() => startTurnWithText(actualActiveTabId, 'Implement the plan.', undefined, { settingsOverride: restoredSettings }), 0);
+				schedule(() => startTurnWithText(actualActiveTabId, planImplementationPrompt(block?.plan), undefined, { settingsOverride: restoredSettings }), 0);
 				return;
 			}
 			if (block?.variant === 'post-plan') {
 				removeInlineBlock(blockId);
 				if (decision?.type === 'revise') {
-					setInput(decision.text || '');
-					inputRef.current?.focus();
+					schedule(() => startTurnWithText(actualActiveTabId, decision.text || '请继续完善方案，暂不执行。'), 0);
 					return;
 				}
-				setSettings((current) => ({ ...current, permissionMode: activeTab?.prePlanPermissionMode || 'normal' }));
+				applyToolbarSettingsPatch({ permissionMode: activeTab?.prePlanPermissionMode || 'normal' }, 'plan-dismissed');
 				setRuntimeStatus({ detail: 'Plan approval cancelled' });
 				return;
 			}
@@ -19053,10 +19419,11 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 		}
 
 		function syncRuntimeSettingsFromToolbar(nextSettings, tabOverride, reason) {
+            if (chatOnly && runtimeTabIdRef.current) return;
 			if (!api?.updateSettings) return;
 			const runtimeTab = tabOverride || tabsRef.current.find((item) => item.id === activeTabIdRef.current) || activeTab;
 			const runtimePayload = isProviderRuntimeMode(nextSettings?.runtimeMode)
-				? buildRuntimeSettings(runtimeTab, nextSettings)
+				? buildRuntimeSettings(window.SidebarConversationSettings.runtimeTab(runtimeTab, nextSettings), nextSettings)
 				: {
 					workspace: nextSettings.workspace || '',
 					claudeCustomModels: nextSettings.claudeCustomModels || '',
@@ -19070,7 +19437,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 				serviceTier: runtimePayload.serviceTier,
 				permissionMode: runtimePayload.permissionMode,
 			});
-			api.updateSettings(runtimePayload).then((result) => {
+			toolbarSettingsQueueRef.current.enqueue(runtimePayload).then((result) => {
 				logRendererEvent('runtime.settings.sync.result', {
 					reason,
 					ok: result?.ok !== false,
@@ -19090,6 +19457,10 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 			const currentSettings = settingsRef.current || settings;
 			const patch = typeof updater === 'function' ? updater(currentSettings) : updater;
 			const nextSettings = normalizeSidebarSettings({ ...currentSettings, ...(patch || {}) });
+            if (chatOnly) setTabs(current => updateTab(current, actualActiveTabId, tab => ({ ...tab,
+                ...(patch?.permissionMode === 'plan' && currentSettings.permissionMode !== 'plan' ? { prePlanPermissionMode: currentSettings.permissionMode } : {}),
+                conversationSettings: { ...(tab.conversationSettings || {}), ...Object.fromEntries(['effort', 'permissionMode', 'claudeSafeMode', 'sandbox', 'serviceTier'].map(key => [key, nextSettings[key]])) } })));
+
 			settingsRef.current = nextSettings;
 			setSettings(nextSettings);
 			syncRuntimeSettingsFromToolbar(nextSettings, options.tabOverride, reason);
@@ -19446,6 +19817,11 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 		function updateSettings(next, options = {}) {
 			const previousTheme = normalizeTheme(settings?.theme);
 			const normalized = normalizeSidebarSettings(next);
+			if (chatOnly && activeTab) {
+				normalized.runtimeMode = activeTab.providerId;
+				normalized.provider = activeTab.providerId;
+				if (next.model === settings.model) normalized.model = activeTab.model;
+			}
 			normalized.locale = normalizeLocale(normalized.locale);
 			normalized.theme = normalizeTheme(normalized.theme);
 			normalized.sidebarFontSize = normalizeSidebarFontSize(normalized.sidebarFontSize);
@@ -19466,14 +19842,17 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 			settingsRef.current = normalized;
 			setSettings(normalized);
 			if (previousTheme !== normalized.theme) {
+                window.SidebarAppearance.saveTheme(window.localStorage, normalized.theme);
 				requestShellThemeChange(normalized.theme);
 			}
 			setTabs((current) => updateTab(current, actualActiveTabId, (tab) => ({
 				...tab,
 				model: normalized.model,
 				providerId: normalized.provider,
+				conversationSettings: { ...(tab.conversationSettings || {}), effort: normalized.effort,
+					permissionMode: normalized.permissionMode, claudeSafeMode: normalized.claudeSafeMode, sandbox: normalized.sandbox, serviceTier: normalized.serviceTier },
 			})));
-			if (api?.updateSettings) {
+			if (api?.updateSettings && (!chatOnly || !runtimeTabIdRef.current)) {
 				const runtimeModel = providerRuntimeModelId(normalized.provider, normalized.model);
 				const runtimeServiceTier = normalized.provider === 'codex' && isFastTierCodexModel(runtimeModel) && normalized.serviceTier === 'fast'
 					? 'fast'
@@ -19590,12 +19969,12 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 		}
 
 		const navContent = h('div', { className: 'claudian-input-nav-content' },
-			h(TabBadges, { tabs, activeTabId: actualActiveTabId, maxTabs: configuredMaxTabs, onSwitch: setActiveTabId, onClose: closeTab }),
+			!chatOnly ? h(TabBadges, { tabs, activeTabId: actualActiveTabId, maxTabs: configuredMaxTabs, onSwitch: setActiveTabId, onClose: closeTab }) : null,
 			h('div', { className: 'claudian-input-nav-actions' },
-				h('div', { className: `claudian-input-nav-btn claudian-new-tab-btn ${tabs.length >= configuredMaxTabs ? 'claudian-hidden' : ''}`, onClick: createTab, 'aria-label': 'New tab' }, h(Icon, { name: 'square-plus' })),
-				h('div', { className: 'claudian-input-nav-btn', onClick: newConversation, 'aria-label': 'New conversation' }, h(Icon, { name: 'square-pen' })),
+				h('button', { type: 'button', className: `claudian-input-nav-btn claudian-new-tab-btn ${tabs.length >= configuredMaxTabs ? 'claudian-hidden' : ''}`, onClick: createTab, title: normalizeLocale(settings.locale) === 'zh-CN' ? '新建标签页' : 'New tab', 'aria-label': 'New tab' }, h(Icon, { name: 'square-plus' })),
+				h('button', { type: 'button', className: 'claudian-input-nav-btn', onClick: newConversation, title: normalizeLocale(settings.locale) === 'zh-CN' ? '新对话' : 'New conversation', 'aria-label': 'New conversation' }, h(Icon, { name: 'square-pen' })),
 				h('div', { className: 'claudian-history-container' },
-					h('div', { className: 'claudian-input-nav-btn', onClick: (event) => { event.stopPropagation(); setHistoryVisible((value) => !value); }, 'aria-label': 'Chat history' }, h(Icon, { name: 'history' })),
+					h('button', { type: 'button', className: 'claudian-input-nav-btn', onClick: (event) => { event.stopPropagation(); setHistoryVisible((value) => !value); }, title: normalizeLocale(settings.locale) === 'zh-CN' ? '历史对话' : 'Chat history', 'aria-label': 'Chat history', 'aria-expanded': historyVisible }, h(Icon, { name: 'history' })),
 					h(HistoryMenu, {
 						visible: historyVisible,
 						histories,
@@ -19609,7 +19988,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 					}),
 				),
 				!chatOnly ? h('div', { className: 'claudian-input-nav-btn', onClick: () => setInlineEditOpen(true), 'aria-label': 'Inline edit' }, h(Icon, { name: 'pencil' })) : null,
-				h('div', { className: 'claudian-input-nav-btn', onClick: () => setDrawerOpen(true), 'aria-label': 'Settings' }, h(Icon, { name: 'settings' })),
+				h('button', { type: 'button', className: 'claudian-input-nav-btn', onClick: () => setDrawerOpen(true), title: normalizeLocale(settings.locale) === 'zh-CN' ? '设置' : 'Settings', 'aria-label': 'Settings' }, h(Icon, { name: 'settings' })),
 			),
 		);
 
@@ -19619,9 +19998,14 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 		const hostClass = settings.runtimeMode === 'mock' ? 'claudian-mock-host' : 'claudian-provider-host';
 		const sidebarFontSize = normalizeSidebarFontSize(settings.sidebarFontSize);
 		return h('div', {
-			className: `claudian-container claudian-standalone-host ${hostClass}`,
+			className: `claudian-container claudian-standalone-host ${hostClass} ${chatOnly && activeTab.providerId === 'claude' ? `cds-root ${normalizeTheme(settings.theme)} bg-page text-primary font-sans epitaxy-root epitaxy-chat-panel @container/tile-slot` : ''}`,
 			'data-provider': activeTab.providerId,
-			style: {
+			'data-claude-native': chatOnly && activeTab.providerId === 'claude' ? '' : undefined,
+			'data-theme': chatOnly && activeTab.providerId === 'claude' ? 'claude' : undefined,
+            'data-mode': chatOnly && activeTab.providerId === 'claude' ? normalizeTheme(settings.theme) : undefined,
+			lang: chatOnly && activeTab.providerId === 'claude' ? 'zh-Hans' : undefined,
+			'data-empty': activeTab.messages.length === 0 ? 'true' : 'false',
+			style: chatOnly && activeTab.providerId==='claude' ? undefined : {
 				'--claudian-sidebar-font-size': `${sidebarFontSize}px`,
 			},
 			onKeyDown: (event) => {
@@ -19632,7 +20016,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 					cancel();
 					return;
 				}
-				if (event.key === 'Tab' && event.shiftKey && !event.isComposing) {
+				if (event.key === 'Tab' && event.shiftKey && !event.isComposing && event.target.matches?.('textarea.claudian-input')) {
 					event.preventDefault();
 					const nextMode = settings.permissionMode === 'plan' ? (activeTab.prePlanPermissionMode || 'normal') : 'plan';
 					applyToolbarSettingsPatch({ permissionMode: nextMode }, 'permission-mode');
@@ -19643,20 +20027,39 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 				}
 			},
 			},
-			chatOnly ? h('nav', { className: 'claudian-chat-providers', 'aria-label': 'AI 对话引擎' },
-				['codex', 'claude'].map((providerId) => h('button', {
-					key: providerId, type: 'button', 'aria-pressed': activeTab.providerId === providerId,
-					disabled: activeTab.isStreaming, title: providerProductLabel(providerId),
-					onClick: () => {
-						if (activeTab.providerId === providerId) return;
-						const existing = tabs.find((tab) => tab.providerId === providerId);
-						if (existing) { setActiveTabId(existing.id); return; }
-						const model = getModelOptions(settings).find((option) => option.providerId === providerId);
-						changeModel(model?.selectionValue || encodeProviderPrefixedModel(providerId,
-							providerId === 'claude' ? 'sonnet' : (settings.openaiModel || DEFAULT_SETTINGS.model)));
-					},
-				}, h(ProviderIcon, { providerId, size: 16 }), h('span', null, providerId === 'codex' ? 'Codex' : 'Claude'))),
-			) : h(Header, { providerId: activeTab.providerId, sidebarMode, markdownNote: markdownNoteTab, settings }),
+			chatOnly ? h(window.AISidebarUI.Header, {
+				providerId: activeTab.providerId, busy: activeTab.isStreaming,
+				locale: normalizeLocale(settings.locale), workspace: settings.workspace,
+				api, histories, onOpenNativeHistory: openNativeCodexHistory,
+				onOpenHistory: id => {
+					const existing = tabsRef.current.find(tab => tab.historyId === id);
+					if (existing) { switchConversation(existing.id); return; }
+					if (tabsRef.current.length >= configuredMaxTabs) throw Error(`最多打开 ${configuredMaxTabs} 个会话，请先关闭一个空闲会话。`);
+					openHistory(id, true);
+				},
+                Icon, ProviderIcon, title: activeTab.messages.length ? activeTab.title : `新会话 ${tabs.findIndex(tab => tab.id === actualActiveTabId) + 1}`,
+                tabs, activeId: actualActiveTabId, onSwitch: switchConversation, onCloseTab: closeTab, maxTabs: configuredMaxTabs,
+				historyOpen: historyVisible,
+				onHistory: (event) => { event.stopPropagation(); setHistoryVisible(value => !value); },
+				onNew: createTab, onSettings: () => setDrawerOpen(true),
+				onProvider: (providerId) => {
+					if (activeTab.providerId === providerId) return;
+					const existing = window.SidebarConversationSettings.providerTab(tabsRef.current, providerId);
+					if (existing) { switchConversation(existing.id); return; }
+					if (tabsRef.current.length >= configuredMaxTabs) {
+                        setRuntimeStatus({ detail: '请先关闭一个空闲会话，再打开另一种 CLI。' });
+                        return;
+                    }
+                    const option = getModelOptions(settings).find(item => item.providerId === providerId);
+                    const model = option?.selectionValue || encodeProviderPrefixedModel(providerId,
+                        providerId === 'claude' ? 'sonnet' : (settings.openaiModel || DEFAULT_SETTINGS.model));
+                    const next = createEmptyTab(Math.max(0, ...tabsRef.current.map(tab => tab.index || 0)) + 1,
+                        { ...settingsRef.current, model, provider: providerId, runtimeMode: providerId });
+                    setTabs(current => [...current, next]);
+                    setActiveTabId(next.id);
+				},
+			}) : h(Header, { providerId: activeTab.providerId, sidebarMode, markdownNote: markdownNoteTab, settings }),
+
 			environment && Array.isArray(environment.items) && environment.items.some((item) => !item.ok) ? h('div', { className: 'claudian-environment-startup' },
 				h('span', null, `运行环境缺少：${environment.items.filter((item) => !item.ok).map((item) => item.name).join('、')}`),
 				h('button', { type: 'button', onClick: () => setDrawerOpen(true) }, '检查并安装'),
@@ -19679,6 +20082,9 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 						h('div', {
 							ref: messagesRef,
 							className: 'claudian-messages claudian-messages-focusable',
+                            id: chatOnly ? 'sidebar-conversation-panel' : undefined,
+                            role: chatOnly ? 'tabpanel' : undefined,
+                            'aria-label': chatOnly ? '当前会话内容' : undefined,
 							tabIndex: 0,
 							'data-auto-scroll': autoScrollEnabled ? 'true' : 'false',
 							onKeyDown: handleMessagesKeyDown,
@@ -19688,9 +20094,18 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 							},
 							onBlur: stopKeyboardScroll,
 						},
-							activeTab.messages.length === 0 ? h('div', { className: 'claudian-welcome' },
+							h(chatOnly && activeTab.providerId === 'claude' ? window.ClaudeSidebarUI.Column : React.Fragment, null,
+							activeTab.nativeHistoryCursor ? h('button', { type: 'button', className: 'cx-load-older', disabled: activeTab.nativeHistoryLoading,
+								onClick: () => loadOlderNativeTurns(activeTab.id) }, activeTab.nativeHistoryLoading ? '读取中…' : '加载更早的对话') : null,
+							activeTab.messages.length === 0 ? (chatOnly && activeTab.providerId === 'claude' ? null : chatOnly ? h(window.AISidebarUI.Welcome, {
+								providerId: activeTab.providerId, locale: normalizeLocale(settings.locale), Icon,
+								onPrompt: (prompt) => {
+									setInput(prompt);
+									window.requestAnimationFrame(() => inputRef.current?.focus());
+								},
+							}) : h('div', { className: 'claudian-welcome' },
 								h('div', { className: 'claudian-welcome-greeting' }, getGreeting(activeTab.providerId, settings)),
-							) : activeTab.messages.map((message, index) => {
+							)) : activeTab.messages.map((message, index) => {
 								const rewindContext = message.role === 'user'
 									? findRewindContext(activeTab.messages, index, activeTab.runtimeProviderId || activeTab.providerId)
 									: null;
@@ -19699,45 +20114,50 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 									&& Boolean(rewindContext?.hasResponse);
 								const canFork = message.role === 'user'
 									&& Boolean(rewindContext?.hasResponse && rewindContext?.prevAssistantId);
-								return h(Message, {
+								return h(chatOnly ? SharedConversationTurn : Message, {
 									key: message.id,
 									message,
 									providerId: activeTab.providerId,
 									settings,
-									canRewind,
-									canFork,
+									canRewind: !activeTab.sampleId && canRewind,
+									canFork: !activeTab.sampleId && canFork,
+                                    sampleId: activeTab.sampleId,
 									onRewind: rewindToMessage,
 									onFork: requestForkFromMessage,
-									onAskAnswer: handleAskAnswer,
-									onPermission: handlePermission,
-									onPlan: handlePlan,
+									onAskAnswer: activeTab.sampleId ? answerWorkSample : handleAskAnswer,
+									onPermission: activeTab.sampleId ? answerWorkSample : handlePermission,
+									onPlan: activeTab.sampleId ? answerWorkSample : handlePlan,
 									onAddToNote: chatOnly ? undefined : requestAppendToMarkdownNote,
 									hiddenInlineInteractionBlockId: pendingInlineInteraction?.blockId || '',
 								});
 							}),
+							),
 						),
-						h(NavigationSidebar, {
+                        chatOnly && showScrollToBottom ? h('button', {
+                            type: 'button', className: 'sidebar-scroll-to-bottom',
+                            'aria-label': '回到底部并继续自动滚动', title: '回到底部并继续自动滚动',
+                            onClick: () => setAutoScroll(true),
+                        }, h('svg', { viewBox: '0 0 24 24', width: 18, height: 18, fill: 'none', 'aria-hidden': true },
+                            h('path', { d: 'M12 5v14m-6-6 6 6 6-6', stroke: 'currentColor', strokeWidth: 1.75, strokeLinecap: 'round', strokeLinejoin: 'round' }))) : null,
+                        !chatOnly ? h(NavigationSidebar, {
 							messagesRef,
 							messages: activeTab.messages,
 							onReachedBottom: () => setAutoScroll(settings.enableAutoScroll !== false),
-						}),
+						}) : null,
 					),
 					hasStatusPanelContent(activeTab) ? h('div', { className: 'claudian-status-panel-container' }, h(StatusPanel, { tab: activeTab })) : null,
 				),
-				h(RuntimeCornerLoader, {
-					tab: activeTab,
-					runtimeStatus,
-					settings,
-				}),
+
 			),
 			h(CodexDownloadPanel, { download: codexDownloadStatus }),
 			h('div', { className: 'claudian-input-footer' },
 				h('div', { className: `claudian-active-input-slot ${pendingInlineInteraction ? 'claudian-active-input-slot-inline' : ''}` },
 					pendingInlineInteraction ? h(InlineInteractionSurface, {
 						pending: pendingInlineInteraction,
-						onAskAnswer: handleAskAnswer,
-						onPermission: handlePermission,
-						onPlan: handlePlan,
+						providerId: activeTab.providerId,
+						onAskAnswer: activeTab.sampleId ? answerWorkSample : handleAskAnswer,
+						onPermission: activeTab.sampleId ? answerWorkSample : handlePermission,
+						onPlan: activeTab.sampleId ? answerWorkSample : handlePlan,
 					}) : h(Composer, {
 						tab: activeTab,
 						settings,
@@ -19748,7 +20168,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 						onInstructionSubmit: (instruction) => openInstructionModal(instruction),
 						onCancel: cancel,
 						onFocusMessages: focusMessages,
-						navContent,
+						navContent: chatOnly ? null : navContent,
 						externalPaths,
 						mcpServers,
 						turnContext,
@@ -19798,9 +20218,11 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 							onRemoveCustomModel: removeCustomModel,
 							onEffort: (value) => applyToolbarSettingsPatch({ effort: normalizeSidebarEffort(value) }, 'effort'),
 							onServiceTier: () => applyToolbarSettingsPatch((current) => ({ serviceTier: current.serviceTier === 'fast' ? 'default' : 'fast' }), 'service-tier'),
+							onPermissionMode: mode => applyToolbarSettingsPatch(typeof mode === 'object' ? mode : { permissionMode: mode }, 'permission-mode'),
 							onPermission: () => applyToolbarSettingsPatch((current) => ({ permissionMode: current.permissionMode === 'yolo' ? 'normal' : 'yolo' }), 'permission-mode'),
 							onMode: () => applyToolbarSettingsPatch((current) => ({ mode: current.mode === 'agent' ? 'chat' : 'agent' }), 'mode'),
-							onAddContext: pickExternalContext,
+							onLoadModels: () => refreshProviderAssets(settings.workspace, { provider: activeTab.providerId, includeRuntimeModels: true }),
+                            onAddContext: pickExternalContext,
 							onRemoveContext: (path) => setExternalPaths((current) => current.filter((item) => item.path !== path)),
 							onTogglePersistent: (path) => setExternalPaths((current) => current.map((item) => item.path === path ? { ...item, persistent: !item.persistent } : item)),
 							onToggleMcp: (name) => {
@@ -19811,8 +20233,34 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 					}),
 				),
 			),
+
 			h(SettingsDrawer, {
+                conversationTools: activeTab.providerId === 'codex' ? h(ConversationTools, {
+							tab: activeTab,
+							settings,
+							usage: activeTab.usage,
+							externalPaths,
+							mcpServers,
+							onModel: changeModel,
+							onAddCustomModel: addCustomModel,
+							onRemoveCustomModel: removeCustomModel,
+							onEffort: (value) => applyToolbarSettingsPatch({ effort: normalizeSidebarEffort(value) }, 'effort'),
+							onServiceTier: () => applyToolbarSettingsPatch((current) => ({ serviceTier: current.serviceTier === 'fast' ? 'default' : 'fast' }), 'service-tier'),
+							onPermissionMode: mode => applyToolbarSettingsPatch(typeof mode === 'object' ? mode : { permissionMode: mode }, 'permission-mode'),
+							onPermission: () => applyToolbarSettingsPatch((current) => ({ permissionMode: current.permissionMode === 'yolo' ? 'normal' : 'yolo' }), 'permission-mode'),
+							onMode: () => applyToolbarSettingsPatch((current) => ({ mode: current.mode === 'agent' ? 'chat' : 'agent' }), 'mode'),
+							onLoadModels: () => refreshProviderAssets(settings.workspace, { provider: activeTab.providerId, includeRuntimeModels: true }),
+                            onAddContext: pickExternalContext,
+							onRemoveContext: (path) => setExternalPaths((current) => current.filter((item) => item.path !== path)),
+							onTogglePersistent: (path) => setExternalPaths((current) => current.map((item) => item.path === path ? { ...item, persistent: !item.persistent } : item)),
+							onToggleMcp: (name) => {
+								const next = (mcpServersRef.current || []).map((server) => server.name === name ? { ...server, enabled: !server.enabled } : server);
+								void updateMcpServers(next).catch(() => {});
+							},
+						}) : null,
+				providerId:activeTab.providerId,
 				open: drawerOpen,
+				onOpenSample: openWorkSample,
 				settings,
 				runtimeStatus,
 				runtimeLogPath,
@@ -19944,5 +20392,5 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 		};
 	}
 
-	ReactDOM.createRoot(document.getElementById('root')).render(h(App));
+	Promise.all([window.SidebarProviderStyles.ready,new Promise(resolve=>{if(window.ClaudeMenuSource)resolve();else window.addEventListener('claude-controls-ready',resolve,{once:true})})]).then(()=>ReactDOM.createRoot(document.getElementById('root')).render(h(App))).catch(error=>console.error(error));
 })();

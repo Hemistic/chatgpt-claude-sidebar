@@ -1,0 +1,59 @@
+/* Host placement only. Native menu, row, model panels and slider declarations
+   live in codex-controls.source.css and codex-themes.source.css. */
+[data-sidebar-provider="codex"] :is(body,[data-sidebar-surface="chat"]) {
+  --sidebar-canvas:var(--color-surface);--sidebar-surface:var(--color-background-composer-surface);--sidebar-raised:var(--color-surface-elevated-secondary);
+  --sidebar-hover:var(--color-background-primary-ghost-hover);--sidebar-text:var(--color-text);--sidebar-muted:var(--color-text-secondary);--sidebar-faint:var(--color-text-tertiary);--sidebar-border:var(--color-border);
+  --cx-canvas:var(--color-surface);--cx-composer:var(--color-background-composer-surface);--cx-text:var(--color-text);--cx-muted:var(--color-text-tertiary);--cx-line:var(--color-border);
+  color-scheme:light dark;
+}
+[data-sidebar-provider="codex"][data-theme="light"] {color-scheme:light;}
+[data-sidebar-provider="codex"][data-theme="dark"] {color-scheme:dark;}
+.cx-control-glyph {display:inline-flex;align-items:center;justify-content:center;flex:none;}
+[data-codex-control-surface].codex-source-popup {position:fixed;z-index:100;outline:none;}
+[data-codex-control-surface] :is(button,[role^="menuitem"],input) {font-family:inherit;}
+[data-codex-control-surface] [role^="menuitem"] {box-sizing:border-box;}
+[data-codex-control-surface] [role^="menuitem"]:focus-visible {outline:none;}
+[data-codex-control-surface] button {color:inherit;}
+[data-codex-control-surface] [data-model-picker-power-slider] input {appearance:none;background:transparent;opacity:0;}
+.codex-source-tools {min-width:0;}
+.codex-source-tools .sidebar-add-tools {border:0;padding:0;}
+[data-codex-control-surface].codex-source-slash {
+  position:absolute;inset:auto 0 calc(100% + 8px);z-index:45;min-width:0;box-sizing:border-box;
+}
+@media(max-width:390px) {.codex-source-permissions {max-width:120px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}}
+/* Adapt retained host conversation panels to native theme tokens. */
+[data-sidebar-provider="codex"] :is(.cx-code,.cx-activity-detail,.claudian-settings-drawer,.claudian-modal-card) {background:var(--color-surface-secondary);border-color:var(--color-border);color:var(--color-text);}
+[data-sidebar-provider="codex"] :is(.cx-code-heading,.cx-markdown th) {background:var(--color-surface-tertiary);color:var(--color-text-secondary);}
+[data-sidebar-provider="codex"] .cx-markdown :is(th,td) {border-color:var(--color-border);}
+[data-sidebar-provider="codex"] .cx-markdown :not(pre):not([data-code-block-source])>code {background:var(--color-background-primary-soft-alt);}
+[data-sidebar-provider="codex"] :is(.cx-activity-action,.cx-activity-summary,.cx-turn-heading) {color:var(--color-text-tertiary);}
+[data-sidebar-provider="codex"] :is(.sidebar-cli-button,.sidebar-logo-button):hover {background:var(--color-background-primary-ghost-hover);}
+[data-sidebar-provider="codex"] .sidebar-send-button {background:var(--color-background-composer-primary);color:var(--color-text-composer-primary);}
+[data-sidebar-provider="codex"] .sidebar-send-button:hover:not(:disabled) {background:var(--color-background-primary-solid-hover);}
+[data-sidebar-provider="codex"] .cg-user-bubble {background:var(--color-background-user-message);color:var(--color-text-user-message);}
+
+/* Native composerPermissions uses px-1.5, rounded-full and warning foreground. */
+
+[data-sidebar-provider="codex"] .codex-source-permissions[data-full-access="true"] {color:var(--color-text-warning);}
+
+/* Reserve equal gutters so showing a thumb never changes transcript geometry. */
+[data-sidebar-surface="chat"] .claudian-messages {
+  scrollbar-gutter: stable both-edges;
+  scrollbar-width: auto;
+  scrollbar-color: auto;
+  scroll-behavior: auto;
+}
+[data-sidebar-surface="chat"] .claudian-messages[data-auto-scroll="true"] { overflow-anchor: none; }
+[data-sidebar-surface="chat"] .sidebar-scroll-to-bottom {
+  position: absolute; z-index: 20; bottom: 12px; left: 50%; transform: translateX(-50%);
+  display: grid; place-items: center; width: 32px; height: 32px; padding: 0;
+  border: 1px solid var(--color-border); border-radius: 50%; cursor: pointer;
+  background: var(--color-surface); color: var(--color-text); box-shadow: 0 2px 6px #0002;
+}
+[data-sidebar-surface="chat"] .sidebar-scroll-to-bottom:hover { background: var(--color-surface-secondary); }
+
+[data-sidebar-surface="chat"] .claudian-messages::-webkit-scrollbar { width: 8px; height: 8px; background: transparent; }
+[data-sidebar-surface="chat"] .claudian-messages::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+[data-sidebar-surface="chat"] .claudian-messages::-webkit-scrollbar-track { background: transparent; }
+[data-sidebar-surface="chat"] .claudian-messages::-webkit-scrollbar-thumb { background: transparent; border: 2px solid transparent; background-clip: padding-box; border-radius: 999px; }
+[data-sidebar-surface="chat"] .claudian-messages:hover::-webkit-scrollbar-thumb { background-color: var(--color-border); }

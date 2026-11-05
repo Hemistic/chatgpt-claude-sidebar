@@ -1,8 +1,9 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, webUtils } = require('electron');
 const { createHostBridge: createSharedClaudianHostBridge } = require('./claudian-host-bridge');
 
 const CHANNELS = Object.freeze({
 	getState: 'claudian-sidebar:get-state',
+    codexAction: 'claudian-sidebar:codex-action',
 	getDiagnostics: 'claudian-sidebar:get-diagnostics',
 	updateSettings: 'claudian-sidebar:update-settings',
 	saveMcpServers: 'claudian-sidebar:save-mcp-servers',
@@ -32,6 +33,8 @@ const CHANNELS = Object.freeze({
 });
 
 const sidebarApi = {
+    filePath(file) { return webUtils.getPathForFile(file); },
+    codexAction(payload) { return ipcRenderer.invoke(CHANNELS.codexAction, payload || {}); },
 	environment(payload) {
 		return ipcRenderer.invoke('claudian-sidebar:environment', payload || {});
 	},
@@ -98,8 +101,8 @@ const sidebarApi = {
 	respondApproval(payload) {
 		return ipcRenderer.invoke(CHANNELS.respondApproval, payload || {});
 	},
-	pickWorkspace() {
-		return ipcRenderer.invoke(CHANNELS.pickWorkspace);
+	pickWorkspace(options) {
+		return ipcRenderer.invoke(CHANNELS.pickWorkspace, options || {});
 	},
 	openLogFolder() {
 		return ipcRenderer.invoke(CHANNELS.openLogFolder);

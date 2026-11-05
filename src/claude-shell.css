@@ -1,0 +1,643 @@
+/* Claude-only host geometry. Visual tokens and native controls come exclusively
+   from the installed Claude App. No Codex/ChatGPT palette or stylesheet applies. */
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+[data-claude-native] {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  font-family: var(--cds-font-sans);
+  font-size: var(--cds-font-size-body);
+  line-height: var(--cds-leading-body);
+}
+[data-claude-native] .claudian-tab-content-container,
+[data-claude-native] .claudian-tab-content,
+[data-claude-native] .claudian-messages-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  position: relative;
+}
+[data-claude-native] .claudian-messages {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  outline: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--cds-border-strong) transparent;
+}
+[data-claude-native] .claudian-input-footer {
+  flex: none;
+  min-width: 0;
+  padding-bottom: var(--cds-pad-sm);
+}
+[data-claude-native] .claudian-input-composer,
+[data-claude-native] .claudian-input-container,
+[data-claude-native] .claude-composer-host {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+[data-claude-native] .claudian-active-input-slot {
+  width: 100%;
+  min-width: 0;
+}
+[data-claude-native] .claudian-inline-interaction-slot {
+  padding: var(--cds-pad-md);
+  max-height: 75dvh;
+  overflow: auto;
+}
+[data-claude-native]
+  .claudian-inline-interaction-slot
+  > .epitaxy-approval-card {
+  margin-inline: auto;
+}
+[data-claude-native] .sidebar-composer-hint,
+[data-claude-native] .claudian-input-nav,
+[data-claude-native] .claudian-feature-guide-inline,
+[data-claude-native] .claudian-modal-overlay:empty {
+  display: none;
+}
+[data-claude-native] .claudian-hidden,
+[data-claude-native] .claudian-resume-dropdown:not(.visible),
+[data-claude-native] .claudian-mention-dropdown:not(.visible),
+[data-claude-native] .claudian-slash-dropdown:not(.visible),
+[data-claude-native] .claudian-drop-overlay:not(.visible),
+[data-claude-native] .claudian-mcp-add-dropdown:not(.is-visible) {
+  display: none;
+}
+[data-claude-native] .claudian-visible-flex {
+  display: flex;
+  gap: var(--cds-pad-sm);
+  align-items: center;
+}
+[data-claude-native] .claudian-resume-dropdown.visible {
+  position: absolute;
+  left: var(--cds-pad-md);
+  right: var(--cds-pad-md);
+  bottom: 100%;
+  z-index: 80;
+  max-height: 40dvh;
+  overflow: auto;
+  padding: var(--cds-pad-sm);
+  background: var(--cds-surface-2);
+  border: 1px solid var(--cds-border);
+  border-radius: var(--cds-radius);
+}
+[data-claude-native] .claudian-resume-item,
+[data-claude-native] .claudian-slash-item,
+[data-claude-native] .claudian-mention-item {
+  display: flex;
+  align-items: center;
+  gap: var(--cds-pad-sm);
+  padding: var(--cds-pad-sm);
+  border-radius: var(--cds-radius);
+  cursor: pointer;
+}
+[data-claude-native]
+  :is(.claudian-resume-item, .claudian-slash-item, .claudian-mention-item):is(
+    :hover,
+    .selected
+  ) {
+  background: var(--cds-alpha-2);
+}
+[data-claude-native] .claudian-drop-overlay.visible {
+  position: absolute;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--cds-border-strong);
+  border-radius: var(--cds-radius);
+  background: var(--cds-surface-2);
+  color: var(--cds-text-primary);
+}
+
+/* The specified circle/capsule is host navigation, rendered with Claude controls. */
+[data-claude-native] .sidebar-header {
+  position: relative;
+  z-index: 30;
+  box-sizing: border-box;
+  flex: 0 0 40px;
+  height: 40px;
+  min-height: 40px;
+  padding: 3px 10px;
+  color: var(--cds-text-primary);
+  font: var(--cds-font-size-body) / 20px var(--cds-font-sans);
+}
+[data-claude-native] .sidebar-header-main {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) 76px;
+  gap: 4px;
+  align-items: center;
+  height: 34px;
+  min-height: 34px;
+  position: relative;
+}
+[data-claude-native] .sidebar-current-title {
+  min-width: 0;
+  justify-self: stretch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  font-size: var(--cds-font-size-body);
+  font-weight: 500;
+  line-height: 20px;
+}
+[data-claude-native] .sidebar-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  height: 32px;
+}
+[data-claude-native] .sidebar-header .sidebar-icon-button {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 30px;
+  height: 30px;
+  min-height: 30px;
+  padding: 6px;
+  border-radius: var(--cds-radius);
+}
+[data-claude-native] .sidebar-provider-switch {
+  position: relative;
+  isolation: isolate;
+  width: 32px;
+  height: 32px;
+}
+[data-claude-native] .sidebar-provider-switch[data-expanded="true"] {
+  width: 68px;
+}
+[data-claude-native] .sidebar-provider-switch::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 32px;
+  width: 32px;
+  border-radius: 9999px;
+  background: var(--cds-alpha-2);
+  z-index: -1;
+  transition: width 150ms ease;
+}
+[data-claude-native] .sidebar-provider-switch[data-expanded="true"]::before {
+  width: 68px;
+}
+[data-claude-native] .sidebar-engine-menu {
+  position: relative;
+  width: 32px;
+  min-width: 0;
+  height: 32px;
+}
+[data-claude-native] .sidebar-logo-button {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 6px;
+  border: 0;
+  border-radius: 9999px;
+  list-style: none;
+  cursor: pointer;
+  color: var(--cds-text-primary);
+}
+[data-claude-native] .sidebar-logo-button::-webkit-details-marker {
+  display: none;
+}
+[data-claude-native] .sidebar-header .sidebar-provider-switch > .sidebar-cli-button {
+  position: absolute;
+  left: 0;
+  top: 0;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 6px;
+  border-radius: 9999px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+[data-claude-native] .sidebar-header .sidebar-provider-switch > .sidebar-cli-button[data-active="false"] {
+  left: 36px;
+}
+[data-claude-native]
+  .sidebar-provider-switch[data-expanded="true"]
+  .sidebar-cli-button {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+[data-claude-native]
+  .sidebar-provider-switch[data-expanded="true"]
+  .sidebar-logo-button {
+  opacity: 0;
+  pointer-events: none;
+}
+[data-claude-native] .sidebar-provider-switch [data-active="true"] {
+  color: var(--cds-text-primary);
+}
+[data-claude-native] .sidebar-header .claudian-provider-icon {
+  display: block;
+  flex: none;
+  width: 19px;
+  height: 19px;
+}
+
+/* Recent data is shared; its rows and surfaces are Claude components. */
+[data-claude-native] .sidebar-conversation-manager {
+  position: absolute;
+  left: 0;
+  top: 38px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  width: min(280px, calc(100vw - 20px));
+  max-height: min(640px, calc(100dvh - 64px));
+  box-sizing: border-box;
+  padding: var(--cds-pad-sm);
+  border: 1px solid var(--cds-border);
+  border-radius: var(--cds-radius);
+  background: var(--cds-surface-2);
+  box-shadow: var(--cds-shadow-popover);
+  color: var(--cds-text-primary);
+  overscroll-behavior: contain;
+}
+[data-claude-native] .sidebar-manager-topline {
+  display: flex;
+  align-items: center;
+  gap: var(--cds-pad-xs);
+  flex: none;
+  min-height: 32px;
+}
+[data-claude-native] .sidebar-manager-topline > span {
+  flex: 1;
+}
+[data-claude-native] .sidebar-recent-count,
+[data-claude-native] .sidebar-project-count {
+  font-size: var(--cds-font-size-caption);
+  color: var(--cds-text-muted);
+}
+[data-claude-native] .sidebar-project-count {
+  margin-inline-end: var(--cds-pad-xs);
+}
+[data-claude-native] .sidebar-history-search {
+  display: flex;
+  align-items: center;
+  gap: var(--cds-pad-sm);
+  flex: none;
+  min-height: 32px;
+  margin-block: var(--cds-pad-xs);
+  padding: 0 var(--cds-pad-sm);
+  border: 1px solid var(--cds-border);
+  border-radius: var(--cds-radius);
+  color: var(--cds-text-muted);
+}
+[data-claude-native] .sidebar-history-search input {
+  width: 100%;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: var(--cds-text-primary);
+  font: inherit;
+}
+[data-claude-native] .sidebar-manager-scroll {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--cds-border-strong) transparent;
+}
+[data-claude-native] .claude-sidebar-row {
+  width: 100%;
+  text-align: start;
+}
+[data-claude-native] .claude-sidebar-row > [class*="inline-flex"] {
+  width: 100%;
+}
+[data-claude-native] .claude-sidebar-row-content {
+  display: flex;
+  align-items: center;
+  gap: var(--cds-pad-sm);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+[data-claude-native] .claude-sidebar-row-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+[data-claude-native] .sidebar-workspace-group + .sidebar-workspace-group {
+  margin-block-start: var(--cds-pad-sm);
+}
+[data-claude-native] .sidebar-session-menu-close {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  min-height: 20px;
+  padding: 2px;
+  opacity: 0;
+}
+[data-claude-native] .claude-sidebar-row:hover .sidebar-session-menu-close {
+  opacity: 1;
+}
+[data-claude-native] .sidebar-session-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cds-text-accent);
+}
+[data-claude-native] .sidebar-manager-note {
+  padding: var(--cds-pad-sm);
+  color: var(--cds-text-muted);
+  font-size: var(--cds-font-size-caption);
+}
+
+/* Existing settings fields retain their state handlers, with a Claude-only skin. */
+[data-claude-native] .sw-settings-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 120;
+  background: var(--cds-page-bg);
+}
+[data-claude-native] .sw-settings-backdrop {
+  display: none;
+}
+[data-claude-native] .sw-settings {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--cds-page-bg);
+  color: var(--cds-text-primary);
+}
+[data-claude-native] .sw-settings-header {
+  display: flex;
+  align-items: center;
+  gap: var(--cds-pad-sm);
+  flex: none;
+  height: 40px;
+  box-sizing: border-box;
+  padding: var(--cds-pad-xs) var(--cds-pad-lg);
+  border-bottom: 1px solid var(--cds-border);
+}
+[data-claude-native] .sw-settings-back {
+  display: flex;
+  align-items: center;
+  gap: var(--cds-pad-xs);
+  color: var(--cds-text-primary);
+  font: inherit;
+}
+[data-claude-native] .sw-settings-category {
+  position: relative;
+  margin-inline-start: auto;
+}
+[data-claude-native] .sw-settings-category > summary {
+  display: flex;
+  align-items: center;
+  gap: var(--cds-pad-xs);
+  padding: var(--cds-pad-sm);
+  list-style: none;
+  cursor: pointer;
+}
+[data-claude-native]
+  .sw-settings-category:not([open])
+  > .sw-settings-category-menu {
+  display: none;
+}
+[data-claude-native] .sw-settings-category-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  z-index: 150;
+  width: min(240px, calc(100vw - 40px));
+  padding: var(--cds-pad-sm);
+  background: var(--cds-surface-2);
+  border: 1px solid var(--cds-border);
+  border-radius: var(--cds-radius);
+  box-shadow: var(--cds-shadow-popover);
+}
+[data-claude-native] .sw-settings-search {
+  display: flex;
+  align-items: center;
+  gap: var(--cds-pad-sm);
+  padding: var(--cds-pad-sm);
+  margin-block-end: var(--cds-pad-sm);
+  border: 1px solid var(--cds-border);
+  border-radius: var(--cds-radius);
+}
+[data-claude-native] .sw-settings-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--cds-text-primary);
+  outline: 0;
+  font: inherit;
+}
+[data-claude-native] .sw-settings-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cds-pad-xs);
+}
+[data-claude-native] .sw-settings-nav button {
+  text-align: start;
+  padding: var(--cds-pad-sm);
+  border-radius: var(--cds-radius);
+  color: var(--cds-text-primary);
+}
+[data-claude-native] .sw-settings-nav button:hover,
+[data-claude-native] .sw-settings-nav button[aria-current="page"] {
+  background: var(--cds-alpha-2);
+}
+[data-claude-native] .sw-settings-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: var(--cds-pad-lg);
+}
+[data-claude-native] .sw-settings-page-title {
+  margin-block-end: var(--cds-pad-lg);
+}
+[data-claude-native] .sw-settings-page-title h3 {
+  font-size: var(--cds-font-size-heading);
+  font-weight: 600;
+}
+[data-claude-native] .sw-settings-page-title p,
+[data-claude-native] .setting-item-description,
+[data-claude-native] .sw-settings-autosave {
+  color: var(--cds-text-muted);
+  font-size: var(--cds-font-size-footnote);
+}
+[data-claude-native] .setting-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cds-pad-md);
+  padding-block: var(--cds-pad-md);
+  border-bottom: 1px solid var(--cds-border);
+}
+[data-claude-native] .setting-item-info {
+  flex: 1;
+  min-width: 140px;
+}
+[data-claude-native] .setting-item-control {
+  display: flex;
+  align-items: center;
+  gap: var(--cds-pad-sm);
+  max-width: 100%;
+}
+[data-claude-native] .sw-settings :is(input, textarea, select) {
+  max-width: 100%;
+  color: var(--cds-text-primary);
+  font: inherit;
+}
+[data-claude-native]
+  .sw-settings-fields
+  :is(input:not([type="checkbox"]):not([type="range"]), textarea, select) {
+  padding: var(--cds-pad-sm);
+  border: 1px solid var(--cds-border);
+  border-radius: var(--cds-radius);
+  background: var(--cds-alpha-1);
+}
+[data-claude-native] .sw-settings-fields :is(input, textarea, select):focus {
+  outline: 2px solid var(--cds-text-accent);
+  outline-offset: 2px;
+}
+[data-claude-native]
+  .sw-settings
+  :is(input[type="checkbox"], input[type="range"]) {
+  accent-color: var(--cds-fill-accent);
+}
+[data-claude-native] .sw-settings-fields textarea {
+  min-height: 5lh;
+  resize: vertical;
+}
+[data-claude-native] .sw-settings-fields button,
+[data-claude-native] .sw-settings-reset {
+  padding: var(--cds-pad-sm);
+  border: 1px solid var(--cds-border);
+  border-radius: var(--cds-radius);
+  background: var(--cds-alpha-1);
+  color: var(--cds-text-primary);
+  font: inherit;
+}
+[data-claude-native] .sidebar-debug-samples {
+  display: grid;
+  gap: var(--cds-pad-sm);
+}
+[data-claude-native] .sidebar-debug-samples button {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: var(--cds-pad-xs) var(--cds-pad-sm);
+  text-align: start;
+}
+[data-claude-native] .sidebar-debug-samples small {
+  grid-column: 2;
+  color: var(--cds-text-muted);
+  font-size: var(--cds-font-size-footnote);
+}
+[data-claude-native] .sw-settings-reset {
+  width: 100%;
+  margin-block-start: var(--cds-pad-md);
+}
+
+/* Context overlays use the Claude surface and typography, never legacy CSS. */
+[data-claude-native]
+  :is(
+    .claudian-dropdown,
+    .claudian-mention-dropdown,
+    .claudian-slash-dropdown
+  ) {
+  position: absolute;
+  bottom: 100%;
+  left: var(--cds-pad-md);
+  right: var(--cds-pad-md);
+  z-index: 80;
+  max-height: 40dvh;
+  overflow: auto;
+  padding: var(--cds-pad-sm);
+  border: 1px solid var(--cds-border);
+  border-radius: var(--cds-radius);
+  background: var(--cds-surface-2);
+}
+[data-claude-native] .claudian-file-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cds-pad-xs);
+  padding: var(--cds-pad-xs) var(--cds-pad-sm);
+  border: 1px solid var(--cds-border);
+  border-radius: var(--cds-radius);
+  font-size: var(--cds-font-size-caption);
+}
+[data-claude-native] .claudian-input-context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cds-pad-xs);
+}
+[data-claude-native] .claudian-file-chip-name {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-claude-native] .sidebar-provider-switch::before {
+    transition: none;
+  }
+}
+
+/* Independent settings form geometry, using native Claude control tokens. */
+[data-claude-native] .claudian-settings-field { display:flex; flex-direction:column; min-width:0; gap:var(--cds-pad-sm); margin-block-end:var(--cds-pad-lg); }
+[data-claude-native] .claudian-settings-field > :is(input,select,textarea) { box-sizing:border-box; width:100%; min-width:0; }
+
+/* Claude owns its scrollbar and return-to-live styling independently. */
+[data-claude-native] .claudian-messages {
+  scrollbar-gutter: stable both-edges;
+  scrollbar-width: auto;
+  scrollbar-color: auto;
+  scroll-behavior: auto;
+}
+[data-claude-native] .claudian-messages[data-auto-scroll="true"] { overflow-anchor: none; }
+[data-claude-native] .sidebar-scroll-to-bottom {
+  position: absolute; z-index: 20; bottom: 12px; left: 50%; transform: translateX(-50%);
+  display: grid; place-items: center; width: 32px; height: 32px; padding: 0;
+  border: 1px solid var(--cds-border); border-radius: 50%; cursor: pointer;
+  background: var(--cds-page-bg); color: var(--cds-text-primary); box-shadow: 0 2px 6px #0002;
+}
+[data-claude-native] .sidebar-scroll-to-bottom:hover { background: var(--cds-alpha-2); }
+
+[data-claude-native] .claudian-messages::-webkit-scrollbar { width: 8px; height: 8px; background: transparent; }
+[data-claude-native] .claudian-messages::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+[data-claude-native] .claudian-messages::-webkit-scrollbar-track { background: transparent; }
+[data-claude-native] .claudian-messages::-webkit-scrollbar-thumb { background: transparent; border: 2px solid transparent; background-clip: padding-box; border-radius: 999px; }
+[data-claude-native] .claudian-messages:hover::-webkit-scrollbar-thumb { background-color: var(--cds-border-strong); }

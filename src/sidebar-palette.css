@@ -1,0 +1,104 @@
+/* Independent UI tokens. Legacy aliases keep existing feature panels in sync. */
+:root,
+body.theme-light,
+body.theme-dark {
+  --sidebar-canvas: #ffffff;
+  --sidebar-surface: #f7f8f8;
+  --sidebar-raised: #ffffff;
+  --sidebar-hover: #edf0ef;
+  --sidebar-text: #202624;
+  --sidebar-muted: #68716d;
+  --sidebar-faint: #737c78;
+  --sidebar-border: #e4e8e6;
+  --sidebar-accent: #2c67c5;
+  --sidebar-accent-hover: #397bdb;
+  --sidebar-accent-rgb: 44, 103, 197;
+  --sidebar-accent-soft: #eaf1fc;
+  --sidebar-on-accent: #ffffff;
+  --sidebar-bubble: #f0f3f2;
+  --sidebar-shadow: 0 4px 20px rgb(0 0 0 / 5%);
+  --sidebar-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei UI', 'PingFang SC', sans-serif;
+  --font-text: var(--sidebar-font);
+  --font-interface: var(--sidebar-font);
+  --aif-font-ui: var(--sidebar-font);
+  --aif-font-editor: var(--sidebar-font);
+  --aif-bg: var(--sidebar-canvas);
+  --aif-surface: var(--sidebar-raised);
+  --aif-surface-raised: var(--sidebar-surface);
+  --aif-surface-hover: var(--sidebar-hover);
+  --aif-text: var(--sidebar-text);
+  --aif-text-muted: var(--sidebar-muted);
+  --aif-text-faint: var(--sidebar-faint);
+  --aif-border: var(--sidebar-border);
+  --aif-border-strong: color-mix(in srgb, var(--sidebar-text) 24%, transparent);
+  --aif-border-focus: var(--sidebar-accent);
+  --aif-accent: var(--sidebar-accent);
+  --aif-accent-rgb: var(--sidebar-accent-rgb);
+  --aif-accent-hover: var(--sidebar-accent-hover);
+  --aif-accent-soft: var(--sidebar-accent-soft);
+  --aif-on-accent: var(--sidebar-on-accent);
+  --aif-link: var(--sidebar-accent);
+  --aif-hover: var(--sidebar-hover);
+  --aif-active-hover: var(--sidebar-accent-soft);
+  --aif-shadow-floating: var(--sidebar-shadow);
+  --aif-shadow-strong: 0 18px 48px rgb(0 0 0 / 18%);
+  --aif-scrollbar-thumb: color-mix(in srgb, var(--sidebar-text) 15%, transparent);
+  --aif-scrollbar-thumb-visible: color-mix(in srgb, var(--sidebar-text) 24%, transparent);
+  --aif-scrollbar-thumb-hover: color-mix(in srgb, var(--sidebar-text) 36%, transparent);
+  --aif-code-bg: var(--sidebar-surface);
+  --aif-code-raised: var(--sidebar-raised);
+  --aif-code-gutter: var(--sidebar-hover);
+  --aif-code-border: var(--sidebar-border);
+  --aif-code-text: var(--sidebar-text);
+  --aif-code-muted: var(--sidebar-muted);
+  --aif-code-active: var(--sidebar-hover);
+  --aif-code-selection: color-mix(in srgb, var(--sidebar-accent) 22%, transparent);
+  --aif-inline-code: var(--sidebar-accent);
+  --aif-table-heading: var(--sidebar-surface);
+  --aif-table-stripe: color-mix(in srgb, var(--sidebar-text) 3%, transparent);
+  --aif-ui-secondary: var(--sidebar-surface);
+  --aif-ui-on-secondary: var(--sidebar-text);
+  --aif-ui-hover: var(--sidebar-hover);
+  --aif-ui-selected: var(--sidebar-accent-soft);
+  --aif-ui-inline-area: var(--sidebar-surface);
+  --aif-ui-inverse: var(--sidebar-text);
+  --aif-ui-on-inverse: var(--sidebar-canvas);
+  --aif-ui-outline: var(--sidebar-faint);
+  --aif-mermaid-node-fill: var(--sidebar-accent-soft);
+  --aif-mermaid-node-border: var(--sidebar-accent);
+  --aif-mermaid-surface: var(--sidebar-surface);
+  --aif-mermaid-node-text: var(--sidebar-text);
+  --aif-mermaid-line: var(--sidebar-muted);
+  --aif-mermaid-cluster-fill: var(--sidebar-surface);
+  --aif-mermaid-cluster-border: var(--sidebar-border);
+  --aif-mermaid-edge-label: var(--sidebar-raised);
+  --claudian-user-bubble-bg: var(--sidebar-bubble);
+  --claudian-user-bubble-border: transparent;
+}
+
+html[data-theme="dark"] body {
+  --sidebar-canvas: #181818;
+  --sidebar-surface: #363636;
+  --sidebar-raised: #282828;
+  --sidebar-hover: #3b3b3b;
+  --sidebar-text: #f3f3f3;
+  --sidebar-muted: #a0a0a0;
+  --sidebar-faint: #858585;
+  --sidebar-border: #3d3d3d;
+  --sidebar-accent: #2c67c5;
+  --sidebar-accent-hover: #397bdb;
+  --sidebar-accent-rgb: 44, 103, 197;
+  --sidebar-accent-soft: #263449;
+  --sidebar-on-accent: #ffffff;
+  --sidebar-bubble: #303030;
+  --sidebar-shadow: 0 6px 24px rgb(0 0 0 / 18%);
+}
+
+.claudian-container[data-provider] {
+  --claudian-brand: var(--sidebar-accent);
+  --claudian-brand-rgb: var(--sidebar-accent-rgb);
+  --claudian-brand-codex: var(--sidebar-accent);
+  --claudian-brand-claude: var(--sidebar-accent);
+  font-family: var(--sidebar-font);
+}
+

@@ -1,0 +1,42 @@
+{
+  "version": "26.1027.3384.0",
+  "kind": "installed compiled frontend",
+  "resources": [
+    {
+      "name": "b74e19ff7ff4.css",
+      "sha256": "add22f5a6ff93862827b6bba51ed6e4356708d8f99c2a6bdaca51993bc0df3ed"
+    },
+    {
+      "name": "d754c8cd8b21.css",
+      "sha256": "8699442f05bb69248b0c6f7672e216b29ee5ac71c65fe8782672151b5461a55b"
+    }
+  ],
+  "composerClasses": {
+    "ComposerLayoutRoot": "_ComposerLayoutRoot_1hyg8_2",
+    "ComposerLayoutFooter": "_ComposerLayoutFooter_1hyg8_2",
+    "ComposerLayoutAttachments": "_ComposerLayoutAttachments_1hyg8_2",
+    "ComposerLayoutReplyContext": "_ComposerLayoutReplyContext_1hyg8_2",
+    "ComposerLayoutBody": "_ComposerLayoutBody_1hyg8_2",
+    "animatedHeight": "_animatedHeight_1hyg8_2",
+    "AdaptiveFooterInput": "_AdaptiveFooterInput_1hyg8_2",
+    "ComposerLayoutInput": "_ComposerLayoutInput_1hyg8_2",
+    "ComposerAttachmentsScrollContainer": "_ComposerAttachmentsScrollContainer_1hyg8_2",
+    "SingleLineDictation": "_SingleLineDictation_1hyg8_2",
+    "AnimatedAdaptiveFooter": "_AnimatedAdaptiveFooter_1hyg8_2",
+    "DocumentComposerControls": "_DocumentComposerControls_1hyg8_2",
+    "ComposerLayoutFooterLabel": "_ComposerLayoutFooterLabel_1hyg8_2",
+    "ComposerModeSurface": "_ComposerModeSurface_1hyg8_2"
+  },
+  "components": [
+    "gOn",
+    "SOn",
+    "yOn",
+    "GDn"
+  ],
+  "declarationManifest": "codex-controls-source-manifest.json",
+  "adapterBoundaries": [
+    "CLI textarea and toolbar slots",
+    "body slot and footer slot arrangement",
+    "no voice or home expansion service"
+  ]
+}

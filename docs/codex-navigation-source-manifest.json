@@ -1,0 +1,168 @@
+{
+  "version": "26.1027.6604.0",
+  "declarations": [
+    {
+      "resource": "app-initial-fb51ee65d20a.js",
+      "name": "Tja",
+      "start": 6582581,
+      "end": 6585317,
+      "sha256": "6edcb24844782481aca45756354affa49d2d0d0b4a8dcf13a084917f4adac170"
+    },
+    {
+      "resource": "app-initial-fb51ee65d20a.js",
+      "name": "xja",
+      "start": 6582048,
+      "end": 6582395,
+      "sha256": "73f6ba072aa59d83ef1fa703c3729242107c38999034e4ba5b36f54d05b3f1ec"
+    },
+    {
+      "resource": "app-initial-fb51ee65d20a.js",
+      "name": "Cja",
+      "start": 6582436,
+      "end": 6582540,
+      "sha256": "d4c8dc219393df9474ae458a303106c149cc26fc96646707cb6fd56873833350"
+    },
+    {
+      "resource": "app-initial-fb51ee65d20a.js",
+      "name": "dMa",
+      "start": 6592164,
+      "end": 6594775,
+      "sha256": "b5763eab49680cac1f157646e7360798c18615848ca762241310e626404a57c4"
+    },
+    {
+      "resource": "app-initial-fb51ee65d20a.js",
+      "name": "aMa",
+      "start": 6590557,
+      "end": 6591962,
+      "sha256": "1d7e34d726eacd9ce33e332b1d87ef747dbf1e4f7aa6906dccd93fbda6da7f80"
+    },
+    {
+      "resource": "app-initial-fb51ee65d20a.js",
+      "name": "cMa",
+      "start": 6592048,
+      "end": 6592091,
+      "sha256": "9515ac3f2c0f1ad5aafe277ae01621898f7d75bd7818ad43b3dc62d7d5730301"
+    },
+    {
+      "resource": "app-initial-fb51ee65d20a.js",
+      "name": "sMa",
+      "start": 6592005,
+      "end": 6592048,
+      "sha256": "8b33f1b873f1a1fcec0c94344aac8112c1175215bb945d4dbb58eceaf72d23f0"
+    },
+    {
+      "resource": "app-initial-fb51ee65d20a.js",
+      "name": "oMa",
+      "start": 6591962,
+      "end": 6592005,
+      "sha256": "57ef4309f540a203410b8b573631914d11b1037e464a44b227e56f9311600b47"
+    },
+    {
+      "resource": "app-initial-fb51ee65d20a.js",
+      "name": "nMa",
+      "start": 6590243,
+      "end": 6590495,
+      "sha256": "bb282cd1cfeb660cfd4d8bd906e69de4aa738516fe01feba2f62aeca424e2303"
+    },
+    {
+      "resource": "app-initial-fb51ee65d20a.js",
+      "name": "Vja",
+      "start": 6586003,
+      "end": 6589535,
+      "sha256": "fc771e42e62a6c865c21ecb74583625a01e998f3156f64276c602161bfd198bd"
+    },
+    {
+      "resource": "app-initial-fb51ee65d20a.js",
+      "name": "Hja",
+      "start": 6589535,
+      "end": 6589788,
+      "sha256": "982f27c3180f6aca88d1903e744a251a6c7717bf7e2f7f036b01e3dc344cf11b"
+    },
+    {
+      "resource": "app-initial-fb51ee65d20a.js",
+      "name": "Uja",
+      "start": 6589788,
+      "end": 6589955,
+      "sha256": "a4cb3bbe3dd2721f84a40fd32454dd229054594d767abfe922bc490b0567995d"
+    },
+    {
+      "resource": "app-initial-fb51ee65d20a.js",
+      "name": "Wja",
+      "start": 6589955,
+      "end": 6590024,
+      "sha256": "5152141e0be322bf81447cca6baac6c89c3ee78cfb8a0f37f5f84fb78b055b94"
+    },
+    {
+      "resource": "app-primary-93b5541c5ac8.js",
+      "name": "QAn",
+      "start": 1742480,
+      "end": 1761179,
+      "sha256": "bbc4d98a9e9e4da8ceb1dfd7c533f98da01e069396866a81b932e3846ee9778b"
+    },
+    {
+      "resource": "app-primary-93b5541c5ac8.js",
+      "name": "ijn",
+      "start": 1761624,
+      "end": 1762945,
+      "sha256": "17007b3fe3bf081119d52d22f7def76afb1c33f3cb5ac2eeb2a16d5b8296ce94"
+    },
+    {
+      "resource": "app-primary-93b5541c5ac8.js",
+      "name": "ejn",
+      "start": 1761266,
+      "end": 1761297,
+      "sha256": "533acb92cce0f76d85469a7c2bc5b0265d4b7249cdfa3b79a7f444fa71a0a1f9"
+    },
+    {
+      "resource": "app-primary-93b5541c5ac8.js",
+      "name": "tjn",
+      "start": 1761297,
+      "end": 1761528,
+      "sha256": "592c59789be6f52335cd00626939cfac154a2a597a0a5d314914ac38754ebca2"
+    },
+    {
+      "resource": "app-primary-93b5541c5ac8.js",
+      "name": "njn",
+      "start": 1761528,
+      "end": 1761559,
+      "sha256": "34cb189989249d1aa94855245732df2fde98fa23926ac0d7a63d874d21b9939b"
+    },
+    {
+      "resource": "app-primary-93b5541c5ac8.js",
+      "name": "rjn",
+      "start": 1761559,
+      "end": 1761624,
+      "sha256": "748b6fd0dfc3ffcca4aff0e5bb53e9f25f0f550b7fcb948a091a36e23582c0d8"
+    }
+  ],
+  "unavailableAppServices": [
+    "NO",
+    "pjn",
+    "JAn",
+    "uK",
+    "ql",
+    "ny",
+    "YMe",
+    "Jy",
+    "djn",
+    "rK",
+    "nd",
+    "ojn",
+    "vjn",
+    "xZe",
+    "dD",
+    "fjn",
+    "$",
+    "ujn",
+    "Of",
+    "$An",
+    "ajn",
+    "ljn"
+  ],
+  "adapterBoundaries": [
+    "CLI histories and project grouping",
+    "local popup anchor instead of full app sidebar",
+    "host ResizeObserver and intl",
+    "optional cloud status, hover cards and archive are not enabled"
+  ]
+}

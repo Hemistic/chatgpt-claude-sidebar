@@ -1,0 +1,21 @@
+{
+  "version": "26.1023.6621.0",
+  "resources": [
+    "app-shared-398c891a59df.css",
+    "app-initial-161052524772.css",
+    "app-primary-4ccde6131b6d.css",
+    "app-theme-74be6a9cf7df.js",
+    "defaults-930c9f21f410.js"
+  ],
+  "themeFunction": "p(defaults.dark, dark).variables; isolated pure source function",
+  "electron": "34.5.8",
+  "chromium": "132.0.6834.210",
+  "surface": {
+    "background": "rgb(45, 45, 45)",
+    "border": "0.571429px solid rgba(255, 255, 255, 0.082)",
+    "color": "rgb(223, 223, 223)",
+    "radius": "20px",
+    "font": "13px"
+  },
+  "tokenCount": 889
+}

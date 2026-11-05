@@ -1,19 +1,88 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-codex-window-type="electron">
 <head>
 	<meta charset="UTF-8">
 	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: file:; font-src 'self' data: file:; connect-src 'self'; media-src 'self' data: blob: file:; frame-src 'self' file: blob: about:; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>AI Sidebar</title>
-	<link rel="stylesheet" href="./claudian-sidebar-vendor/katex/katex.min.css">
-	<link rel="stylesheet" href="./claudian-sidebar.css">
-	<link rel="stylesheet" href="./claudian-chat.css">
+	<link rel="stylesheet" href="./claudian-sidebar-vendor/katex/katex.min.css" data-provider-style="codex">
+	<link rel="stylesheet" href="./claudian-sidebar.css" data-provider-style="codex">
+	<link rel="stylesheet" href="./claudian-chat.css" data-provider-style="codex">
+	<link rel="stylesheet" href="./sidebar-palette.css" data-provider-style="codex">
+	<link rel="stylesheet" href="./sidebar-shell.css" data-provider-style="codex">
+	<link rel="stylesheet" href="./codex-conversation.css" data-provider-style="codex">
+	<link rel="stylesheet" href="./sidebar-workspace.css" data-provider-style="codex">
+	<link rel="stylesheet" href="./codex-native-ui.css" data-provider-style="codex">
+	<link rel="stylesheet" href="./chatgpt-composer.source.css" data-provider-style="codex">
+	<link rel="stylesheet" href="./chatgpt-surface.css" data-provider-style="codex">
+	<link rel="stylesheet" href="./chatgpt-layout.source.css" data-provider-style="codex">
+	<link rel="stylesheet" href="./codex-request.source.css" data-provider-style="codex">
+	<link rel="stylesheet" href="./codex-request.css" data-provider-style="codex">
+	<link rel="stylesheet" href="./codex-desktop-theme.source.css" data-provider-style="codex">
+	<link rel="stylesheet" href="./codex-approval.source.css" data-provider-style="codex">
+	<link rel="stylesheet" href="./claude-ui.source.css" data-provider-style="claude" media="not all">
+	<link rel="stylesheet" href="./claude-surface.css" data-provider-style="claude" media="not all">
+	<link rel="stylesheet" href="./sidebar-conversations.css" data-provider-style="codex">
+	<link rel="stylesheet" href="./claude-shell.css" data-provider-style="claude" media="not all">
+	<link rel="stylesheet" href="./codex-themes.source.css" data-provider-style="codex">
+	<link rel="stylesheet" href="./codex-controls.source.css" data-provider-style="codex">
+	<link rel="stylesheet" href="./codex-controls.css" data-provider-style="codex">
+	<script src="./sidebar-appearance.js"></script>
+	<link rel="stylesheet" href="./claude-controls.source.css" data-provider-style="claude" media="not all">
+	<link rel="stylesheet" href="./claude-math.source.css" data-provider-style="claude" media="not all">
+	<link rel="stylesheet" href="./codex-navigation.source.css" data-provider-style="codex">
+	<link rel="stylesheet" href="./codex-conversation-menu.css" data-provider-style="codex">
+	<link rel="stylesheet" href="./claude-conversation-menu.css" data-provider-style="claude" media="not all">
+	<script src="./sidebar-provider-styles.js"></script>
+	<script src="./layout-observer.js"></script>
 </head>
 <body class="theme-light" data-theme="light">
 	<div id="root"></div>
 	<script defer src="./claudian-sidebar-vendor/react.production.min.js"></script>
 	<script defer src="./claudian-sidebar-vendor/react-dom.production.min.js"></script>
 	<script defer src="./claudian-sidebar-vendor/katex/katex.min.js"></script>
+	<script defer src="./sidebar-samples.js"></script>
+	<script defer src="./sidebar-row.native.js"></script>
+	<script defer src="./sidebar-row.js"></script>
+	<script defer src="./sidebar-conversation-data.js"></script>
+	<script defer src="./sidebar-recent.js"></script>
+	<script defer src="./claude-conversation-menu.js"></script>
+	<script defer src="./codex-conversation-menu.js"></script>
+	<script defer src="./sidebar-header.js"></script>
+	<script defer src="./sidebar-shell.js"></script>
+	<script type="module" src="./claude-ui.native.js"></script>
+	<script defer src="./claude-editor-bridge.js"></script>
+	<script type="module" src="./claude-controls.native.js"></script>
+	<script type="module" src="./claude-navigation.native.js"></script>
+	<script defer src="./claude-controls.js"></script>
+	<script defer src="./claude-code-composer.js"></script>
+	<script defer src="./claude-deferred-turns.js"></script>
+	<script defer src="./claude-surface.js"></script>
+	<script defer src="./claude-shell.js"></script>
+	<script defer src="./chatgpt-surface.js"></script>
+	<script defer src="./codex-conversation.js"></script>
+	<script defer src="./codex-icons.source.js"></script>
+	<script defer src="./codex-controls.locale.js"></script>
+	<script defer src="./codex-controls-bindings.js"></script>
+	<script defer src="./codex-controls.native.js"></script>
+	<script defer src="./codex-navigation.native.js"></script>
+	<script defer src="./codex-permission-icons.source.js"></script>
+	<script defer src="./codex-permissions.native.js"></script>
+	<script defer src="./codex-composer-controls.js"></script>
+	<script defer src="./sidebar-workspace.js"></script>
+	<script defer src="./codex-native-ui.js"></script>
+	<script defer src="./codex-queue.js"></script>
+	<script defer src="./codex-request.js"></script>
+	<script defer src="./codex-approval-bindings.js"></script>
+	<script defer src="./codex-approval.native.js"></script>
+	<script defer src="./codex-approval.js"></script>
+	<script defer src="./codex-question.js"></script>
+	<script defer src="./codex-plan-bindings.js"></script>
+	<script defer src="./codex-plan.native.js"></script>
+	<script defer src="./sidebar-file-context.js"></script>
+	<script defer src="./sidebar-conversation-settings.js"></script>
+	<script defer src="./sidebar-scroll.js"></script>
 	<script defer src="./claudian-sidebar-react.js"></script>
 </body>
 </html>
+
