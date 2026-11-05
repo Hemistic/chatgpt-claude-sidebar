@@ -16738,6 +16738,25 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 				if (data.type === 'pdf-ai-shell-start-task') {
 					startShellTaskFromPayload(data.payload || {});
 				}
+				if (data.type === 'ai-sidebar:request-task') {
+					const payload = data.payload || {}, current = settingsRef.current || settings;
+					const reply = result => postMessageToHost({ type: 'ai-sidebar:task-accepted', payload: { id: payload.id, ...result } });
+					if (!runtimeStateLoaded) { reply({ retry: true }); return; }
+					if (shellTaskIdsRef.current.has(payload.id)) { reply({ ok: true }); return; }
+					const normalizePath = value => String(value || '').replace(/\\/g, '/').toLowerCase();
+					if (!payload.id || typeof payload.text !== 'string' || !payload.text.trim() || payload.text.length > 100000 || normalizePath(payload.workspace) !== normalizePath(current.workspace)) {
+						reply({ ok: false, error: '核查任务与当前项目不匹配，请重新发送。' }); return;
+					}
+					const target = tabsRef.current.find(tab => tab.id === activeTabIdRef.current);
+					if (!target || tabsRef.current.some(tab => tab.isStreaming) || runtimeTabIdRef.current) {
+						reply({ ok: false, error: 'AI 正在处理其他任务，请等它结束后再发送核查。' }); return;
+					}
+					shellTaskIdsRef.current.add(payload.id);
+					// Keep the current model, engine, permission mode and conversation.
+					// Never use the shell-task defaults that enable unrestricted writes.
+					startTurnWithText(target.id, payload.text, [], { suppressAutoTitle: true, turnContextOverride: { source: 'host-task', workspaceRootDir: current.workspace } });
+					reply({ ok: true });
+				}
 				if (data.type === 'pdf-ai-shell-fill-composer') {
 					fillComposerFromShellPayload(data.payload || {});
 				}
@@ -16801,7 +16820,7 @@ When an \`<editor_selection>\` or \`<editor_cursor>\` tag is present, use it to 
 					delete window.claudianSidebarContext;
 				}
 			};
-		}, [actualActiveTabId, tabs, turnContext]);
+		}, [actualActiveTabId, tabs, turnContext, runtimeStateLoaded]);
 
 		useEffect(() => {
 			let mounted = true;
