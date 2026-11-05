@@ -1,6 +1,6 @@
 <div align="center">
 
-# AI Sidebar
+# ChatGPT Claude Sidebar
 
 [English](README.md) · **简体中文**
 
@@ -18,7 +18,7 @@
 
 很多 AI 软件都会遇到同一组需求：做一个对话入口，接上模型与工具，管理多轮会话，再把权限审批、计划和执行结果显示清楚。
 
-**AI Sidebar 希望把这些重复工作沉淀为公共基础，让开发者把精力放回自己的产品。** 当前从独立 Electron 侧栏起步，接入真实的 Codex CLI 与 Claude Code，逐步完善可以被不同宿主软件复用的界面与运行时。
+**ChatGPT Claude Sidebar 希望把这些重复工作沉淀为公共基础，让开发者把精力放回自己的产品。** 当前从独立 Electron 侧栏起步，接入真实的 Codex CLI 与 Claude Code，逐步完善可以被不同宿主软件复用的界面与运行时。
 
 > 当前为开发预览。独立窗口、CLI 连接和现有 Electron 宿主桥接已实现；统一宿主 SDK 与更多软件的适配仍在建设中。
 
@@ -259,8 +259,8 @@ claude --version
 在仓库根目录执行：
 
 ```shell
-git clone https://github.com/Hemistic/ai-sidebar.git
-cd ai-sidebar
+git clone https://github.com/Hemistic/chatgpt-claude-sidebar.git
+cd chatgpt-claude-sidebar
 npm ci
 npm start
 ```
@@ -288,7 +288,7 @@ npm start -- --provider=claude --workspace="D:/Projects/my-app"
 ```js
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
-const sidebar = require('/path/to/ai-sidebar');
+const sidebar = require('/path/to/chatgpt-claude-sidebar');
 
 const entry = sidebar.sourcePath('claudian-sidebar.html');
 const runtime = sidebar.register(ipcMain, {
@@ -331,7 +331,7 @@ npm run test:live
 真实验收同时检查 CLI 事件、用量、实际渲染与截图；测试会话在检查后按专用工作区和会话 ID 清理。详细命令、目录说明和维护方法见 [开发文档](docs/development.md)。
 
 ```text
-ai-sidebar/
+chatgpt-claude-sidebar/
 ├── src/          界面、CLI 运行时、会话与宿主桥接
 ├── standalone/   独立窗口与真实交互验收
 ├── scripts/      启动、界面资源导入与校验

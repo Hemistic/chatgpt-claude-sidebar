@@ -1,6 +1,6 @@
 <div align="center">
 
-# AI Sidebar
+# ChatGPT Claude Sidebar
 
 **English** · [简体中文](README.zh-CN.md)
 
@@ -18,7 +18,7 @@ Build your product. Reuse the AI interaction layer.
 
 AI applications often need the same foundations: a conversation interface, model and tool connections, session management, permission requests, plans, and readable execution results.
 
-**AI Sidebar aims to make that work reusable, so developers can focus on their own products.** It starts with a standalone Electron sidebar connected to real Codex CLI and Claude Code workflows, and is being developed into a shared interface and runtime for different host applications.
+**ChatGPT Claude Sidebar aims to make that work reusable, so developers can focus on their own products.** It starts with a standalone Electron sidebar connected to real Codex CLI and Claude Code workflows, and is being developed into a shared interface and runtime for different host applications.
 
 > Development preview. The standalone window, CLI connections, and existing Electron host bridge are implemented. A unified host SDK and adapters for more applications are still in development.
 
@@ -259,8 +259,8 @@ claude --version
 From the repository root:
 
 ```shell
-git clone https://github.com/Hemistic/ai-sidebar.git
-cd ai-sidebar
+git clone https://github.com/Hemistic/chatgpt-claude-sidebar.git
+cd chatgpt-claude-sidebar
 npm ci
 npm start
 ```
@@ -288,7 +288,7 @@ An Electron host can register the runtime and load the sidebar page. The reposit
 ```js
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
-const sidebar = require('/path/to/ai-sidebar');
+const sidebar = require('/path/to/chatgpt-claude-sidebar');
 
 const entry = sidebar.sourcePath('claudian-sidebar.html');
 const runtime = sidebar.register(ipcMain, {
@@ -331,7 +331,7 @@ npm run test:live
 Real validation checks CLI events, usage, rendered output, and screenshots. After inspection, test conversations are removed by their dedicated workspace and session IDs. See the [development guide](docs/development.md) for commands, repository layout, and maintenance details.
 
 ```text
-ai-sidebar/
+chatgpt-claude-sidebar/
 ├── src/          Interface, CLI runtime, sessions, and host bridges
 ├── standalone/   Standalone window and real interaction validation
 ├── scripts/      Startup, UI-resource imports, and source checks
